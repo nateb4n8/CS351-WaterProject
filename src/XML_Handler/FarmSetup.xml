@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<farm>
+<stratum>
+<GilaSand>12</GilaSand>
+<GilaFineSandyLoam>15</GilaFineSandyLoam>
+<GilaLoam>12</GilaLoam>
+<GilaClayLoam>23</GilaClayLoam>
+<GilaClay>45</GilaClay>
+<RiverWash>34</RiverWash>
+<height>1</height>
+</stratum>
+<stratum>
+<GilaSand>5</GilaSand>
+<GilaFineSandyLoam>5</GilaFineSandyLoam>
+<GilaLoam>5</GilaLoam>
+<GilaClayLoam>5</GilaClayLoam>
+<GilaClay>5</GilaClay>
+<RiverWash>5</RiverWash>
+<height>3</height>
+</stratum>
+</farm>
