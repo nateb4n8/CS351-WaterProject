@@ -1,8 +1,11 @@
-﻿package topo;
+package topo;
 
 import cell.Cell;
 import cell.Farm;
 import cell.Point3D;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Random;
 
 /**
@@ -11,9 +14,9 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class Topography {
-	private static final double MAX_RELIEF    = 5; //meters. The most the topography over the entire grid is allowed to vary
-	private static final double TOLERANCE     = 0.5; //meters. Changes larger this amount will not be accepted
-  private static final int    SIZE          = 64; //decimeters. length and width
+	private static final double MAX_RELIEF    = 13; //meters. The most the topography over the entire grid is allowed to vary
+	private static final double TOLERANCE     = 0.75; //meters. Changes larger this amount will not be accepted
+	private static final int    SIZE          = 150; //decimeters. length and width
 	private static final Random rand          = new Random();
 
 
@@ -30,10 +33,31 @@ public class Topography {
 	 */
 	public static Farm createFarm(double latitude, double longitude) {
 		double[] minmax = {10.0, 0.0};
+		double[][] deviation;
 
 		//Generates a 2D array of doubles to correspond to heights of a specific i,j column. This is essentially the shape
 		// of the land that the program will run on. It's a random, but smooth, topography.
-		double[][] deviation = getDeviations(minmax);
+		//deviation = getDeviations(minmax);
+
+		ElevationData ed = new ElevationData(longitude, latitude);
+		deviation = ed.getElevations();
+
+		//For debugging. MATLAB matrix so I can call bar3(A) and see what my land looks like
+		//try {
+		//	PrintWriter out = new PrintWriter(new FileWriter("C:/Users/Max/Desktop/file.txt"));
+		//	out.print("A = [");
+		//	for(int j = 0; j < SIZE; j++) {
+		//		for(int i = 0; i < SIZE; i++) {
+		//			out.print((deviation[i][j]+25) + " ");
+		//		}
+		//		out.print("; ");
+		//	}
+		//	out.println("];");
+		//	out.close();
+		//	System.out.print("done");
+		//} catch(IOException e) {
+		//	e.printStackTrace();
+		//};
 
 		Cell[][][] grid = new Cell[SIZE][SIZE][126+(int)(minmax[1]*100)];
 
@@ -67,21 +91,21 @@ public class Topography {
 						}
 					}
 					else {
-					  double d = getDepth(i, j, k, deviation);
-					  if(d != -1)
-					  {
-					    grid[i][j][k] = new Cell(2500 + k, d, new Point3D(i, j, k));
-					    
-		          if(d == 0) {
-		            grid[i][j][k].setSurface(true);
-		          }
-		          else {
-		            grid[i][j][k].setSurface(false);
-		          } 
-					  }
-					  else {
-	            grid[i][j][k] = null;
-	          }
+						double d = getDepth(i, j, k, deviation);
+						if(d != -1)
+						{
+							grid[i][j][k] = new Cell(2500 + k, d, new Point3D(i, j, k));
+
+							if(d == 0) {
+								grid[i][j][k].setSurface(true);
+							}
+							else {
+								grid[i][j][k].setSurface(false);
+							}
+						}
+						else {
+							grid[i][j][k] = null;
+						}
 					}
 
 				}
@@ -172,9 +196,9 @@ public class Topography {
 				deviation[i][j] = (int)(100*deviation[i][j])/100.0;
 			}
 		}
-		
-    minmax[1] -= minmax[0];
-    minmax[0] = 0;
+
+		minmax[1] -= minmax[0];
+		minmax[0] = 0;
 
 		return deviation;
 	}
@@ -198,7 +222,7 @@ public class Topography {
 			depth += deviations[i][j] * 100;
 		}
 		else if(k >= 76 && k < 126) {
-		 	depth += 2395;
+			depth += 2395;
 			depth += (125-k);
 			depth += deviations[i][j] * 100;
 		}
