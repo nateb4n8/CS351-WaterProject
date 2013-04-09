@@ -13,7 +13,6 @@ import gui.WaterProjectGUI;
  */
 public class Main
 {
-//Test
   /**
    * @param args
    */
