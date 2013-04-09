@@ -3,6 +3,7 @@ package XML_Handler;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
@@ -52,30 +53,38 @@ public class XML_Handler{
 	private static final String GILACLAY = "GilaClay";
 	private static final String RIVERWASH = "RiverWash";
 
-	
-	public void save(Farm thefarm, String path) throws Exception
+	private static final int NRCELLX = 64;
+	private static final int NRCELLY = 64;
+	private static final String NULL = "null";
+	public static void save(Farm thefarm, String path) throws Exception
 	{
+		//System.out.println(thefarm);
 		Cell[][][] fm = thefarm.getGrid();
+		File_Handler garbage_out = new File_Handler("out",path);
 	    // Create a XMLOutputFactory
-	    XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+	    //XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 	    // Create XMLEventWriter
-	    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(new FileOutputStream(path));
+	    //XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(new FileOutputStream(path));
 	    // Create a EventFactory
-	    XMLEventFactory eventFactory = XMLEventFactory.newInstance();
-	    XMLEvent end = eventFactory.createDTD("\n");
+	    //XMLEventFactory eventFactory = XMLEventFactory.newInstance();
+	    //XMLEvent end = eventFactory.createDTD("\n");
 	    // Create and write Start Tag
-	    StartDocument startDocument = eventFactory.createStartDocument();
-	    eventWriter.add(startDocument);
+	    //StartDocument startDocument = eventFactory.createStartDocument();
+	    //eventWriter.add(startDocument);
 
 	    // Create farm open tag
-	    StartElement configStartElement = eventFactory.createStartElement("", "", "farm");
-	    eventWriter.add(configStartElement);
-	    eventWriter.add(end);
+	    //StartElement configStartElement = eventFactory.createStartElement("", "", "farm");
+	    //eventWriter.add(configStartElement);
+	    //eventWriter.add(end);
 	    // Write the farm-level nodes
-	    createNode(eventWriter, LATITUDE, Double.toString(thefarm.getLatitude()));
-	    createNode(eventWriter, LONGITUDE, Double.toString(thefarm.getLongitude()));
-	    createNode(eventWriter, RELIEF, Double.toString(thefarm.getRelief()));
-	    createNode(eventWriter, LAYERS, Integer.toString(fm.length));
+		garbage_out.put_double_data(thefarm.getLatitude());
+		garbage_out.put_double_data(thefarm.getLongitude());
+		garbage_out.put_double_data(thefarm.getRelief());
+		garbage_out.put_int_data(fm[0][0].length);
+	    //createNode(eventWriter, LATITUDE, Double.toString(thefarm.getLatitude()));
+	    //createNode(eventWriter, LONGITUDE, Double.toString(thefarm.getLongitude()));
+	    //createNode(eventWriter, RELIEF, Double.toString(thefarm.getRelief()));
+	    //createNode(eventWriter, LAYERS, Integer.toString(fm[0][0].length));
 
 	    for (Cell[][] xy : fm)
 	    {
@@ -83,149 +92,201 @@ public class XML_Handler{
 	    	{
 	    		for (Cell c : x)
 	    		{
+	    			if (c != null){
 	    			// create cell open tag
-	    		    configStartElement = eventFactory.createStartElement("", "", CELL);
-	    			eventWriter.add(configStartElement);
-	    			eventWriter.add(end);
+	    		    //configStartElement = eventFactory.createStartElement("", "", CELL);
+	    			//eventWriter.add(configStartElement);
+	    			//eventWriter.add(end);
 	    			// write nodes
+	    			garbage_out.put_double_data(c.getCellSize());
+	    			garbage_out.put_double_data(c.getHeight());
+	    			garbage_out.put_boolean(c.isSurface());
+	    			garbage_out.put_double_data(c.getDepth());
+	    			garbage_out.put_double_data(c.getWaterVolume());
+	    			garbage_out.put_int_data(c.getCoordinate().x);
+	    			garbage_out.put_int_data(c.getCoordinate().y);
+	    			garbage_out.put_int_data(c.getCoordinate().z);
 	    			//createNode(eventWriter, CELLSIZE, Double.toString(c.getCellSize()));
-	    			createNode(eventWriter, HEIGHT, Double.toString(c.getHeight()));
-	    			createNode(eventWriter, SURFACE, Boolean.toString(c.isSurface()));
-	    			createNode(eventWriter, DEPTH, Double.toString(c.getDepth()));
-	    			createNode(eventWriter, VOLUME, Double.toString(c.getWaterVolume()));
-	    			createNode(eventWriter, XCOORD, Integer.toString(c.getCoordinate().x));
-	    			createNode(eventWriter, YCOORD, Integer.toString(c.getCoordinate().y));
-	    			createNode(eventWriter, ZCOORD, Integer.toString(c.getCoordinate().z));
-	    			createNode(eventWriter, SOILTYPE, c.getSoil().toString());
-	    			createNode(eventWriter, PLANTTYPE, c.getPlant().toString());
-	    		    eventWriter.add(eventFactory.createEndElement("", "", CELL));
-	    		    eventWriter.add(end);
+	    			//createNode(eventWriter, HEIGHT, Double.toString(c.getHeight()));
+	    			//createNode(eventWriter, SURFACE, Boolean.toString(c.isSurface()));
+	    			//createNode(eventWriter, DEPTH, Double.toString(c.getDepth()));
+	    			//createNode(eventWriter, VOLUME, Double.toString(c.getWaterVolume()));
+	    			//createNode(eventWriter, XCOORD, Integer.toString(c.getCoordinate().x));
+	    			//createNode(eventWriter, YCOORD, Integer.toString(c.getCoordinate().y));
+	    			//createNode(eventWriter, ZCOORD, Integer.toString(c.getCoordinate().z));
+	    			
+	    			if (c.getSoil() != null)
+	    				{
+	    				garbage_out.put_int_data(c.getSoil().toString().length());
+	    				garbage_out.put_str_data(c.getSoil().toString());
+	    				}
+	    			else
+	    			{
+	    				garbage_out.put_int_data(4);
+	    				garbage_out.put_str_data("null");
+	    				
+	    			}
+	    			//	createNode(eventWriter, SOILTYPE, c.getSoil().toString());
+	    			if (c.getPlant() != null)
+	    			{
+	    				garbage_out.put_int_data(c.getPlant().toString().length());
+	    				garbage_out.put_str_data(c.getPlant().toString());
+	    			}
+	    			else
+	    			{
+	    				garbage_out.put_int_data(4);
+	    				garbage_out.put_str_data(NULL);
+	    			}
+	    			//	createNode(eventWriter, PLANTTYPE, c.getPlant().toString());
+	    		    //eventWriter.add(eventFactory.createEndElement("", "", CELL));
+	    		    //eventWriter.add(end);
+	    			}
 	    		}
 	    	}
 	    }
-	    eventWriter.add(eventFactory.createEndElement("", "", "farm"));
-	    eventWriter.add(end);
-	    eventWriter.add(eventFactory.createEndDocument());
-	    eventWriter.close();
-
+	    //eventWriter.add(eventFactory.createEndElement("", "", "farm"));
+	    //eventWriter.add(end);
+	    //eventWriter.add(eventFactory.createEndDocument());
+	    //eventWriter.close();
+	    garbage_out.close();
+	    System.out.println("Finished Saving");
+	    
 	}
 	/**
 	 * 
 	 * @param path
 	 * @return
 	 */
-	public Farm restore(String path){
+	public static Farm restore(String path){
 		Farm fm = new Farm();
 		Cell[][][] grid = null;
+		String tmp;
 		try {
+			File_Handler garbage_in = new File_Handler("in",path);
 			// First create a new XMLInputFactory
-			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			//XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			// Setup a new eventReader
-			InputStream in = new FileInputStream(path);
-			XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+			//InputStream in = new FileInputStream(path);
+			//XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 			// Read the XML document
 			Cell c = null;
 			Point3D loc = null;
 
-			while (eventReader.hasNext()) {
-				XMLEvent event = eventReader.nextEvent();
-
-				if (event.isStartElement()) {
-					StartElement startElement = event.asStartElement();
-					if (startElement.getName().getLocalPart() == (CELL)) {
-						loc = new Point3D(-1,-1,-1);
-						c = new Cell();
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(LATITUDE)) {
-						event = eventReader.nextEvent();
-						fm.setLatitude(Double.parseDouble(event.asCharacters().getData()));
-						continue;
-					}
-
-					if (startElement.getName().getLocalPart().equals(LONGITUDE)) {
-						event = eventReader.nextEvent();
-						fm.setLongitude(Double.parseDouble(event.asCharacters().getData()));
-						continue;
-					}
-
-					if (startElement.getName().getLocalPart().equals(RELIEF)) {
-						event = eventReader.nextEvent();
-						fm.setRelief(Double.parseDouble(event.asCharacters().getData()));
-						continue;
-					}
-
-					if (startElement.getName().getLocalPart().equals(LAYERS)) {
-						event = eventReader.nextEvent();
-						grid = new Cell[64][64][Integer.decode(event.asCharacters().getData())];
-						fm.setGrid(grid);
-						continue;
-					}
+			fm.setLatitude(garbage_in.get_double());
+			fm.setLongitude(garbage_in.get_double());
+			fm.setRelief(garbage_in.get_double());
+			int nr_lay = garbage_in.get_int();
+			grid = new Cell[NRCELLX][NRCELLY][nr_lay];
+			fm.setGrid(grid);
+			while (!garbage_in.EOF())
+			{
+				c = new Cell();
+    			double t = garbage_in.get_double(); // cell size
+    			c.setHeight(garbage_in.get_double());
+    			c.setSurface(garbage_in.get_bool());
+    			c.setDepth(garbage_in.get_double());
+    			c.setWaterVolume(garbage_in.get_double());
+    			int x = garbage_in.get_int();
+    			int y = garbage_in.get_int();
+    			int z = garbage_in.get_int();
+    			loc = new Point3D(x,y,z);
+    			c.setCoordinate(loc);
+    			tmp = null;
+    			int strlen = garbage_in.get_int();
+    			for (int i=0;i<strlen;i++){
+    				tmp = tmp + garbage_in.get_char();
+    			}
+    			if (tmp == NULL)
+    			{
+    				c.setSoil(null);
+    			}
+    			else
+    			{
+    				c.setSoil(Soil.valueOf(tmp));
+    			}
+    			tmp = null;
+    			strlen = garbage_in.get_int();
+    			for (int i=0;i<strlen;i++){
+    				tmp = tmp + garbage_in.get_char();
+    			}
+    			if (tmp == NULL)
+    			{
+    				c.setPlant(null);
+    			}
+    			else
+    			{
+    				c.setPlant(Plant.valueOf(tmp));
+    			}
+    			grid[x][y][z] = c;
+				
+			}
 					//if (startElement.getName().getLocalPart().equals(CELLSIZE)) {
 					//	event = eventReader.nextEvent();
 					//  c.setCellSize(Double.parseDouble(event.asCharacters().getData()));
 					//	continue;
 					//}
-					if (startElement.getName().getLocalPart().equals(HEIGHT)) {
-						event = eventReader.nextEvent();
-						c.setHeight(Double.parseDouble(event.asCharacters().getData()));
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(SURFACE)) {
-						event = eventReader.nextEvent();
-						c.setSurface((event.asCharacters().getData().equals("true")));
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(DEPTH)) {
-						event = eventReader.nextEvent();
-						c.setDepth(Double.parseDouble(event.asCharacters().getData()));
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(VOLUME)) {
-						event = eventReader.nextEvent();
-						c.setWaterVolume(Double.parseDouble(event.asCharacters().getData()));
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(XCOORD)) {
-						event = eventReader.nextEvent();
-						loc.x = Integer.parseInt(event.asCharacters().getData());
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(YCOORD)) {
-						event = eventReader.nextEvent();
-						loc.y = Integer.parseInt(event.asCharacters().getData());
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(ZCOORD)) {
-						event = eventReader.nextEvent();
-						loc.x = Integer.parseInt(event.asCharacters().getData());
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(SOILTYPE)) {
-						event = eventReader.nextEvent();
-						c.setSoil(Soil.valueOf(event.asCharacters().getData()));
-						continue;
-					}
-					if (startElement.getName().getLocalPart().equals(PLANTTYPE)) {
-						event = eventReader.nextEvent();
-						c.setPlant(Plant.valueOf(event.asCharacters().getData()));
-						continue;
-					}
-				}
-				if (event.isEndElement()) {
-					EndElement endElement = event.asEndElement();
-					if (endElement.getName().getLocalPart() == (CELL)) {
-						c.setCoordinate(loc);
-						grid[loc.x][loc.y][loc.z] = c;
-					}
-				}
-			}
+			//		if (startElement.getName().getLocalPart().equals(HEIGHT)) {
+			//			event = eventReader.nextEvent();
+			//			c.setHeight(Double.parseDouble(event.asCharacters().getData()));
+			//			continue;
+			////		}
+			//		if (startElement.getName().getLocalPart().equals(SURFACE)) {
+			//			event = eventReader.nextEvent();
+			//			c.setSurface((event.asCharacters().getData().equals("true")));
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(DEPTH)) {
+			//			event = eventReader.nextEvent();
+			//			c.setDepth(Double.parseDouble(event.asCharacters().getData()));
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(VOLUME)) {
+			//			event = eventReader.nextEvent();
+			//			c.setWaterVolume(Double.parseDouble(event.asCharacters().getData()));
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(XCOORD)) {
+			//			event = eventReader.nextEvent();
+			//			loc.x = Integer.parseInt(event.asCharacters().getData());
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(YCOORD)) {
+			//			event = eventReader.nextEvent();
+			//			loc.y = Integer.parseInt(event.asCharacters().getData());
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(ZCOORD)) {
+			//			event = eventReader.nextEvent();
+			//			loc.x = Integer.parseInt(event.asCharacters().getData());
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(SOILTYPE)) {
+			//			event = eventReader.nextEvent();
+			//			c.setSoil(Soil.valueOf(event.asCharacters().getData()));
+			//			continue;
+			//		}
+			//		if (startElement.getName().getLocalPart().equals(PLANTTYPE)) {
+			//			event = eventReader.nextEvent();
+			//			c.setPlant(Plant.valueOf(event.asCharacters().getData()));
+			//			continue;
+			//		}
+			//	}
+			//	if (event.isEndElement()) {
+			//		EndElement endElement = event.asEndElement();
+			//		if (endElement.getName().getLocalPart() == (CELL)) {
+			//			c.setCoordinate(loc);
+			//			grid[loc.x][loc.y][loc.z] = c;
+			//		}
+			//	}
+			//}
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (XMLStreamException e) {
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
+		System.out.println("Finished Restoring");
 		return fm;
 	}
 	/**
@@ -233,30 +294,38 @@ public class XML_Handler{
 	 * @param thefarm
 	 * @param configFile
 	 */
-	public void initGround(Farm thefarm, String configFile){
+	public static void initGround(Farm thefarm, String configFile){
 		ArrayList<double[]> soilTbl = ParseConfig(configFile);
+		System.out.println("Parsed");
 		Cell[][][] strata = DetSoil(soilTbl);
+		System.out.println("Determined");
 		loadGround(thefarm,strata);
+		System.out.println("Loaded");
 	}
 
-	private void loadGround(Farm thefarm, Cell[][][] strata){
+	private static void loadGround(Farm thefarm, Cell[][][] strata){
 		Cell [][][] grid = thefarm.getGrid();
-		int h = grid[0][0].length;
+		int h = grid[0][0].length-1;
+		//System.out.println("got here");
 		for (int x=0;x<64;x++)
 		{
+			//System.out.println("Got here");
 			for (int y=0;y<64;y++)
 			{
 				double curr_ht = 0.0;
 				double strata_ht = 0.0;
 				int strata_idx = 0;
 				boolean found = false; 
-				for (int z=h; z<0; z--)
+				for (int z=h; z>0; z--)
 				{
+					//System.out.println(grid[x][y][z]);
 					if (grid[x][y][z] == null)
 					{
+						//System.out.println("Got Here");
 					}
 					else if (found || grid[x][y][z].isSurface())
 					{
+						//System.out.println("Got Here");
 						found = true;
 						cellCopy(strata[x][y][strata_idx],grid[x][y][z]);
 						grid[x][y][z].setDepth(curr_ht);
@@ -272,11 +341,12 @@ public class XML_Handler{
 			}
 		}
 	}
-	private void cellCopy(Cell src, Cell dest)
+	private static void cellCopy(Cell src, Cell dest)
     {
-    	src.setSoil(dest.getSoil());
+		//System.out.println(src.getSoil());
+    	dest.setSoil(src.getSoil());
     }
-	private Cell[][][] DetSoil(ArrayList<double[]> soilTbl)
+	private static Cell[][][] DetSoil(ArrayList<double[]> soilTbl)
 	{
 		Soil[] soilArr = {Soil.GILASAND, Soil.GILAFINESANDYLOAM, Soil.GILALOAM, Soil.GILACLAYLOAM, Soil.GILACLAY, Soil.RIVERWASH};
 		int nrStratum = soilTbl.size();
@@ -355,6 +425,7 @@ public class XML_Handler{
 						det = soilArr[idx-2];
 					}
 					strata[x][y][z].setSoil(det);
+					//System.out.println(det);
 					strata[x][y][z].setHeight(strataTbl[6]);
 				}
 			}
@@ -362,19 +433,19 @@ public class XML_Handler{
 		return strata;
 		}
 	
-	private int idxSoil(Soil[] sArr, Soil s)
+	private static int idxSoil(Soil[] sArr, Soil s)
 	{
 		int i = 0;
 		while (sArr[i++] != s);
 		return --i;
 	}
-	private int idxTbl(double[] arr, double d)
+	private static int idxTbl(double[] arr, double d)
 	{
 		int i = 0;
 		while (arr[i++] < d);
 		return --i;		
 	}
-	private ArrayList<double[]> ParseConfig(String configFile){
+	private static ArrayList<double[]> ParseConfig(String configFile){
 		ArrayList<double[]> layer = new ArrayList<double[]>();
 		double[] tbl = new double[7];
 		try {
@@ -446,7 +517,7 @@ public class XML_Handler{
 		
 		return layer;
 	}
-	private void createNode(XMLEventWriter eventWriter, String name,
+	private static void createNode(XMLEventWriter eventWriter, String name,
 			String value) throws XMLStreamException {
 
 		XMLEventFactory eventFactory = XMLEventFactory.newInstance();
