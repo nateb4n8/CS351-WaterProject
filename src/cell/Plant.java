@@ -38,7 +38,8 @@ public enum Plant
   SWEETPEPPER
   (8.2, 0, 0, 0, 80, 12),
   
-  ROOTS(0, 0, 0, 0, 0, 0);
+  ROOTS
+  (0, 0, 0, 0, 0, 0);
   
   private double transporation; //Measured in ...
   private double deltaHydraulicConductivity; //Measured in ...
