@@ -1,4 +1,6 @@
 package gui;
+import graphics.DisplayFarm;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,11 +20,19 @@ import XML_Handler.XML_Handler;
 
 import topo.Topography;
 
-import cell.Farm;
+import cell.*;
 
 
 public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListener {
-	JFrame createFarmFrame;
+	
+  //modded stuff
+  
+  private Farm farm;
+  private JPanel panel;
+  private DisplayFarm displayFarm;
+  
+  
+  JFrame createFarmFrame;
 	JFileChooser fc;
 	
 	private double latitude;
@@ -157,9 +167,13 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 	    createFarmFrame.dispose();
 	    g.displayLat(this.getLatitude());
 	    g.displayLong(this.getLongitude());
-	    Farm farm = Topography.createFarm(this.getLatitude(), this.getLongitude());
+	    this.farm = Topography.createFarm(this.getLatitude(), this.getLongitude());
 	    XML_Handler xmlHandler = new XML_Handler();
 	    xmlHandler.initGround(farm, this.getConfigPath());
+	    
+	    this.displayFarm = new DisplayFarm(this.farm, this.panel);
+	    
+	    
 	  }
 	  else if(obj == browse)
 	  {

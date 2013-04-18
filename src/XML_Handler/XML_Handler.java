@@ -53,8 +53,8 @@ public class XML_Handler{
 	private static final String GILACLAY = "GilaClay";
 	private static final String RIVERWASH = "RiverWash";
 
-	private static final int NRCELLX = 64;
-	private static final int NRCELLY = 64;
+	private static final int NRCELLX = Farm.xCellCount;
+	private static final int NRCELLY = Farm.yCellCount;
 	private static final String NULL = "null";
 	public static void save(Farm thefarm, String path) throws Exception
 	{
@@ -307,10 +307,10 @@ public class XML_Handler{
 		Cell [][][] grid = thefarm.getGrid();
 		int h = grid[0][0].length-1;
 		//System.out.println("got here");
-		for (int x=0;x<64;x++)
+		for (int x=0;x<NRCELLX;x++)
 		{
 			//System.out.println("Got here");
-			for (int y=0;y<64;y++)
+			for (int y=0;y<NRCELLY;y++)
 			{
 				double curr_ht = 0.0;
 				double strata_ht = 0.0;
@@ -328,7 +328,8 @@ public class XML_Handler{
 						//System.out.println("Got Here");
 						found = true;
 						cellCopy(strata[x][y][strata_idx],grid[x][y][z]);
-						grid[x][y][z].setDepth(curr_ht);
+						//System.out.println(grid[x][y][z].getSoil());
+						//grid[x][y][z].setDepth(curr_ht);
 						curr_ht += grid[x][y][z].getHeight();
 						if (curr_ht >= (strata[x][y][strata_idx].getHeight()+strata_ht))
 						{
@@ -352,9 +353,9 @@ public class XML_Handler{
 		int nrStratum = soilTbl.size();
 		double[] tmptbl = new double[8];
 		double[] strataTbl;
-		Cell[][][] strata = new Cell[64][64][nrStratum];
-		for (int x = 0;x < 64; x++)
-                   for (int y=0;y<64;y++)
+		Cell[][][] strata = new Cell[NRCELLX][NRCELLY][nrStratum];
+		for (int x = 0;x < NRCELLX; x++)
+                   for (int y=0;y<NRCELLY;y++)
                       for (int z=0;z<nrStratum;z++)
                          strata[x][y][z] = new Cell();
 		Random die = new Random();
@@ -373,13 +374,13 @@ public class XML_Handler{
 		for (int z = 0; z < nrStratum; z++)
 		{
 			strataTbl = soilTbl.get(z);
-			for (int x = 0; x < 64; x++)
+			for (int x = 0; x < NRCELLX; x++)
 			{
 				if (x == 0)
 				{
 					tmptbl[0] = 0;
 				}
-				for (int y = 0; y < 64; y++)
+				for (int y = 0; y < NRCELLY; y++)
 				{
 					if (x != 0)
 					{

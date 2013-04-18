@@ -16,7 +16,7 @@ import java.util.Random;
 public class Topography {
 	private static final double MAX_RELIEF    = 13; //meters. The most the topography over the entire grid is allowed to vary
 	private static final double TOLERANCE     = 0.75; //meters. Changes larger this amount will not be accepted
-	private static final int    SIZE          = 150; //decimeters. length and width
+	private static final int    SIZE          = 64; //decimeters. length and width
 	private static final Random rand          = new Random();
 
 
@@ -37,10 +37,10 @@ public class Topography {
 
 		//Generates a 2D array of doubles to correspond to heights of a specific i,j column. This is essentially the shape
 		// of the land that the program will run on. It's a random, but smooth, topography.
-		//deviation = getDeviations(minmax);
+		deviation = getDeviations(minmax);
 
-		ElevationData ed = new ElevationData(longitude, latitude);
-		deviation = ed.getElevations();
+//		ElevationData ed = new ElevationData(longitude, latitude);
+//		deviation = ed.getElevations();
 
 		//For debugging. MATLAB matrix so I can call bar3(A) and see what my land looks like
 		//try {
