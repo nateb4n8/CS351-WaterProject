@@ -1,11 +1,8 @@
-/**
- * Author: Robert Trujillo & Nathan Acosta
- * Date: Mar 20, 2013 , Modified by Robert on 04.22.13
- */
 package cell;
 
 /**
- * @author nacosta
+ * Author: Robert Trujillo & Nathan Acosta
+ * Date: Mar 20, 2013 , Modified by Robert on 04.22.13
  * A Plant contains properties pertaining to its interaction
  * with water and physical structure.
  */
@@ -37,12 +34,7 @@ public enum Plant
   
   SWEETPEPPER
   (8.2, 80, 30.48, 2.5, .64, 2.65);
-  
-  
-  //private double deltaHydraulicConductivity; //Unable to get specific data, will need to wait for plant expert
-  //private double deltaInfiltrationRate; //Measured in
-  //private double deltaEvaporationRate; //Measured in
-  
+   
   private double _transpiration; 
   private double _maturationTime;
   private double _matureDepth; 
