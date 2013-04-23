@@ -1,5 +1,7 @@
 package topo;
 
+import cell.Farm;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +14,7 @@ import java.net.URL;
 public class ElevationData {
 
 	// elevation data 2d array
-	public double[][] elevations = new double[640][640];
+	public double[][] elevations = new double[Farm.SIZE][Farm.SIZE];
 
 	/**
 	 * Retrieves Elevation data from GOOGLE Elevation web service
@@ -54,7 +56,7 @@ public class ElevationData {
 						currElevationReading = Double.parseDouble(line.substring(line.lastIndexOf(" "),
 						                                                         line.indexOf(",") - 7).trim());
 
-						for(int i = 0; i < 640; i++) {
+						for(int i = 0; i < Farm.SIZE; i++) {
 							this.elevations[y][i] = currElevationReading;
 
 						}
@@ -76,8 +78,8 @@ public class ElevationData {
 	 * issue. Correct data by populating empty rows with elevation from previous row of data
 	 */
 	public void DataCorrection() {
-		for(int i = 0; i < 640; i++) {
-			for(int j = 0; j < 640; j++) {
+		for(int i = 0; i < Farm.SIZE; i++) {
+			for(int j = 0; j < Farm.SIZE; j++) {
 				if(this.elevations[i][j] == 0.0) {
 					this.elevations[i][j] = this.elevations[i - 1][j];
 				}
@@ -102,7 +104,7 @@ public class ElevationData {
 
 		int arryCnt = 0;
 
-		for(int x = 0; x < 640; x += 10) {
+		for(int x = 0; x < Farm.SIZE; x += 10) {
 			builder.setLength(0);
 			builder.append("http://maps.googleapis.com/maps/api/elevation/json?locations=" + (currLong / 1000.0) + "," +
 			               "" + (currLat / 1000.0));
@@ -121,7 +123,7 @@ public class ElevationData {
 	}
 
 	/**
-	 * Retrieves Elevation data of 640 x 640 decimeter plot of land (1 acre)
+	 * Retrieves Elevation data of Farm.SIZE x Farm.SIZE decimeter plot of land (1 acre)
 	 *
 	 * @return 2D Double Array
 	 */

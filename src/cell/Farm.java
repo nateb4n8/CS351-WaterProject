@@ -14,9 +14,10 @@ package cell;
  */
 public class Farm
 {
+	public static final int SIZE = 150;
   public String errorText; //Error messages
-  public static final int xCellCount = 640; //Width of the grid in cell amount 
-  public static final int yCellCount = 640; //Length of the grid in cell amount
+  public static final int xCellCount = SIZE; //Width of the grid in cell amount
+  public static final int yCellCount = SIZE; //Length of the grid in cell amount
   public int zCellCount; //Height of the grid in cell amount.
   
   private double latitude, longitude, relief; //Chosen location
