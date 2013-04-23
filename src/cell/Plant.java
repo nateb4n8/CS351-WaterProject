@@ -15,12 +15,13 @@ public enum Plant {
 			8.2, 80, 31, 3, 1, 2.65);
 
 	private double _transpiration;
-	private double _maturationTime;
+	private int _maturationTime;
 	private int _matureDepth;
 	private int _distanceBetweenSeeds;
 	private int _depthOfSeed;
 	private int _rootDepth;
 	private double _waterRequirements;
+	private boolean _deadOrAlive;//alive is true, dead is false
 
 	/**
 	 * Sets the constant values of a Plant type.
@@ -38,7 +39,7 @@ public enum Plant {
 	 * @param waterRequirements
 	 *            in mL/week
 	 */
-	private Plant(double transpiration, double maturationTime, int matureDepth,
+	private Plant(double transpiration, int maturationTime, int matureDepth,
 			int distanceBetweenSeeds, int depthOfSeed, double waterRequirements) {
 		this._transpiration = transpiration;
 		this._maturationTime = maturationTime;
@@ -47,6 +48,7 @@ public enum Plant {
 		this._depthOfSeed = depthOfSeed;
 		this._waterRequirements = waterRequirements;
 		this._rootDepth = 0;
+		this._deadOrAlive = true;
 	}
 
 	/**
@@ -59,7 +61,7 @@ public enum Plant {
 	/**
 	 * @return Returns the Maturation Time of this Plant in Weeks.
 	 */
-	public double getMaturationTimee() {
+	public int getMaturationTimee() {
 		return this._maturationTime;
 	}
 
@@ -110,6 +112,21 @@ public enum Plant {
 		if (rootDepth <= this._matureDepth) {
 			this._rootDepth = rootDepth;
 		}
+	}
+	
+	/**
+	 * Method to killPlant
+	 */
+	public void kill(){
+		this._deadOrAlive = false;
+	}
+	
+	/**
+	 * Method to simulate plant growth by increasing the root depth
+	 */
+	public void grow(){
+		int growthRate = (int)(this._matureDepth/this._maturationTime);
+		this.setRootDepth(_rootDepth += growthRate);
 	}
 
 }
