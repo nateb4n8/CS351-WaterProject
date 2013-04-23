@@ -1,6 +1,6 @@
 /**
- * Author: Nathan Acosta
- * Date: Mar 20, 2013
+ * Author: Robert Trujillo & Nathan Acosta
+ * Date: Mar 20, 2013 , Modified by Robert on 04.22.13
  */
 package cell;
 
@@ -12,102 +12,105 @@ package cell;
 public enum Plant
 {
   PINTOBEANS
-  (2.5, 0, 0, 0, 21, 45),
+  (2.5, 3, 114.3, 10.16, 3.81, 2.65),
   
   SUNFLOWER
-  (3.2, 0, 0, 0, 90, 10),
+  (3.2, 13, 25.4, 30, 12, 2.65),
   
   AMARANTH
-  (1.4, 0, 0, 0, 14, 7),
+  (1.4, 2, 17.78, 4, 2, 1.33),
   
   CHILE
-  (7.2, 0, 0, 0, 120, 24),
+  (7.2, 17, 60.96, 5, .5, 2.65),
   
   SWEETCORN
-  (1.65, 0, 0, 0, 80, 18),
+  (1.65, 11, 45.72, 20, 3, 3.98),
   
   SUMMERSQUASH
-  (3.5, 0, 0, 0, 50, 36),
+  (3.5, 7, 91.44, 45, 2.5, 2.65),
   
   WINTERSQUASH
-  (3.5, 0, 0, 0, 110, 48),
+  (3.5, 16, 121.92, 120, 2.5, 2.65),
   
   POTATOES
-  (4.2, 0, 0, 0, 120, 18),
+  (4.2, 17, 45.72, 30, 15, 2.65),
   
   SWEETPEPPER
-  (8.2, 0, 0, 0, 80, 12),
+  (8.2, 80, 30.48, 2.5, .64, 2.65);
   
-  ROOTS
-  (0, 0, 0, 0, 0, 0);
   
-  private double transporation; //Measured in ...
-  private double deltaHydraulicConductivity; //Measured in ...
-  private double deltaInfiltrationRate; //Measured in ...
-  private double deltaEvaporationRate; //Measured in ...
-  private double growthRate; //Measured in ...
-  private double matureDepth; //Measured in ...
+  //private double deltaHydraulicConductivity; //Unable to get specific data, will need to wait for plant expert
+  //private double deltaInfiltrationRate; //Measured in
+  //private double deltaEvaporationRate; //Measured in
+  
+  private double _transpiration; 
+  private double _maturationTime;
+  private double _matureDepth; 
+  private double _distanceBetweenSeeds;
+  private double _depthOfSeed;
+  private double _waterRequirements;
   
   /**
    * Sets the constant values of a Plant type.
-   * @param t Transporation in ...
-   * @param dhc Delta Hydraulic Conductivity in ...
-   * @param dir Delta Infiltration Rate in ...
-   * @param der Delta Evaporation Rate in ...
-   * @param gr Growth Rate in ...
-   * @param md Mature Depth in ...
+   * @param transpiration in mL/Week
+   * @param maturationTime in Weeks
+   * @param matureDepth in cm
+   * @param distanceBetweenSeeds in cm
+   * @param depthOfSeed in cm
+   * @param waterRequirements in mL/week
    */
-  private Plant (double t, double dhc, double dir,
-      double der, double gr, double md)
+  private Plant (double transpiration, double maturationTime, double matureDepth,
+      double distanceBetweenSeeds, double depthOfSeed, double waterRequirements)
   {
-    this.transporation = t;
-    this.deltaHydraulicConductivity = dhc;
-    this.deltaInfiltrationRate = dir;
-    this.deltaEvaporationRate = der;
-    this.growthRate = gr;
-    this.matureDepth = md;
+    this.transpiration = transpiration;
+    this._maturationTime = maturationTime;
+    this._matureDepth = matureDepth;
+    this._distanceBetweenSeeds = distanceBetweenSeeds;
+    this._depthOfSeed = depthOfSeed;    
+    this._waterRequirements = waterRequirements;
   }
   
   /**
-   * @return Returns the Transporation of this Plant.
+   * @return Returns the Transporation of this Plant in mL/Week.
    */
-  public double getTransporation()
-  { return this.transporation;
+  public double getTranspiration()
+  { return this._transpiration;
   }
   
   /**
-   * @return Returns the Delta Hydraulic Conductivity of this Plant.
+   * @return Returns the Maturation Time of this Plant in Weeks.
    */
-  public double getDeltaHydraulicConductivity()
-  { return this.deltaHydraulicConductivity;
+  public double getMaturationTimee()
+  { return this._maturationTime;
   }
 
   /**
-   * @return Returns the Delta Infiltration Rate of this Plant.
-   */
-  public double getDeltaInfiltrationRate()
-  { return this.deltaInfiltrationRate;
-  }
-  
-  /**
-   * @return Returns the Delta Evaporation Rate of this Plant.
-   */
-  public double getDeltaEvaporationRate()
-  { return this.deltaEvaporationRate;
-  }
-  
-  /**
-   * @return Returns the Growth Rate of this Plant.
-   */
-  public double getGrowthRate()
-  { return this.growthRate;
-  }
-  
-  /**
-   * @return Returns the Mature Depth of this Plant.
+   * @return Returns the Mature Root Depth of this Plant in cm.
    */
   public double getMatureDepth()
-  { return this.matureDepth;
+  { return this._matureDepth;
+  }
+  
+  /**
+   * @return Returns the Distance needed between seeds of this Plant in cm.
+   */
+  public double getDistanceBetweenSeeds()
+  { return this._distanceBetweenSeeds;
+  }
+  
+  /**
+   * @return Returns the Depth needed for the seed of this Plant in cm.
+   */
+  public double getDepthOfSeed()
+  { return this._depthOfSeed;
+  }
+  
+  /**
+   * @return Returns the Water Requirements of this Plant in mL/week.
+   */
+  public double getWaterRequirements()
+  { return this._waterRequirements;
+  
   }
   
 }
