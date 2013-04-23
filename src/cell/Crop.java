@@ -20,7 +20,7 @@ public class Crop
    * @param cropLocation in array of cells within farm
    * @param cropSize number of plants in crop
    */
-  private Crop (Plant plantType,Cell[] cropLocation, double cropSize)
+  private Crop (Plant plantType,Cell[] cropLocation, int cropSize)
   {
     this._plantType = plantType;
     this._cropLocation = cropLocation;

@@ -6,10 +6,14 @@ package cell;
  * A Plant contains properties pertaining to its interaction
  * with water and physical structure.
  */
-public class PlantGamePlay
+public class Plant
 {   
-  private double _WeeksOfInsufficentWater; 
-  private double _CropSize;
+  private double _transpiration; 
+  private double _maturationTime;
+  private double _matureDepth; 
+  private double _distanceBetweenSeeds;
+  private double _depthOfSeed; 
+  private double _waterRequirements;
   
   /**
    * Sets the constant values of a Plant type.
@@ -23,7 +27,7 @@ public class PlantGamePlay
   private Plant (double transpiration, double maturationTime, double matureDepth,
       double distanceBetweenSeeds, double depthOfSeed, double waterRequirements)
   {
-    this.transpiration = transpiration;
+    this._transpiration = transpiration;
     this._maturationTime = maturationTime;
     this._matureDepth = matureDepth;
     this._distanceBetweenSeeds = distanceBetweenSeeds;
