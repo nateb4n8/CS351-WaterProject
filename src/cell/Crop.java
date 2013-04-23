@@ -28,6 +28,28 @@ public class Crop
     this._weeksWithoutSufficentWater = 0;//initially set to zero
   }
   
+  /**
+   * @return Returns the PlantType of this crop
+   */
+  public Plant getPlantType()
+  { return this._plantType;
+  }
+  
+  /**
+   * @return Returns the array of cells that this crop covers.
+   */
+  public Cell[] getCropLocation()
+  
+  { return this._cropLocation;
+  }  
+  
+  /**
+   * @return Returns the CropSize in number of plants for this Crop
+   */
+  public double getCropSize()
+  { return this._cropSize;
+  }
+  
  
   
 }
