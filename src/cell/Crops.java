@@ -103,10 +103,19 @@ public class Crops {
 	}
 
 	/**
+	 * Method to increase/decrease crop size based on water flow
+	 * @param _cropSize
+	 */
+	public void setCropSize(int _cropSize) {
+		this._cropSize = _cropSize;
+	}
+
+	/**
 	 * @return Returns the quadrant of the farm that the crop is in
 	 **/
 	public int get_quadrant() {
 		return _quadrant;
-	}
+	}	
+	
 
 }
