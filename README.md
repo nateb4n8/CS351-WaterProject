@@ -6,3 +6,5 @@ Please add your name and current roles of the project.
 Nathan (nacosta): Test
 
 Max (mottese): Water flow
+
+Robert(NinerzRuleAll): Plants
