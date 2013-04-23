@@ -6,41 +6,10 @@ package cell;
  * A Plant contains properties pertaining to its interaction
  * with water and physical structure.
  */
-public enum Plant
-{
-  PINTOBEANS
-  (2.5, 3, 114.3, 10.16, 3.81, 2.65),
-  
-  SUNFLOWER
-  (3.2, 13, 25.4, 30, 12, 2.65),
-  
-  AMARANTH
-  (1.4, 2, 17.78, 4, 2, 1.33),
-  
-  CHILE
-  (7.2, 17, 60.96, 5, .5, 2.65),
-  
-  SWEETCORN
-  (1.65, 11, 45.72, 20, 3, 3.98),
-  
-  SUMMERSQUASH
-  (3.5, 7, 91.44, 45, 2.5, 2.65),
-  
-  WINTERSQUASH
-  (3.5, 16, 121.92, 120, 2.5, 2.65),
-  
-  POTATOES
-  (4.2, 17, 45.72, 30, 15, 2.65),
-  
-  SWEETPEPPER
-  (8.2, 80, 30.48, 2.5, .64, 2.65);
-   
-  private double _transpiration; 
-  private double _maturationTime;
-  private double _matureDepth; 
-  private double _distanceBetweenSeeds;
-  private double _depthOfSeed;
-  private double _waterRequirements;
+public class PlantGamePlay
+{   
+  private double _WeeksOfInsufficentWater; 
+  private double _CropSize;
   
   /**
    * Sets the constant values of a Plant type.
