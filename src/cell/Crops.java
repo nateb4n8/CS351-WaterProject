@@ -23,22 +23,25 @@ public class Crops {
 	 *            number of plants in crop
 	 * @throws Exception
 	 */
-	private Crops(Plant plant, Farm farm, int quadrant) throws Exception {
+	private Crops(Plant plant, Farm farm, int quadrant) throws Exception {		
+		
 		// check if valid Crop entered
 		if (quadrant < 4) {
 			this._quadrant = quadrant;
 		} else
 			throw new Exception("Invalid Quadrant Entered");
+		
+		//declare variables to set crop by quadrant
+		int minX = 0, minY = 0, midX = farm.SIZE/2, midY = farm.SIZE/2, maxX = farm.SIZE, maxY = farm.SIZE;
 
 		this._plant = plant;
 		this._farm = farm;
 		this._cropSize = 0;
 
-		// plant seeds by quadrant, size currently set at 150 which is not
-		// divisible by 4 so hardcoded 75 for some quads
+				
 		if (_quadrant == 0) {
-			for (int x = 0; x < 75; x += _plant.getDistanceBetweenSeeds()) {
-				for (int y = 0; y < 75; y += _plant.getDistanceBetweenSeeds()) {
+			for (int x = minX; x < midX; x += _plant.getDistanceBetweenSeeds()) {
+				for (int y = minY; y < midY; y += _plant.getDistanceBetweenSeeds()) {
 
 					_farm.getGrid()[x][y][_plant.getDepthOfSeed()]
 							.setPlant(_plant);
@@ -46,9 +49,9 @@ public class Crops {
 				}
 			}
 		} else if (_quadrant == 1) {
-			for (int x = 75; x < _farm.SIZE; x += _plant
+			for (int x = midX; x < maxX; x += _plant
 					.getDistanceBetweenSeeds()) {
-				for (int y = 0; y < 75; y += _plant.getDistanceBetweenSeeds()) {
+				for (int y = minY; y < midY; y += _plant.getDistanceBetweenSeeds()) {
 
 					_farm.getGrid()[x][y][_plant.getDepthOfSeed()]
 							.setPlant(_plant);
@@ -56,8 +59,8 @@ public class Crops {
 				}
 			}
 		} else if (_quadrant == 2) {
-			for (int x = 0; x < 75; x += _plant.getDistanceBetweenSeeds()) {
-				for (int y = 75; y < _farm.SIZE; y += _plant
+			for (int x = minX; x < midX; x += _plant.getDistanceBetweenSeeds()) {
+				for (int y = midY; y < maxY; y += _plant
 						.getDistanceBetweenSeeds()) {
 
 					_farm.getGrid()[x][y][_plant.getDepthOfSeed()]
@@ -66,9 +69,9 @@ public class Crops {
 				}
 			}
 		} else {
-			for (int x = 75; x < _farm.SIZE; x += _plant
+			for (int x = midX; x < maxX; x += _plant
 					.getDistanceBetweenSeeds()) {
-				for (int y = 75; y < _farm.SIZE; y += _plant
+				for (int y = midY; y < maxY; y += _plant
 						.getDistanceBetweenSeeds()) {
 
 					_farm.getGrid()[x][y][_plant.getDepthOfSeed()]
@@ -96,19 +99,72 @@ public class Crops {
 	}
 
 	/**
+	 * Method that counts living plants within crop
 	 * @return Returns the CropSize in number of plants for this Crop
 	 */
 	public double getCropSize() {
-		return this._cropSize;
-	}
+		int currentCropSize = 0;
+		Plant currentPlant = null;
+		
+		//declare variables to set crop by quadrant
+		int minX = 0, minY = 0, midX = this._farm.SIZE/2, midY = this._farm.SIZE/2, maxX = this._farm.SIZE, maxY = this._farm.SIZE;
+		
+		
+		if (this._quadrant == 0) {
+			for (int x = minX; x < midX; x += _plant.getDistanceBetweenSeeds()) {
+				for (int y = minY; y < midY; y += _plant.getDistanceBetweenSeeds()) {
+					currentPlant = this._farm.getGrid()[x][y][_plant.getDepthOfSeed()].getPlant();
+							if(currentPlant!= null){
+								if(currentPlant.isDeadOrAlive()){
+									currentCropSize++;
+								}
+							}
+						}
+					}
+				} else if (_quadrant == 1) {
+					for (int x = midX; x < maxX; x += _plant
+							.getDistanceBetweenSeeds()) {
+						for (int y = minY; y < midY; y += _plant.getDistanceBetweenSeeds()) {
 
-	/**
-	 * Method to increase/decrease crop size based on water flow
-	 * @param _cropSize
-	 */
-	public void setCropSize(int _cropSize) {
-		this._cropSize = _cropSize;
-	}
+							currentPlant = this._farm.getGrid()[x][y][_plant.getDepthOfSeed()].getPlant();
+							if(currentPlant!= null){
+								if(currentPlant.isDeadOrAlive()){
+									currentCropSize++;
+								}
+							}
+						}
+					}
+				} else if (_quadrant == 2) {
+					for (int x = minX; x < midX; x += _plant.getDistanceBetweenSeeds()) {
+						for (int y = midY; y < maxY; y += _plant
+								.getDistanceBetweenSeeds()) {
+
+							currentPlant = this._farm.getGrid()[x][y][_plant.getDepthOfSeed()].getPlant();
+							if(currentPlant!= null){
+								if(currentPlant.isDeadOrAlive()){
+									currentCropSize++;
+								}
+							}
+						}
+					}
+				} else {
+					for (int x = midX; x < maxX; x += _plant
+							.getDistanceBetweenSeeds()) {
+						for (int y = midY; y < maxY; y += _plant
+								.getDistanceBetweenSeeds()) {
+
+							currentPlant = this._farm.getGrid()[x][y][_plant.getDepthOfSeed()].getPlant();
+							if(currentPlant!= null){
+								if(currentPlant.isDeadOrAlive()){
+									currentCropSize++;
+								}
+							}
+						}
+					}
+				}
+		this._cropSize = currentCropSize;
+		return this._cropSize;
+	}	
 
 	/**
 	 * @return Returns the quadrant of the farm that the crop is in
