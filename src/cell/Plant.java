@@ -2,17 +2,16 @@ package cell;
 
 /**
  * Author: Robert Trujillo & Nathan Acosta 
- * Date: Created by Natehan on Mar 20, 2013, Modified by Robert on 04.22.13 
+ * Date: Created by Nathan on Mar 20, 2013, Modified by Robert on 04.22.13 
  * A Plant contains properties pertaining to its interaction
  * with water and physical structure.
  */
 public enum Plant {
 	// Plant Types and Attributes
-	PINTOBEANS(2.5, 3, 114, 11, 4, 2.65), SUNFLOWER(3.2, 13, 25, 30, 12, 2.65), AMARANTH(
-			1.4, 2, 18, 4, 2, 1.33), CHILE(7.2, 17, 61, 5, 1, 2.65), SWEETCORN(
-			1.65, 11, 46, 20, 3, 3.98), SUMMERSQUASH(3.5, 7, 92, 45, 3, 2.65), WINTERSQUASH(
-			3.5, 16, 122, 120, 3, 2.65), POTATOES(4.2, 17, 46, 30, 15, 2.65), SWEETPEPPER(
-			8.2, 80, 31, 3, 1, 2.65);
+	PINTOBEANS(21, 114, 11, 4, .37), SUNFLOWER(91, 25, 30, 12, .37), AMARANTH(
+			14, 18, 4, 2, .19), CHILE(119, 61, 5, 1, .37), SWEETCORN(
+			77, 46, 20, 3, .57), SUMMERSQUASH(49, 92, 45, 3, .37), WINTERSQUASH(
+			112, 122, 120, 3, .37), POTATOES(119, 46, 30, 15, .37), SWEETPEPPER(80, 31, 3, 1, .37);
 
 	private double _transpiration;
 	private int _maturationTime;
@@ -20,46 +19,50 @@ public enum Plant {
 	private int _distanceBetweenSeeds;
 	private int _depthOfSeed;
 	private int _rootDepth;
-	private double _waterRequirements;
+	private double _waterConsumption;
+	private int _allowableDaysWithoutWater;
+	private Point3D [] _rootCellCoordinates;
 	private boolean _deadOrAlive;//alive is true, dead is false
 
 	/**
 	 * Sets the constant values of a Plant type.
 	 * 
 	 * @param transpiration
-	 *            in mL/Week
+	 *            in mL/day
 	 * @param maturationTime
-	 *            in Weeks
+	 *            in days
 	 * @param matureDepth
 	 *            in cells
 	 * @param distanceBetweenSeeds
 	 *            in cells
 	 * @param depthOfSeed
 	 *            in cells
-	 * @param waterRequirements
-	 *            in mL/week
+	 * @param waterConsumption
+	 *            in mL/day
 	 */
-	private Plant(double transpiration, int maturationTime, int matureDepth,
-			int distanceBetweenSeeds, int depthOfSeed, double waterRequirements) {
-		this._transpiration = transpiration;
+	private Plant(int maturationTime, int matureDepth,
+			int distanceBetweenSeeds, int depthOfSeed, double waterConsumption) {
+		this._transpiration = waterConsumption*.10;//on average 10% or water required
 		this._maturationTime = maturationTime;
 		this._matureDepth = matureDepth;
 		this._distanceBetweenSeeds = distanceBetweenSeeds;
 		this._depthOfSeed = depthOfSeed;
-		this._waterRequirements = waterRequirements;
+		this._waterConsumption = waterConsumption;
 		this._rootDepth = 0;
+		this._allowableDaysWithoutWater = (int)(maturationTime/4);//set to 1/4 maturation time
 		this._deadOrAlive = true;
+		this._rootCellCoordinates = new Point3D[matureDepth];
 	}
 
 	/**
-	 * @return Returns the Transpiration of this Plant in mL/Week.
+	 * @return Returns the Transpiration of this Plant in mL/day.
 	 */
 	public double getTranspiration() {
 		return this._transpiration;
 	}
 
 	/**
-	 * @return Returns the Maturation Time of this Plant in Weeks.
+	 * @return Returns the Maturation Time of this Plant in days.
 	 */
 	public int getMaturationTimee() {
 		return this._maturationTime;
@@ -89,44 +92,83 @@ public enum Plant {
 	}
 
 	/**
-	 * @return Returns the Water Requirements of this Plant in mL/week.
+	 * @return Returns the Water Consumption of this Plant in mL/day.
 	 */
-	public double getWaterRequirements() {
-		return this._waterRequirements;
+	public double getWaterConsumption() {
+		return this._waterConsumption;
 
 	}
 
 	/**
-	 * @return Returns the Water Requirements of this Plant in mL/week.
+	 * @return Returns the current Root depth in cm
 	 */
 	public int getRootDepth() {
 		return _rootDepth;
 	}
-
+	
+	
 	/**
-	 * @Param rootDepth sets rootDepth of plant in cm rootDepth must be less
-	 *        than or equal to matureDepth
-	 * @return Returns the Water Requirements of this Plant in mL/week.
+	 * Method to get if plant is dead or alive
+	 * @returns true if alive, false if dead
 	 */
-	public void setRootDepth(int rootDepth) {
-		if (rootDepth <= this._matureDepth) {
-			this._rootDepth = rootDepth;
-		}
+	public boolean isDeadOrAlive() {
+		return _deadOrAlive;
 	}
 	
+	/**
+	 * Method to get the coordinates of the plants roots
+	 * @param plantSeedCoordinate available for plants within crops
+	 * @return array of Point3D's
+	 */
+	public Point3D[] get_rootCellCoordinates(Point3D plantSeedCoordinate) {
+		int rootDepth = this._rootDepth;
+		int index = 0;
+	
+		
+		if(rootDepth > 0){
+			for(int z = plantSeedCoordinate.getZ(); z < rootDepth; z++){				
+				this._rootCellCoordinates[index] = new Point3D(plantSeedCoordinate.getX(),plantSeedCoordinate.getY(),z);
+			}
+		}
+		else {
+			this._rootCellCoordinates[0] = plantSeedCoordinate;
+		}
+		return _rootCellCoordinates;
+	}
+
 	/**
 	 * Method to killPlant
 	 */
 	public void kill(){
 		this._deadOrAlive = false;
-	}
+	}	
+	
+	
 	
 	/**
-	 * Method to simulate plant growth by increasing the root depth
+	 * @param waterAvailableAlongRoot sum of water within cells that root occupies
+	 * @return true it growth occurs else false
 	 */
-	public void grow(){
+	public boolean grow(double waterAvailableAlongRoot){
+		
+		if(waterAvailableAlongRoot >= this._waterConsumption){
 		int growthRate = (int)(this._matureDepth/this._maturationTime);
-		this.setRootDepth(_rootDepth += growthRate);
+		this._rootDepth += growthRate;
+			return true;
+		}
+		else{
+			if(this._allowableDaysWithoutWater == 0){
+				this.kill();
+				return false;
+			}
+			else{
+				this._allowableDaysWithoutWater--;
+				return false;
+			}
+			
+			
+		}
+		
 	}
 
 }
