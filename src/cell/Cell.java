@@ -11,7 +11,7 @@ package cell;
  */
 public class Cell
 {
-  private static double cellSize = 10; // Length = width in centimeters
+  private static double cellSize = 6400/Farm.SIZE; // Length = width in centimeters
   private double height; // In centimeters
   private boolean surface; // True if cell is a surface cell
   private double depth; // Distance to surface in centimeters
