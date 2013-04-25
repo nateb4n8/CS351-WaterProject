@@ -6,6 +6,11 @@ import cell.Point3D;
 
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
+ * 
+ * TODO: Compute hydraulic heads beforehand
+ * TODO: Compute saturations beforehand
+ * TODO: Multi-thread
+ * 
  * @author Max Ottesen
  */
 public class WaterFlow {
@@ -37,6 +42,7 @@ public class WaterFlow {
 	 */
 	private void update() {
 
+	  //Flows water between all cells synchronously
 		for(int k = 0; k < farm.getZCellCount(); k++) {
 			for(int j = 0; j < Farm.yCellCount; j++) {
 				for(int i = 0; i < Farm.xCellCount; i++) {
@@ -55,6 +61,7 @@ public class WaterFlow {
 			}
 		}
 		
+		//Update the amount of water that all the cells have
 		for(int k = 0; k < farm.getZCellCount(); k++) {
 			for(int j = 0; j < Farm.yCellCount; j++) {
 				for(int i = 0; i < Farm.xCellCount; i++) {
@@ -66,6 +73,7 @@ public class WaterFlow {
 			}
 		}
 		
+		//Reset the change holder
 		for(int k = 0; k < farm.getZCellCount(); k++) {
 			for(int j = 0; j < Farm.yCellCount; j++) {
 				for(int i = 0; i < Farm.xCellCount; i++) {
@@ -76,9 +84,16 @@ public class WaterFlow {
 	}
 
 
-
+	/**
+	 * Calculates the amount of water that should flow from one cell to another. This
+	 *  should not be used to calculate water flowing upward!
+	 *  
+	 * @param cellI - the cell to flow water from
+	 * @param cellX - the cell to flow water to
+	 */
 	private void flowWaterSide(Cell cellI, Cell cellX) {
-		double iSatur = percentSaturation(cellI);
+		//The saturation of the giving cell
+	  double iSatur = percentSaturation(cellI);
 		
 		//Only do calculations if...
 		//Percent saturation is greater than percent adhesion
@@ -96,7 +111,9 @@ public class WaterFlow {
 			return;
 		}
 		
+		//The average hydraulic conductivity
 		double K = cellI.getSoil().getHydraulicConductivity()*cellX.getSoil().getHydraulicConductivity()/2;
+		//The area of the face of the cell being flowed from
 		double A = cellI.getHeight()*Cell.getCellSize();
 		double min = Math.min(1, (hydraulicHead(cellI)-hydraulicHead(cellX))/Cell.getCellSize());
 		
@@ -106,7 +123,15 @@ public class WaterFlow {
 		change[cx.x][cx.y][cx.z] += flowAmount;	
 	}
 	
+	 /**
+   * Calculates the amount of water that should flow from one cell to another. This
+   *  should only be used for water flowing upwards!
+   *  
+   * @param cellI - the cell to flow water from
+   * @param cellX - the cell to flow water to
+   */
 	private void flowWaterUp(Cell cellI, Cell cellX) {
+	  //The percent saturations of each cell
 		double iSatur = percentSaturation(cellI);
 		double xSatur = percentSaturation(cellX);
 		
@@ -124,8 +149,11 @@ public class WaterFlow {
 			return;
 		}
 		
-		double K = cellI.getSoil().getHydraulicConductivity()*cellX.getSoil().getHydraulicConductivity()/2;
-		double A = cellI.getHeight()*Cell.getCellSize();
+		
+    //The average hydraulic conductivity
+    double K = cellI.getSoil().getHydraulicConductivity()*cellX.getSoil().getHydraulicConductivity()/2;
+    //The area of the face of the cell being flowed from
+    double A = cellI.getHeight()*Cell.getCellSize();
 		double satDif = (iSatur-xSatur)/Cell.getCellSize();
 		
 		double flowAmount = K * A * satDif * timeStep;
@@ -136,7 +164,13 @@ public class WaterFlow {
 		change[cx.x][cx.y][cx.z] += flowAmount;	
 	}
 
-	
+	/**
+	 * Computes the hydraulic head of the given cell
+	 * 
+	 * @param c - the cell being considered
+	 * 
+	 * @return the hydraulic head of the given cell
+	 */
 	private double hydraulicHead(Cell c) {
 		double saturation = percentSaturation(c);
 		double height = c.getHeight();
@@ -145,6 +179,7 @@ public class WaterFlow {
 		int z = c.getCoordinate().z;
 		
 		
+		//Adds the heights of all the cells above the given cell that are fully saturated
 		double heightAbove = 0;
 		double s;
 		for(int i = 1; i < farm.zCellCount; i++) {
@@ -157,9 +192,17 @@ public class WaterFlow {
 			}
 		}
 		
+		//returns the hydraulic head
 		return saturation*height + heightAbove;
 	}
 	
+	/**
+	 * Computes the percent saturation of the given cell
+	 * 
+	 * @param c - the cell being considered
+	 * 
+	 * @return the percent saturation of the given cell
+	 */
 	private  double percentSaturation(Cell c) {
 		return c.getSoil().getWaterCapacity()/c.getWaterVolume();
 	}
