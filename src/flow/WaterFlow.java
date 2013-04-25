@@ -68,6 +68,7 @@ public class WaterFlow {
 					if(grid[i][j][k] == null) {
 						continue;
 					}
+          
 					grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + change[i][j][k]);
 				}
 			}
