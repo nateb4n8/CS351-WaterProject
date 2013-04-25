@@ -10,6 +10,8 @@ import cell.Point3D;
  * TODO: Compute hydraulic heads beforehand
  * TODO: Compute saturations beforehand
  * TODO: Multi-thread
+ * TODO: Account for plants 
+ * TODO: Extra-farm flow
  * 
  * @author Max Ottesen
  */
