@@ -23,7 +23,7 @@ public class Crops {
 	 *            number of plants in crop
 	 * @throws Exception
 	 */
-	private Crops(Plant plant, Farm farm, int quadrant) throws Exception {		
+	public Crops(Plant plant, Farm farm, int quadrant) throws Exception {		
 		
 		// check if valid Crop entered
 		if (quadrant < 4) {

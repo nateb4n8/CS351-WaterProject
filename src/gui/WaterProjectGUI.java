@@ -819,7 +819,7 @@ public void actionPerformed(ActionEvent e)
 	  else
 	  {
 	    Plant p = getPlantType(plant1);
-	    try {Crops c1 = new Crops(p,getFarm(),1);
+	    try {Crops c1 = new Crops(p,f,1);
 		} catch (Exception e1) 
 		{
 		}
@@ -831,7 +831,7 @@ public void actionPerformed(ActionEvent e)
 	  else
 	  {
 	    Plant p = getPlantType(plant2);
-	    try {Crops c2 = new Crops(p,getFarm(),2);
+	    try {Crops c2 = new Crops(p,f,2);
 		} catch (Exception e1){
 		}
 	  }
@@ -842,7 +842,7 @@ public void actionPerformed(ActionEvent e)
 	  else
 	  {
 	    Plant p = getPlantType(plant3);
-	    try {Crops c3 = new Crops(p,getFarm(),3);
+	    try {Crops c3 = new Crops(p,f,3);
 		} catch (Exception e1){
 		}
 	  }
@@ -853,7 +853,7 @@ public void actionPerformed(ActionEvent e)
 	  else
 	  {
 	    Plant p = getPlantType(plant4);
-	    try {Crops c4 = new Crops(p,getFarm(),4);
+	    try {Crops c4 = new Crops(p,f,4);
 		} catch (Exception e1){
 		}
 	  }

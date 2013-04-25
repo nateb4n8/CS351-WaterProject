@@ -18,7 +18,7 @@ public class Main
    */
   public static void main(String[] args)
   {
-    WaterProjectGUI g = new WaterProjectGUI(10,10,500,500);
+    WaterProjectGUI g = new WaterProjectGUI();
     
   }
 

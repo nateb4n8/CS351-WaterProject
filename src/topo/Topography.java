@@ -14,10 +14,10 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class Topography {
-	private static final double     MAX_RELIEF = 13; //meters. The most the topography over the entire grid is allowed to vary
-	private static final double     TOLERANCE  = 0.75; //meters. Changes larger this amount will not be accepted
+	private static final double     MAX_RELIEF = 2; //meters. The most the topography over the entire grid is allowed to vary
+	private static final double     TOLERANCE  = 0.25; //meters. Changes larger this amount will not be accepted
 	private static final int        SIZE       = Farm.SIZE; //length and width. If SIZE=100, then each cell is 6400/100 = 64cm
-	private static final double[][] THICKNESS  = {{50, 300}, {100, 700}, {200, 1500}}; //centimeters. {height of each layer, height of all layers with the same height}
+	private static final double[][] THICKNESS  = {{50, 300}, {100, 700}, {150, 1500}}; //centimeters. {height of each layer, height of all layers with the same height}
 	private static final Random     rand       = new Random();
 
 
@@ -60,9 +60,12 @@ public class Topography {
 		//	e.printStackTrace();
 		//};
 
-		Cell[][][] grid = new Cell[SIZE][SIZE][126+(int)(minmax[1]*100)];
+		System.out.println(minmax[1]);
+		
+		
 		int baseLayers = (int)(THICKNESS[0][1]/THICKNESS[0][0]) + (int)(THICKNESS[1][1]/THICKNESS[1][0]) + (int)(THICKNESS[2][1]/THICKNESS[2][0]);
-
+		Cell[][][] grid = new Cell[SIZE][SIZE][baseLayers+(int)(minmax[1]*100)];
+		
 		//Sets the top to air (null)
 		for(int j = 0; j < SIZE; j++) {
 			for(int i = 0; i < SIZE; i++) {
