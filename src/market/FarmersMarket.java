@@ -17,17 +17,17 @@ public class FarmersMarket {
 	// the Plant Enum
 	private final double[] SEASONALLOWS = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 			12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-			29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
+			29, 30, 31, 32, 33, 34, 35, 36};
 	private final double[] SEASONALHIGHS = { 11, 12, 13, 14, 15, 16, 17, 18,
 			19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-			36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 };
+			36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46};
 
-	private int[] quantitySold = new int[10];
-	private int[] quantitySoldYesterday = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	private int[] quantitySold = new int[9];
+	private int[] quantitySoldYesterday = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-	private double[] prices = new double[10];
-	private double[] pricesYesterday = new double[10];
-	private double[] initialPrices = new double[10];
+	private double[] prices = new double[9];
+	private double[] pricesYesterday = new double[9];
+	private double[] initialPrices = new double[9];
 
 	public FarmersMarket() {
 		for (int i = 0; i < initialPrices.length; i++) {
@@ -85,12 +85,6 @@ public class FarmersMarket {
 						(int) (SEASONALHIGHS[32] - SEASONALLOWS[32]) + 1);
 				initialPrices[i] = randomPriceGenerator.nextDouble()
 						+ SEASONALLOWS[32];
-				break;
-			case 9:
-				randomPriceGenerator = new Random(
-						(int) (SEASONALHIGHS[36] - SEASONALLOWS[36]) + 1);
-				initialPrices[i] = randomPriceGenerator.nextDouble()
-						+ SEASONALLOWS[36];
 				break;
 			}
 
@@ -150,10 +144,6 @@ public class FarmersMarket {
 		case SWEETPEPPER:
 			total = prices[8] * quantity;
 			quantitySold[8] += quantity;
-			break;
-		case ROOTS:
-			total = prices[9] * quantity;
-			quantitySold[9] += quantity;
 			break;
 		}
 
@@ -231,12 +221,6 @@ public class FarmersMarket {
 				prices[8] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[32])
 						+ (pricesYesterday[8] * -(((quantitySold[8] - quantitySoldYesterday[8]) / quantitySoldYesterday[8]) / 2.0));
 				break;
-			case ROOTS:
-				randomPriceGenerator = new Random(
-						(int) (SEASONALHIGHS[36] - SEASONALLOWS[36]) + 1);
-				prices[9] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[36])
-						+ (pricesYesterday[9] * -(((quantitySold[9] - quantitySoldYesterday[9]) / quantitySoldYesterday[9]) / 2.0));
-				break;
 			}
 		} else if (season == "spring") {
 			switch (plant) {
@@ -293,12 +277,6 @@ public class FarmersMarket {
 						(int) (SEASONALHIGHS[33] - SEASONALLOWS[33]) + 1);
 				prices[8] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[33])
 						+ (pricesYesterday[8] * -(((quantitySold[8] - quantitySoldYesterday[8]) / quantitySoldYesterday[8]) / 2.0));
-				break;
-			case ROOTS:
-				randomPriceGenerator = new Random(
-						(int) (SEASONALHIGHS[37] - SEASONALLOWS[37]) + 1);
-				prices[9] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[37])
-						+ (pricesYesterday[9] * -(((quantitySold[9] - quantitySoldYesterday[9]) / quantitySoldYesterday[9]) / 2.0));
 				break;
 			}
 		}
@@ -359,12 +337,6 @@ public class FarmersMarket {
 				prices[8] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[34])
 						+ (pricesYesterday[8] * -(((quantitySold[8] - quantitySoldYesterday[8]) / quantitySoldYesterday[8]) / 2.0));
 				break;
-			case ROOTS:
-				randomPriceGenerator = new Random(
-						(int) (SEASONALHIGHS[38] - SEASONALLOWS[38]) + 1);
-				prices[9] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[38])
-						+ (pricesYesterday[9] * -(((quantitySold[9] - quantitySoldYesterday[9]) / quantitySoldYesterday[9]) / 2.0));
-				break;
 			}
 		}
 
@@ -424,12 +396,6 @@ public class FarmersMarket {
 				prices[8] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[35])
 						+ (pricesYesterday[8] * -(((quantitySold[8] - quantitySoldYesterday[8]) / quantitySoldYesterday[8]) / 2.0));
 				break;
-			case ROOTS:
-				randomPriceGenerator = new Random(
-						(int) (SEASONALHIGHS[39] - SEASONALLOWS[39]) + 1);
-				prices[9] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[39])
-						+ (pricesYesterday[9] * -(((quantitySold[9] - quantitySoldYesterday[9]) / quantitySoldYesterday[9]) / 2.0));
-				break;
 			}
 		}
 	}
@@ -449,7 +415,6 @@ public class FarmersMarket {
 		this.calculatePrice(Plant.WINTERSQUASH);
 		this.calculatePrice(Plant.POTATOES);
 		this.calculatePrice(Plant.SWEETPEPPER);
-		this.calculatePrice(Plant.ROOTS);
 		
 		for (int i = 0; i < quantitySold.length; i++) {
 			quantitySoldYesterday[i] = quantitySold[i];
