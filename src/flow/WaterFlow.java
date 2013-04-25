@@ -186,9 +186,9 @@ public class WaterFlow {
 		double heightAbove = 0;
 		double s;
 		for(int i = 1; i < farm.zCellCount; i++) {
-			s = percentSaturation(grid[x][y][z]);
+			s = percentSaturation(grid[x][y][z+i]);
 			if(s > 99) {
-				heightAbove += grid[x][y][z].getHeight();
+				heightAbove += grid[x][y][z+i].getHeight();
 			}
 			else {
 				break;
