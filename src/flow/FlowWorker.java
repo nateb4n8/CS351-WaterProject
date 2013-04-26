@@ -38,8 +38,8 @@ public class FlowWorker extends Thread {
   public void run() {
     //Keep going until it's killed
     while(!kill) {
-      //Both this thread and the master thread have to be ready before calculations begin
-      if(!calculate || !m.ready()) {
+      //The master has to tell this thread to calculate before it will
+      if(!calculate) {
         try {Thread.sleep(1);} 
         catch(InterruptedException e) {}
         continue;
