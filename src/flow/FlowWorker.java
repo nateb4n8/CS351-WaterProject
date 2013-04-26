@@ -68,7 +68,6 @@ public class FlowWorker extends Thread {
       this.calculate = false;
       m.workerDone();
     }
-    
   }
   
   

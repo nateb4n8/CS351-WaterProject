@@ -27,12 +27,14 @@ public class WaterFlow {
 		this.grid = farm.getGrid();
 		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
 		this.finishedWorkers = 0;
-		workers = new FlowWorker[4];
+		this.workers = new FlowWorker[4];
+		this.hydraulicHead = new double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
+		this.percentSaturation = new double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		
-		workers[0] = new FlowWorker(0, (int)Farm.xCellCount/2, 0, (int)Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
-		workers[1] = new FlowWorker((int)Farm.xCellCount/2, Farm.xCellCount, 0, (int)Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
-		workers[2] = new FlowWorker(0, (int)Farm.xCellCount/2, (int)Farm.yCellCount/2, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
-		workers[3] = new FlowWorker((int)Farm.xCellCount/2, Farm.xCellCount, (int)Farm.yCellCount, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[0] = new FlowWorker(0, Farm.xCellCount/2, 0, Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[1] = new FlowWorker(Farm.xCellCount/2, Farm.xCellCount, 0, Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[2] = new FlowWorker(0, Farm.xCellCount/2, Farm.yCellCount/2, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[3] = new FlowWorker(Farm.xCellCount/2, Farm.xCellCount, Farm.yCellCount, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
 		
 		for(int i = 0; i < 4; i++) {
 		  workers[i].start();
@@ -199,4 +201,12 @@ public class WaterFlow {
 	  finishedWorkers++;
 	}
 
+	/**
+	 * Lets all the worker threads die
+	 */
+	public void kill() {
+		for(int i = 0; i < workers.length; i++) {
+			workers[i].kill();
+		}
+	}
 }
