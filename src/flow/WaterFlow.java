@@ -17,7 +17,6 @@ public class WaterFlow {
 	private Farm         farm;
 	private Cell[][][]   grid;
 	private Double[][][] change;
-	private boolean      ready;
 	private double[][][] hydraulicHead;
 	private double[][][] percentSaturation;
 	private FlowWorker[] workers;
@@ -27,7 +26,6 @@ public class WaterFlow {
 		this.farm = farm;
 		this.grid = farm.getGrid();
 		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
-		this.ready = false;
 		this.finishedWorkers = 0;
 		workers = new FlowWorker[4];
 		
@@ -87,13 +85,10 @@ public class WaterFlow {
 	    }
 	  }
 
-	  this.ready = true;
 	  for(int i = 0; i < 4; i++) {
 	    workers[i].startCalculations();
 	  }
-	  
-	  this.ready = false;
-	  
+	  	  
 	  while(finishedWorkers != 4) {
 	    try{Thread.sleep(1);} 
 	    catch (InterruptedException e){}
@@ -195,15 +190,6 @@ public class WaterFlow {
    */
 	public double getHydraulicHead(int x, int y, int z) {
 	  return hydraulicHead[x][y][z];
-	}
-	
-	/**
-	 * Tells worker threads if the master thread (this) is ready for them to start doing their calculations.
-	 * This is used to keep the threads from getting ahead or behind
-	 * @return whether or not the master is ready for the workers to work
-	 */
-	public boolean ready() {
-	  return ready;
 	}
 	
 	/**
