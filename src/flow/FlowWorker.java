@@ -80,6 +80,9 @@ public class FlowWorker extends Thread {
    * @param cellX - the cell to flow water to
    */
   private void flowWaterSide(Cell cellI, Cell cellX) {
+    if(cellX == null) {
+      return;
+    }
     Point3D ci = cellI.getCoordinate();
     Point3D cx = cellX.getCoordinate();
     
@@ -124,6 +127,9 @@ public class FlowWorker extends Thread {
    * @param cellX - the cell to flow water to
    */
   private void flowWaterUp(Cell cellI, Cell cellX) {
+    if(cellX == null) {
+      return;
+    }
     Point3D ci = cellI.getCoordinate();
     Point3D cx = cellX.getCoordinate();
     
