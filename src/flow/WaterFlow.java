@@ -92,12 +92,13 @@ public class WaterFlow {
 	    workers[i].startCalculations();
 	  }
 	  
+	  this.ready = false;
+	  
 	  while(finishedWorkers != 4) {
 	    try{Thread.sleep(1);} 
 	    catch (InterruptedException e){}
 	  }
 	  
-	  this.ready = false;
 	  finishedWorkers = 0;
 	  
 	   
@@ -121,9 +122,7 @@ public class WaterFlow {
 
 	/**
 	 * Computes the hydraulic head of the given cell
-	 * 
 	 * @param c - the cell being considered
-	 * 
 	 * @return the hydraulic head of the given cell
 	 */
 	private double hydraulicHead(Cell c) {
@@ -153,15 +152,18 @@ public class WaterFlow {
 	
 	/**
 	 * Computes the percent saturation of the given cell
-	 * 
 	 * @param c - the cell being considered
-	 * 
 	 * @return the percent saturation of the given cell
 	 */
 	private double percentSaturation(Cell c) {
 		return c.getSoil().getWaterCapacity()/c.getWaterVolume();
 	}
 	
+	
+	/**
+	 * Sets a Double[][][] array to all 0s
+	 * @param array - the array to be reset
+	 */
 	private void reset(Double[][][] array) {
 	   //Reset the change holder
     for(int k = 0; k < farm.getZCellCount(); k++) {
@@ -173,18 +175,40 @@ public class WaterFlow {
     } 
 	}
 	
+	/**
+	 * Returns the percent saturation of a specified cell
+	 * @param x - the X-coordinate of the cell
+	 * @param y - the Y-coordinate of the cell
+	 * @param z - the Z-coordinate of the cell
+	 * @return the percent saturation of the cell
+	 */
 	public double getPercentSaturation(int x, int y, int z) {
 	  return percentSaturation[x][y][z];
 	}
 	
+	 /**
+   * Returns the hydraulic head of a specified cell
+   * @param x - the X-coordinate of the cell
+   * @param y - the Y-coordinate of the cell
+   * @param z - the Z-coordinate of the cell
+   * @return the hydraulic head of the cell
+   */
 	public double getHydraulicHead(int x, int y, int z) {
 	  return hydraulicHead[x][y][z];
 	}
 	
+	/**
+	 * Tells worker threads if the master thread (this) is ready for them to start doing their calculations.
+	 * This is used to keep the threads from getting ahead or behind
+	 * @return whether or not the master is ready for the workers to work
+	 */
 	public boolean ready() {
 	  return ready;
 	}
 	
+	/**
+	 * Lets a worker thread tell the master that it's done
+	 */
 	public synchronized void workerDone() {
 	  finishedWorkers++;
 	}
