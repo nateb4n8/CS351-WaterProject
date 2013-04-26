@@ -14,9 +14,9 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class Topography {
-	private static final double     MAX_RELIEF = 2; //meters. The most the topography over the entire grid is allowed to vary
-	private static final double     TOLERANCE  = 0.25; //meters. Changes larger this amount will not be accepted
-	private static final int        SIZE       = Farm.SIZE; //length and width. If SIZE=100, then each cell is 6400/100 = 64cm
+	private static final double     MAX_RELIEF = 13; //meters. The most the topography over the entire grid is allowed to vary
+	private static final double     TOLERANCE  = 0.75; //meters. Changes larger this amount will not be accepted
+	private static final int        SIZE       = Farm.SIZE; //decimeters. length and width
 	private static final double[][] THICKNESS  = {{50, 300}, {100, 700}, {150, 1500}}; //centimeters. {height of each layer, height of all layers with the same height}
 	private static final Random     rand       = new Random();
 
@@ -33,12 +33,11 @@ public class Topography {
 	 * @return a Farm that has been given topographic shape
 	 */
 	public static Farm createFarm(double latitude, double longitude) {
-		double[] minmax = {10.0, 0.0};
-		double[][] deviation;
+		double[][] deviation; //meters
 
 		//Generates a 2D array of doubles to correspond to heights of a specific i,j column. This is essentially the shape
 		// of the land that the program will run on. It's a random, but smooth, topography.
-		deviation = getDeviations(minmax);
+		deviation = getDeviations();
 
 //		ElevationData ed = new ElevationData(longitude, latitude);
 //		deviation = ed.getElevations();
@@ -60,12 +59,13 @@ public class Topography {
 		//	e.printStackTrace();
 		//};
 
-		System.out.println(minmax[1]);
-		
-		
+		double[] minmax = adjustForMinMax(deviation);
+
 		int baseLayers = (int)(THICKNESS[0][1]/THICKNESS[0][0]) + (int)(THICKNESS[1][1]/THICKNESS[1][0]) + (int)(THICKNESS[2][1]/THICKNESS[2][0]);
+
 		Cell[][][] grid = new Cell[SIZE][SIZE][baseLayers+(int)(minmax[1]*100)];
-		
+
+
 		//Sets the top to air (null)
 		for(int j = 0; j < SIZE; j++) {
 			for(int i = 0; i < SIZE; i++) {
@@ -124,6 +124,7 @@ public class Topography {
 		farm.setLongitude(longitude);
 		farm.setRelief(minmax[1]);
 		farm.setGrid(grid);
+		farm.setZCellCount(baseLayers+(int)(minmax[1]*100));
 
 		return farm;
 	}
@@ -132,10 +133,9 @@ public class Topography {
 	 * Generates a random, but smooth topography using the given MAX_RELIEF, TOLERANCE, and SIZE. The MAX_RELIEF is the total
 	 *  amount of difference there is allowed to be in the elevations. The TOLERANCE is the largest height difference between
 	 *  two blocks that will be accepted. The SIZE is the length and width of the land
-	 * @param minmax - the min and max heights
 	 * @return - a 2D array of doubles that correspond to heights
 	 */
-	private static double[][] getDeviations(double[] minmax) {
+	private static double[][] getDeviations() {
 		double chance; //that this height will used
 		double previous2, previous1; //the heights of surrounding cells
 		double num; //randomly generated number
@@ -182,12 +182,6 @@ public class Topography {
 				//Roll and see if you come up successful. If so, keep the value.
 				if(rand.nextDouble() <= chance) {
 					deviation[i][j] = num;
-					if(num < minmax[0]) {
-						minmax[0] = num;
-					}
-					if(num > minmax[1]) {
-						minmax[1] = num;
-					}
 				}
 				//Otherwise, try again for this cell.
 				else {
@@ -197,17 +191,39 @@ public class Topography {
 			}
 		}
 
+
+
+		return deviation;
+	}
+
+	private static double[] adjustForMinMax(double[][] deviation) {
+		double[] minmax = {MAX_RELIEF, 0.0}; //Start with the min at MAX and the max at 0
+
+		//Find absolute minimum and maximum
 		for(int j = 0; j < SIZE; j++) {
 			for(int i = 0; i < SIZE; i++) {
-				deviation[i][j] -= minmax[0];
-				deviation[i][j] = (int)(100*deviation[i][j])/100.0;
+				if(deviation[i][j]  < minmax[0]) {
+					minmax[0] = deviation[i][j];
+				}
+				if(deviation[i][j] > minmax[1]) {
+					minmax[1] = deviation[i][j];
+				}
 			}
 		}
 
+		//Force the deviations into a range from 0 to max deviation
+		for(int j = 0; j < SIZE; j++) {
+			for(int i = 0; i < SIZE; i++) {
+				deviation[i][j] -= minmax[0];
+				deviation[i][j] = (int)(100*deviation[i][j])/100.0; //Round off to 2 decimal places
+			}
+		}
+
+		//Set the minmax into a range from 0 to max deviation
 		minmax[1] -= minmax[0];
 		minmax[0] = 0;
 
-		return deviation;
+		return minmax;
 	}
 
 	private static double getDepth(int i, int j, int k, double[][] deviations) {
