@@ -3,6 +3,10 @@ package flow;
 import cell.Cell;
 import cell.Point3D;
 
+/**
+ * A FlowWorker is a thread used by WaterFlow in order to split up the ground water calculations
+ * @author Max Ottesen
+ */
 public class FlowWorker extends Thread {
   private int          minX, maxX;
   private int          minY, maxY;
@@ -28,13 +32,13 @@ public class FlowWorker extends Thread {
     this.timeStep = timeStep;
     this.calculate = false;
     this.kill = false;
-    
-    
   }
   
   
   public void run() {
+    //Keep going until it's killed
     while(!kill) {
+      //Both this thread and the master thread have to be ready before calculations begin
       if(!calculate || !m.ready()) {
         try {Thread.sleep(1);} 
         catch(InterruptedException e) {}
@@ -60,6 +64,7 @@ public class FlowWorker extends Thread {
         }
       }
       
+      //Sets itself up so the master thread has to tell it to start before it does more calculations
       this.calculate = false;
       m.workerDone();
     }
@@ -159,7 +164,17 @@ public class FlowWorker extends Thread {
     }
   }
   
+  /**
+   * Lets this thread now that it's OK to start doing its calculations
+   */
   public void startCalculations() {
     this.calculate = true;
+  }
+  
+  /**
+   * Kills this thread by letting its run() loop end
+   */
+  public void kill() {
+    this.kill = true;
   }
 }
