@@ -391,8 +391,7 @@ public class FarmersMarket {
 						+ (pricesYesterday[7] * -(((quantitySold[7] - quantitySoldYesterday[7]) / quantitySoldYesterday[7]) / 2.0));
 				break;
 			case SWEETPEPPER:
-				randomPriceGenerator = new Random(
-						(int) (SEASONALHIGHS[35] - SEASONALLOWS[35]) + 1);
+				randomPriceGenerator = new Random((int) (SEASONALHIGHS[35] - SEASONALLOWS[35]) + 1);
 				prices[8] = (randomPriceGenerator.nextDouble() + SEASONALLOWS[35])
 						+ (pricesYesterday[8] * -(((quantitySold[8] - quantitySoldYesterday[8]) / quantitySoldYesterday[8]) / 2.0));
 				break;
@@ -429,6 +428,21 @@ public class FarmersMarket {
 		this.gameDate = gameDate;
 	}
 	
-	
+	/**
+	 * 
+	 * @param indexA
+	 * @param indexB
+	 */
+	private void generatePrice(int indexA, int indexB)
+	{
+	  int seed = (int) (SEASONALHIGHS[indexA] - SEASONALLOWS[indexA]) + 1;
+	  randomPriceGenerator = new Random(seed);
+	  
+	  double a = randomPriceGenerator.nextDouble() + SEASONALLOWS[indexA];
+	  double b = quantitySold[indexB] - quantitySoldYesterday[indexB];
+	  double c = (b / quantitySoldYesterday[indexB]) / 2.0;
+	  
+      prices[indexB] = a + (pricesYesterday[indexB] * - c);
+	}
 
 }
