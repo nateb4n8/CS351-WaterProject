@@ -17,7 +17,7 @@ public class Topography {
 	private static final double     MAX_RELIEF = 3; //meters. The most the topography over the entire grid is allowed to vary
 	private static final double     TOLERANCE  = 0.25; //meters. Changes larger this amount will not be accepted
 	private static final int        SIZE       = Farm.SIZE; //decimeters. length and width
-	private static final double[][] THICKNESS  = {{50, 300}, {100, 700}, {150, 1500}}; //centimeters. {height of each layer, height of all layers with the same height}
+	private static final double[][] HEIGHTS  = {{50, 300}, {100, 700}, {150, 1500}}; //centimeters. {height of each layer, height of all layers with the same height}
 	private static final Random     rand       = new Random();
 
 
@@ -39,16 +39,19 @@ public class Topography {
 		// of the land that the program will run on. It's a random, but smooth, topography.
 		deviation = getDeviations();
 
+		//Querys a google database to get elevation data.
 //		ElevationData ed = new ElevationData(longitude, latitude);
 //		deviation = ed.getElevations();
+		
+    double[] minmax = adjustForMinMax(deviation);
 
-		//For debugging. MATLAB matrix so I can call bar3(A) and see what my land looks like
+		//For debugging. Prints a MATLAB matrix so I can call bar3(A) and see what my land looks like in 3D
 		//try {
 		//	PrintWriter out = new PrintWriter(new FileWriter("C:/Users/Max/Desktop/file.txt"));
 		//	out.print("A = [");
 		//	for(int j = 0; j < SIZE; j++) {
 		//		for(int i = 0; i < SIZE; i++) {
-		//			out.print((deviation[i][j]+25) + " ");
+		//			out.print((deviation[i][j]+25) + " "); //+25 meters for the solid block that's always present
 		//		}
 		//		out.print("; ");
 		//	}
@@ -59,9 +62,8 @@ public class Topography {
 		//	e.printStackTrace();
 		//};
 
-		double[] minmax = adjustForMinMax(deviation);
 
-		int baseLayers = (int)(THICKNESS[0][1]/THICKNESS[0][0]) + (int)(THICKNESS[1][1]/THICKNESS[1][0]) + (int)(THICKNESS[2][1]/THICKNESS[2][0]);
+		int baseLayers = (int)(HEIGHTS[0][1]/HEIGHTS[0][0]) + (int)(HEIGHTS[1][1]/HEIGHTS[1][0]) + (int)(HEIGHTS[2][1]/HEIGHTS[2][0]);
 
 		Cell[][][] grid = new Cell[SIZE][SIZE][baseLayers+(int)(minmax[1]*100)];
 
@@ -74,22 +76,21 @@ public class Topography {
 		}
 
 
-
 		//Goes cell by cell and sets the height, depth, and coordinates of each cell.
 		//If you have a surface or air cell, set it to be one.
-		for(int k = 0; k < baseLayers+(int)(minmax[1]*100) ; k++) {
+		for(int k = 0; k < baseLayers-1+(int)(minmax[1]*100) ; k++) {
 			for(int j = 0; j < SIZE; j++) {
 				for(int i = 0; i < SIZE; i++) {
-					if(k >= 0 && k < THICKNESS[2][1]/THICKNESS[2][0]) {
-						grid[i][j][k] = new Cell(THICKNESS[2][0]*(k+1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
+					if(k >= 0 && k < HEIGHTS[2][1]/HEIGHTS[2][0]) {
+						grid[i][j][k] = new Cell(HEIGHTS[2][0]*(k+1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
 						grid[i][j][k].setSurface(false);
 					}
-					else if(k >= THICKNESS[2][1]/THICKNESS[2][0] && k < THICKNESS[1][1]/THICKNESS[1][0] + THICKNESS[2][1]/THICKNESS[2][0]) {
-						grid[i][j][k] = new Cell(THICKNESS[2][0]*THICKNESS[2][1] + THICKNESS[1][0]*(k-THICKNESS[2][1]/THICKNESS[2][0]-1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
+					else if(k >= HEIGHTS[2][1]/HEIGHTS[2][0] && k < HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0]) {
+						grid[i][j][k] = new Cell(HEIGHTS[2][0]*HEIGHTS[2][1] + HEIGHTS[1][0]*(k-HEIGHTS[2][1]/HEIGHTS[2][0]-1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
 						grid[i][j][k].setSurface(false);
 					}
-					else if(k >= THICKNESS[1][1]/THICKNESS[1][0] + THICKNESS[2][1]/THICKNESS[2][0] && k < baseLayers) {
-						grid[i][j][k] = new Cell(THICKNESS[2][0]*THICKNESS[2][1] + THICKNESS[1][0]*THICKNESS[1][1] + THICKNESS[0][0]*(k-(THICKNESS[1][1]/THICKNESS[1][0]+THICKNESS[2][1]/THICKNESS[2][0])-1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
+					else if(k >= HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0] && k < baseLayers) {
+						grid[i][j][k] = new Cell(HEIGHTS[2][0]*HEIGHTS[2][1] + HEIGHTS[1][0]*HEIGHTS[1][1] + HEIGHTS[0][0]*(k-(HEIGHTS[1][1]/HEIGHTS[1][0]+HEIGHTS[2][1]/HEIGHTS[2][0])-1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
 						if(k == baseLayers-1 && deviation[i][j] == 0.0) {
 							grid[i][j][k].setSurface(true);
 						}
@@ -228,26 +229,26 @@ public class Topography {
 
 	private static double getDepth(int i, int j, int k, double[][] deviations) {
 		double depth = 0;
-		int baseLayers = (int)(THICKNESS[0][1]/THICKNESS[0][0]) + (int)(THICKNESS[1][1]/THICKNESS[1][0]) + (int)(THICKNESS[2][1]/THICKNESS[2][0]);
+		int baseLayers = (int)(HEIGHTS[0][1]/HEIGHTS[0][0]) + (int)(HEIGHTS[1][1]/HEIGHTS[1][0]) + (int)(HEIGHTS[2][1]/HEIGHTS[2][0]);
 
 		//if k is above the height of a given column, just set the depth to -1 to indicate air
 		if(k > (baseLayers + deviations[i][j]*100)) {
 			depth = -1;
 		}
 
-		//Up until the point where you start seeing topography, just add the depth of the solid block above the topography
-		if(k >= 0 && k < THICKNESS[2][1]/THICKNESS[2][0]) {
-			depth += THICKNESS[0][0]*THICKNESS[0][1]+THICKNESS[1][0]*THICKNESS[1][1];
-			depth += ((THICKNESS[2][1]/THICKNESS[2][0]-1)-k)*THICKNESS[2][0];
+		//Up until the point where you start seeing topography, just add the depth of the solid block below the topography + the topography
+		if(k >= 0 && k < HEIGHTS[2][1]/HEIGHTS[2][0]) {
+			depth += HEIGHTS[0][0]*HEIGHTS[0][1]+HEIGHTS[1][0]*HEIGHTS[1][1];
+			depth += ((HEIGHTS[2][1]/HEIGHTS[2][0]-1)-k)*HEIGHTS[2][0];
 			depth += deviations[i][j] * 100;
 		}
-		else if(k >= THICKNESS[2][1]/THICKNESS[2][0] && k < THICKNESS[1][1]/THICKNESS[1][0] + THICKNESS[2][1]/THICKNESS[2][0]) {
-			depth += THICKNESS[1][0]*THICKNESS[1][1];
-			depth += ((THICKNESS[1][1]/THICKNESS[1][0] + THICKNESS[2][1]/THICKNESS[2][0]-1)-k)*THICKNESS[1][0];
+		else if(k >= HEIGHTS[2][1]/HEIGHTS[2][0] && k < HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0]) {
+			depth += HEIGHTS[1][0]*HEIGHTS[1][1];
+			depth += ((HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0]-1)-k)*HEIGHTS[1][0];
 			depth += deviations[i][j] * 100;
 		}
-		else if(k >= THICKNESS[1][1]/THICKNESS[1][0] + THICKNESS[2][1]/THICKNESS[2][0] && k < baseLayers) {
-			depth += ((baseLayers-1)-k)*THICKNESS[0][0];
+		else if(k >= HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0] && k < baseLayers) {
+			depth += ((baseLayers-1)-k)*HEIGHTS[0][0];
 			depth += deviations[i][j] * 100;
 		}
 		//Once you start hitting the topography, only add the depth of the topography above
