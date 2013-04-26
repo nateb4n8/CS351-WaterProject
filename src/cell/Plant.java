@@ -3,6 +3,7 @@ package cell;
 /**
  * Author: Robert Trujillo & Nathan Acosta 
  * Date: Created by Nathan on Mar 20, 2013, Modified by Robert on 04.22.13 
+ *       Modified by Donald Swartz on 04.26.13
  * A Plant contains properties pertaining to its interaction
  * with water and physical structure.
  */
@@ -53,7 +54,53 @@ public enum Plant {
 		this._deadOrAlive = true;
 		this._rootCellCoordinates = new Point3D[matureDepth];
 	}
-
+    /**
+     * Returns a plant type from a String
+     * @param p - String determining a plant type
+     * @return Plant corresponding to a String
+     */
+	public static Plant getPlantType(String p)
+	{
+	  Plant plant = null;
+	  if(p.equalsIgnoreCase("Pintobeans"))
+	  {
+	    plant = Plant.PINTOBEANS;  	  
+	  }
+	  else if(p.equalsIgnoreCase("Sunflower"))
+	  {
+	    plant = Plant.SUNFLOWER;	  
+	  }
+	  else if(p.equalsIgnoreCase("Amaranth"))
+	  {
+	    plant = Plant.AMARANTH;	  
+	  }
+	  else if(p.equalsIgnoreCase("Chile"))
+	  {
+	    plant = Plant.CHILE;	  
+	  }
+	  else if(p.equalsIgnoreCase("Sweetcorn"))
+	  {
+	    plant = Plant.SWEETCORN;	  
+	  }
+	  else if(p.equalsIgnoreCase("Summersquash"))
+	  {
+	    plant = Plant.SUMMERSQUASH;	  
+	  }
+	  else if(p.equalsIgnoreCase("Wintersquash"))
+	  {
+	    plant = Plant.WINTERSQUASH;	  
+	  }
+	  else if(p.equalsIgnoreCase("Potatoes"))
+	  {
+	    plant = Plant.POTATOES;	  
+	  }
+	  else if(p.equalsIgnoreCase("Sweetpepper"))
+	  {
+	    plant = Plant.SWEETPEPPER;	  
+	  }
+	  return plant;
+	  
+	}
 	/**
 	 * @return Returns the Transpiration of this Plant in mL/day.
 	 */

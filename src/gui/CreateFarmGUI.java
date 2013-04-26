@@ -16,6 +16,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import local_cont.Local_Control;
+
 import XML_Handler.XML_Handler;
 
 import topo.Topography;
@@ -30,7 +32,7 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
   private Farm farm;
   private JPanel panel;
   private DisplayFarm displayFarm;
-  
+  private Local_Control cont;
   
   JFrame createFarmFrame;
 	JFileChooser fc;
@@ -50,7 +52,8 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 	private JButton create;
 	private JButton browse;
 	private WaterProjectGUI g;
-	public CreateFarmGUI(WaterProjectGUI GUI) {
+	public CreateFarmGUI(WaterProjectGUI GUI, Local_Control l) {
+		cont = l;
 		createFarmFrame = new JFrame("Create Farm");
 		//createFarmFrame.setTitle("Create Farm");
 	    createFarmFrame.setSize(600, 200);
@@ -167,9 +170,10 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 	    createFarmFrame.dispose();
 	    g.displayLat(this.getLatitude());
 	    g.displayLong(this.getLongitude());
-	    this.farm = Topography.createFarm(this.getLatitude(), this.getLongitude());
-	    XML_Handler xmlHandler = new XML_Handler();
-	    xmlHandler.initGround(farm, this.getConfigPath());
+	    this.farm = cont.newFarm(this.getLatitude(), this.getLongitude(), this.getConfigPath());
+	    //this.farm = Topography.createFarm(this.getLatitude(), this.getLongitude());
+	    //XML_Handler xmlHandler = new XML_Handler();
+	    //xmlHandler.initGround(farm, this.getConfigPath());
 	    
 	    this.displayFarm = new DisplayFarm(this.farm, this.panel);
 	    

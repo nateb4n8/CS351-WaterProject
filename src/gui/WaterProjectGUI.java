@@ -28,6 +28,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import local_cont.Local_Control;
+
 import XML_Handler.XML_Handler;
 
 import cell.Crops;
@@ -52,9 +54,9 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   JList lst;
 
   DefaultListModel listModel = new DefaultListModel();
+  private Local_Control cont;
   
-  
-  private double money;
+  //private double money;
   private int quantity;
   
   JScrollPane JSP;
@@ -137,14 +139,14 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   
  
 
-public WaterProjectGUI()
+public WaterProjectGUI(Local_Control l)
 {
 	  
 	instanceCounter++;
 	counter = instanceCounter;
-	money = 1000.00;
+	//money = 1000.00;
     quantity = 10;
-	
+	cont = l;
 	int width = 500;
 	int height = 500;
 	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -286,7 +288,7 @@ public WaterProjectGUI()
     long_label = new JLabel("Longitude (in decimal) = ");
     sell_offers = new JLabel("Sell Offers");
     
-    moneyLabel = new JLabel("Money:("+getMoney()+")");
+    moneyLabel = new JLabel("Money: "+cont.getMoney());
     quantityLabel = new JLabel("Quantity:("+getQuantity()+")");
     moneyLabel.setFont(f2);
     quantityLabel.setFont(f2);
@@ -443,20 +445,20 @@ public int getQuantity()
 {
   return quantity;	
 }
-public double getMoney()
-{
-  return money;	
-}
-public void addMoney(double funds)
-{
-  money = money + funds;
-  
-}
-public void subtractMoney(double mon)
-{
-  money = money - mon;
- 
-}
+//public double getMoney()
+//{
+//  return money;	
+//}
+//public void addMoney(double funds)
+//{
+//  money = money + funds;
+//  
+//}
+//public void subtractMoney(double mon)
+//{
+//  money = money - mon;
+// 
+//}
 public void addQuantity(int quan)
 {
   quantity = quantity + quan;
@@ -467,10 +469,10 @@ public void subQuantity(int quan)
   quantity = quantity - quan;
   
 }
-public void setMoney(double amount)
-{
-  money = amount;	
-}
+//public void setMoney(double amount)
+//{
+//  money = amount;	
+//}
 public void setQuantity(int amount)
 {
   quantity = amount;	
@@ -588,7 +590,7 @@ public String getGuiNofromStr(String str)
   }
   return number;
 }
-private Plant getPlantType(String p)
+/*private static Plant getPlantType(String p)
 {
   Plant plant = null;
   if(p.equalsIgnoreCase("Pintobeans"))
@@ -629,7 +631,7 @@ private Plant getPlantType(String p)
   }
   return plant;
   
-}
+}*/
 private int flipValue(int val)
 {
   return max - val;
@@ -695,7 +697,7 @@ public void actionPerformed(ActionEvent e)
 	}
 	else if(obj == createButton)
 	{
-	  CreateFarmGUI createFarmG = new  CreateFarmGUI(this);
+	  CreateFarmGUI createFarmG = new  CreateFarmGUI(this,cont);
 	  createFarmG.isVisible();
 	  
 	}
@@ -707,8 +709,8 @@ public void actionPerformed(ActionEvent e)
 	  {
 	    savePath = chooser.getSelectedFile().getPath();
 	    System.out.println("Save Path is: "+getSavePath());
-	    XML_Handler xmlHandler = new XML_Handler();
-	    
+	    //XML_Handler xmlHandler = new XML_Handler();
+	    cont.saveFarm(getSavePath());
 	  }
 	}
 	else if(obj == restoreButton)
@@ -719,6 +721,7 @@ public void actionPerformed(ActionEvent e)
 	  {
 	    restorePath = chooser.getSelectedFile().getPath();
 	    System.out.println("Restore Path of file is: "+getRestorePath());
+	    cont.loadFarm(getRestorePath());
 	  }
 	}
 	else if(obj == sellButton)
@@ -775,7 +778,7 @@ public void actionPerformed(ActionEvent e)
 	    String GuiNum = getGuiNofromStr(s);
 	    int sellerNum = Integer.parseInt(GuiNum);
 	    System.out.println("GUI Number is "+sellerNum);
-	    double guisMon = this.getMoney();
+	    double guisMon = cont.getMoney();
 	    int guisQuan = this.getQuantity();
 	    int buyerNum = this.getGuiNumber();
 	    System.out.println("BuyerNum= "+buyerNum);
@@ -808,7 +811,13 @@ public void actionPerformed(ActionEvent e)
 	}
 	else if(obj == plantButton)
 	{
-	  String plant1 = (String) Q1.getSelectedItem();
+		String[] plants = new String[4];
+		plants[0] = (String) Q1.getSelectedItem();
+		plants[1] = (String) Q2.getSelectedItem();
+		plants[2] = (String) Q3.getSelectedItem();
+		plants[3] = (String) Q4.getSelectedItem();
+		cont.plantCrops(plants);
+	 /* String plant1 = (String) Q1.getSelectedItem();
 	  String plant2 = (String) Q2.getSelectedItem();
 	  String plant3 = (String) Q3.getSelectedItem();
 	  String plant4 = (String) Q4.getSelectedItem();
@@ -856,7 +865,7 @@ public void actionPerformed(ActionEvent e)
 	    try {Crops c4 = new Crops(p,f,4);
 		} catch (Exception e1){
 		}
-	  }
+	  } */
 	  plantButton.setEnabled(false);
 	}
 	  	
