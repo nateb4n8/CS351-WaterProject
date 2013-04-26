@@ -17,6 +17,7 @@ public class Farm
 	private double money = 1000.00d;
 	public static final int SIZE = 150;
 	Crops[] planted = new Crops[4];
+	private int waterQty = 10;
   public String errorText; //Error messages
   public static final int xCellCount = SIZE; //Width of the grid in cell amount
   public static final int yCellCount = SIZE; //Length of the grid in cell amount
@@ -95,14 +96,21 @@ public class Farm
   { this.grid = grid;
   }
 
-public void setMoney(double money) {
-	this.money = money;
-}
-
-public double getMoney() {
-	return money;
-}
-  public void setCrop(int idx, Crops c){
+	public void setMoney(double money) {
+		this.money = money;
+	}
+	public double getMoney() {
+		return money;
+	}
+	public void setCrop(int idx, Crops c){
 	  if (idx < planted.length) planted[idx] = c;
-  }
+	}
+	
+	public void setWaterQty(int waterQty) {
+		this.waterQty = waterQty;
+	}
+	
+	public int getWaterQty() {
+		return waterQty;
+	}
 }

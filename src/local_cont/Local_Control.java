@@ -8,7 +8,8 @@ import cell.Farm;
 import cell.Plant;
 
 public class Local_Control {
-	Farm f;
+	private Farm f;
+	private static WaterProjectGUI gui;
 	public double getMoney(){
 
 		return (f==null)?0:f.getMoney();
@@ -39,9 +40,158 @@ public class Local_Control {
 			}
 		}
 	}
+	public void addMoney(double amt){
+		f.setMoney(f.getMoney()+amt);
+		gui.setMoneyLabel();
+	}
+	public void subMoney(double amt){
+		f.setMoney(f.getMoney()-amt);
+		gui.setMoneyLabel();		
+	}
  
 	public static void main(String args[]){
 		Local_Control me = new Local_Control();
-		new WaterProjectGUI(me);
+		gui = new WaterProjectGUI(me);
 	}
+	public int getQuantity() {
+		return (f==null)?10:f.getWaterQty();
+	}
+	public void addQ(int amount)
+	{
+	    //guis[GuiNo].addQuantity(amount);
+		int total = getQuantity() + amount;
+		f.setWaterQty(total);
+	    gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
+	}
+	public void subQ(int amount)
+	{
+	    //guis[GuiNo].subQuantity(amount);
+		int total = getQuantity() - amount;
+		f.setWaterQty(total);
+		gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
+	}
+	public void buy(String s, int buyQ, int idx) {
+	    String amount = getSellingValue(s);
+	    double sellAm = Double.parseDouble(amount);
+	    System.out.println("Sell Amount= "+sellAm);
+	    System.out.println("Amount: "+amount);
+	    String quant = getSellingQuantity(s);
+	    int sellQuant = Integer.parseInt(quant);
+	    System.out.println("Quantity: "+quant);
+	    String GuiNum = getGuiNofromStr(s);
+	    int sellerNum = Integer.parseInt(GuiNum);
+	    System.out.println("GUI Number is "+sellerNum);
+	    double guisMon = getMoney();
+	    int guisQuan = getQuantity();
+	    int buyerNum = gui.getGuiNumber();
+	    System.out.println("BuyerNum= "+buyerNum);
+	    double total = sellAm*sellQuant;
+	    if(buyQ == sellQuant && guisMon >= total)
+	    {
+	    	gui.removeSellOffer(idx);
+	    }
+	    else if(buyQ > sellQuant && guisMon >= total)
+	    {
+	    	gui.removeSellOffer(idx);
+	      int newQuantity = buyQ - sellQuant;
+	      
+	    }
+	    else if(buyQ < sellQuant && guisMon >= total)
+	    {
+	      int newQuantity = sellQuant - buyQ;
+	      String newString = setQuantity(s,newQuantity,sellerNum);
+	      gui.removeSellOffer(idx);
+	    } 
+
+	}
+	public String getSellingValue(String s)
+	{
+	  String amount = "";
+	  for(int i=1;i<s.length();i++)
+	  {
+		char c = s.charAt(i);
+		if(c == ' ')
+		{
+		  break;	
+		}
+		else
+		{
+		  amount = amount + c;
+		}
+	  }
+	  return amount;
+	}
+	public String getSellingQuantity(String s)
+	{
+	  int start;
+	 
+	  for(start = 0;start<s.length();start++)
+	  {
+		char c = s.charAt(start);
+		if(c == ':')
+		{
+		  break;
+		}
+	    
+	    
+	  }
+	  String quantity = "";
+	  start++;
+	  for(int i = start;i<s.length();i++)
+	  {
+		char c = s.charAt(i);
+		if(c == ';')
+		{
+		  break;	
+		}
+		else
+		{
+	      quantity = quantity + c;
+	      i++;
+		}
+	  }
+	  return quantity;
+	}
+	public String getGuiNofromStr(String str)
+	{
+	  String number = "";
+	  char c;
+	  int start;
+	  
+	  for(start = str.length()-4;start<str.length();start++)
+	  {
+	    c = str.charAt(start);
+	    if(c == ':')
+	    {
+	      start++;	
+	      break;	
+	    }
+	  }
+	  for(int i=start;i<str.length();i++)
+	  {
+	    number = number + str.charAt(i);	  
+	  }
+	  return number;
+	}
+	public String setQuantity(String s, int quantity, int sellerNo)
+	{
+	  char c;
+	  String string = "";
+	  
+	  for(int i=0;i<s.length();i++)
+	  {
+		c = s.charAt(i);
+	    if(c == ':')
+	    {
+	      break;	
+	    }
+	    string = string + s.charAt(i);
+	  }
+	  string = string + ':';
+	  string = string + quantity;
+	  String addition = " ;GUI No:"+sellerNo;
+	  string = string + addition;
+	  return string;
+	}
+
 }

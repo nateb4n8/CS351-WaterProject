@@ -57,7 +57,7 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   private Local_Control cont;
   
   //private double money;
-  private int quantity;
+  //private int quantity;
   
   JScrollPane JSP;
   private JTextField sellInput1;
@@ -145,7 +145,7 @@ public WaterProjectGUI(Local_Control l)
 	instanceCounter++;
 	counter = instanceCounter;
 	//money = 1000.00;
-    quantity = 10;
+    //quantity = 10;
 	cont = l;
 	int width = 500;
 	int height = 500;
@@ -289,7 +289,7 @@ public WaterProjectGUI(Local_Control l)
     sell_offers = new JLabel("Sell Offers");
     
     moneyLabel = new JLabel("Money: "+cont.getMoney());
-    quantityLabel = new JLabel("Quantity:("+getQuantity()+")");
+    quantityLabel = new JLabel("Quantity: "+cont.getQuantity()+" ");
     moneyLabel.setFont(f2);
     quantityLabel.setFont(f2);
     lat_label.setFont(f2);
@@ -428,7 +428,7 @@ public WaterProjectGUI(Local_Control l)
    
     //frame.pack();
     frame.setVisible(true);
-    AllGUIs.addGUI(this);
+    //AllGUIs.addGUI(this);
     
     }
 
@@ -441,10 +441,10 @@ public static boolean isNumeric(String str)
   return str.length() == pos.getIndex();
 }
 
-public int getQuantity()
-{
-  return quantity;	
-}
+//public int getQuantity()
+//{
+//  return quantity;	
+//}
 //public double getMoney()
 //{
 //  return money;	
@@ -459,24 +459,24 @@ public int getQuantity()
 //  money = money - mon;
 // 
 //}
-public void addQuantity(int quan)
-{
-  quantity = quantity + quan;
-  
-}
-public void subQuantity(int quan)
-{
-  quantity = quantity - quan;
-  
-}
+//public void addQuantity(int quan)
+//{
+//  quantity = quantity + quan;
+//  
+//}
+//public void subQuantity(int quan)
+//{
+//  quantity = quantity - quan;
+//  
+//}
 //public void setMoney(double amount)
 //{
 //  money = amount;	
 //}
-public void setQuantity(int amount)
-{
-  quantity = amount;	
-}
+//public void setQuantity(int amount)
+//{
+//  quantity = amount;	
+//}
 public int getGuiNumber()
 {
   return counter;	
@@ -488,6 +488,10 @@ public DefaultListModel getListModel()
 public JLabel getMoneyLabel()
 {
   return moneyLabel;	
+}
+public void setMoneyLabel()
+{
+	this.getMoneyLabel().setText("Money: "+cont.getMoney()+" ");
 }
 public JLabel getQuantityLabel()
 {
@@ -501,95 +505,95 @@ public JPanel getBorder()
 {
   return border;	
 }
-public String getSellingValue(String s)
-{
-  String amount = "";
-  for(int i=1;i<s.length();i++)
-  {
-	char c = s.charAt(i);
-	if(c == ' ')
-	{
-	  break;	
-	}
-	else
-	{
-	  amount = amount + c;
-	}
-  }
-  return amount;
-}
-public String getSellingQuantity(String s)
-{
-  int start;
- 
-  for(start = 0;start<s.length();start++)
-  {
-	char c = s.charAt(start);
-	if(c == ':')
-	{
-	  break;
-	}
-    
-    
-  }
-  String quantity = "";
-  start++;
-  for(int i = start;i<s.length();i++)
-  {
-	char c = s.charAt(i);
-	if(c == ';')
-	{
-	  break;	
-	}
-	else
-	{
-      quantity = quantity + c;
-      i++;
-	}
-  }
-  return quantity;
-}
-public String setQuantity(String s, int quantity, int sellerNo)
-{
-  char c;
-  String string = "";
-  
-  for(int i=0;i<s.length();i++)
-  {
-	c = s.charAt(i);
-    if(c == ':')
-    {
-      break;	
-    }
-    string = string + s.charAt(i);
-  }
-  string = string + ':';
-  string = string + quantity;
-  String addition = " ;GUI No:"+sellerNo;
-  string = string + addition;
-  return string;
-}
-public String getGuiNofromStr(String str)
-{
-  String number = "";
-  char c;
-  int start;
-  
-  for(start = str.length()-4;start<str.length();start++)
-  {
-    c = str.charAt(start);
-    if(c == ':')
-    {
-      start++;	
-      break;	
-    }
-  }
-  for(int i=start;i<str.length();i++)
-  {
-    number = number + str.charAt(i);	  
-  }
-  return number;
-}
+//public String getSellingValue(String s)
+//{
+//  String amount = "";
+//  for(int i=1;i<s.length();i++)
+//  {
+//	char c = s.charAt(i);
+//	if(c == ' ')
+//	{
+//	  break;	
+//	}
+//	else
+//	{
+//	  amount = amount + c;
+//	}
+// }
+//  return amount;
+//}
+//public String getSellingQuantity(String s)
+//{
+//  int start;
+// 
+//  for(start = 0;start<s.length();start++)
+//  {
+//	char c = s.charAt(start);
+//	if(c == ':')
+//	{
+//	  break;
+//	}
+//    
+//    
+//  }
+//  String quantity = "";
+//  start++;
+//  for(int i = start;i<s.length();i++)
+//  {
+//	char c = s.charAt(i);
+//	if(c == ';')
+//	{
+//	  break;	
+//	}
+//	else
+//	{
+//      quantity = quantity + c;
+//      i++;
+//	}
+//  }
+//  return quantity;
+//}
+//public String setQuantity(String s, int quantity, int sellerNo)
+//{
+//  char c;
+//  String string = "";
+//  
+//  for(int i=0;i<s.length();i++)
+//  {
+//	c = s.charAt(i);
+//    if(c == ':')
+//    {
+//      break;	
+//    }
+//    string = string + s.charAt(i);
+//  }
+//  string = string + ':';
+//  string = string + quantity;
+//  String addition = " ;GUI No:"+sellerNo;
+//  string = string + addition;
+//  return string;
+//}
+//public String getGuiNofromStr(String str)
+//{
+//  String number = "";
+//  char c;
+//  int start;
+//  
+//  for(start = str.length()-4;start<str.length();start++)
+//  {
+//    c = str.charAt(start);
+//    if(c == ':')
+//    {
+//      start++;	
+//      break;	
+//    }
+//  }
+//  for(int i=start;i<str.length();i++)
+//  {
+//    number = number + str.charAt(i);	  
+//  }
+//  return number;
+//}
 /*private static Plant getPlantType(String p)
 {
   Plant plant = null;
@@ -663,6 +667,9 @@ public String getSavePath()
 public String getRestorePath()
 {
   return restorePath;	
+}
+public void removeSellOffer(int index){
+  this.getListModel().remove(index);	
 }
  
 public void actionPerformed(ActionEvent e) 
@@ -739,10 +746,10 @@ public void actionPerformed(ActionEvent e)
 		String sellQ = sellInput2.getText();
 		int sellQuan = Integer.parseInt(sellQ);
 		
-	    if(isNumeric(sell) == true && isNumeric(sellQ) == true && sellQuan <= this.getQuantity())
+	    if(isNumeric(sell) == true && isNumeric(sellQ) == true && sellQuan <= cont.getQuantity())
 	    {
 		  String s = "$"+sellInput1.getText()+" per unit; " +"Quantity:"+ sellInput2.getText()+" ;GUI No:"+getGuiNumber();
-		  AllGUIs.messageGUIs(s);
+		  //AllGUIs.messageGUIs(s);
 	      
 	    }
 	    sellInput1.setText("");
@@ -760,7 +767,8 @@ public void actionPerformed(ActionEvent e)
 	    buyQuan = "0";
 	  }
 	  buyQ = Integer.parseInt(buyQuan);
-	  if(i == -1 || buyQuan.equals(""))
+	  // if(i == -1 || buyQuan.equals(""))  buyQuan cannnot equal "" because of 2 lines above.
+	  if (i == -1)
 	  {
 	  	  
 	  }
@@ -768,7 +776,8 @@ public void actionPerformed(ActionEvent e)
 	  {
 	    String s = (String) lst.getModel().getElementAt(i);
 	    System.out.println(s);
-	    String amount = getSellingValue(s);
+	    cont.buy(s,buyQ,i);
+	    /* String amount = getSellingValue(s);
 	    double sellAm = Double.parseDouble(amount);
 	    System.out.println("Sell Amount= "+sellAm);
 	    System.out.println("Amount: "+amount);
@@ -802,11 +811,11 @@ public void actionPerformed(ActionEvent e)
 	    {
 	      int newQuantity = sellQuant - buyQ;
 	      String newString = setQuantity(s,newQuantity,sellerNum);
-	      AllGUIs.removeSellOffer(i);
-	      AllGUIs.messageGUIs(newString);
-	      AllGUIs.subMoney(getGuiNumber(), total);
-	      AllGUIs.putMoney(sellerNum, total);
-	    }
+	      //AllGUIs.removeSellOffer(i);
+	      //AllGUIs.messageGUIs(newString);
+	      //AllGUIs.subMoney(getGuiNumber(), total);
+	      //AllGUIs.putMoney(sellerNum, total);
+	    } */
 	  }
 	}
 	else if(obj == plantButton)
