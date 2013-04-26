@@ -2,14 +2,10 @@ package flow;
 
 import cell.Cell;
 import cell.Farm;
-import cell.Point3D;
 
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
- * 
- * TODO: Compute hydraulic heads beforehand
- * TODO: Compute saturations beforehand
- * TODO: Multi-thread
+ *
  * TODO: Account for plants 
  * TODO: Extra-farm flow
  * 
@@ -20,12 +16,29 @@ public class WaterFlow {
 	private double       timeStep = 1; //seconds
 	private Farm         farm;
 	private Cell[][][]   grid;
-	private double[][][] change;
+	private Double[][][] change;
+	private boolean      ready;
+	private double[][][] hydraulicHead;
+	private double[][][] percentSaturation;
+	private FlowWorker[] workers;
+	private int          finishedWorkers;
 
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
 		this.grid = farm.getGrid();
-		change = new double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
+		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
+		this.ready = false;
+		this.finishedWorkers = 0;
+		workers = new FlowWorker[4];
+		
+		workers[0] = new FlowWorker(0, (int)Farm.xCellCount/2, 0, (int)Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[1] = new FlowWorker((int)Farm.xCellCount/2, Farm.xCellCount, 0, (int)Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[2] = new FlowWorker(0, (int)Farm.xCellCount/2, (int)Farm.yCellCount/2, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[3] = new FlowWorker((int)Farm.xCellCount/2, Farm.xCellCount, (int)Farm.yCellCount, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
+		
+		for(int i = 0; i < 4; i++) {
+		  workers[i].start();
+		}
 	}
 
 
@@ -43,25 +56,51 @@ public class WaterFlow {
 	 * Runs the model for one time step
 	 */
 	private void update() {
+	  
+	  //Calculate all hydraulic heads
+	  //TODO: consider having worker threads do this
+	  for(int k = 0; k < farm.getZCellCount(); k++) {
+	    for(int j = 0; j < Farm.yCellCount; j++) {
+	      for(int i = 0; i < Farm.xCellCount; i++) {
+	        if(grid[i][j][k] == null) {
+	          hydraulicHead[i][j][k] = new Double(-1);
+	        }
+	        else {
+	          hydraulicHead[i][j][k] = new Double(hydraulicHead(grid[i][j][k]));
+	        }
+	      }
+	    }
+	  }
+	  
+	  //Calculate all percent saturations
+	  //TODO: consider having worker threads do this
+	  for(int k = 0; k < farm.getZCellCount(); k++) {
+	    for(int j = 0; j < Farm.yCellCount; j++) {
+	      for(int i = 0; i < Farm.xCellCount; i++) {
+	        if(grid[i][j][k] == null) {
+	          percentSaturation[i][j][k] = new Double(-1);
+	        }
+	        else {
+	          percentSaturation[i][j][k] = new Double(percentSaturation(grid[i][j][k]));
+	        }
+	      }
+	    }
+	  }
 
-	  //Flows water between all cells synchronously
-		for(int k = 0; k < farm.getZCellCount(); k++) {
-			for(int j = 0; j < Farm.yCellCount; j++) {
-				for(int i = 0; i < Farm.xCellCount; i++) {
-					if(grid[i][j][k] == null) {
-						continue;
-					}
-
-					flowWaterSide(grid[i][j][k], grid[i-1][j][k]);
-					flowWaterSide(grid[i][j][k], grid[i+1][j][k]);
-					flowWaterSide(grid[i][j][k], grid[i][j-1][k]);
-					flowWaterSide(grid[i][j][k], grid[i][j+1][k]);
-					flowWaterSide(grid[i][j][k], grid[i][j][k-1]);
-					flowWaterUp(grid[i][j][k], grid[i][j][k+1]);
-
-				}
-			}
-		}
+	  this.ready = true;
+	  for(int i = 0; i < 4; i++) {
+	    workers[i].startCalculations();
+	  }
+	  
+	  while(finishedWorkers != 4) {
+	    try{Thread.sleep(1);} 
+	    catch (InterruptedException e){}
+	  }
+	  
+	  this.ready = false;
+	  finishedWorkers = 0;
+	  
+	   
 		
 		//Update the amount of water that all the cells have
 		for(int k = 0; k < farm.getZCellCount(); k++) {
@@ -70,102 +109,15 @@ public class WaterFlow {
 					if(grid[i][j][k] == null) {
 						continue;
 					}
-          
 					grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + change[i][j][k]);
 				}
 			}
 		}
 		
-		//Reset the change holder
-		for(int k = 0; k < farm.getZCellCount(); k++) {
-			for(int j = 0; j < Farm.yCellCount; j++) {
-				for(int i = 0; i < Farm.xCellCount; i++) {
-					change[i][j][k] = 0;
-				}
-			}
-		}
+		//Zero out the change holder
+		reset(change);
 	}
 
-
-	/**
-	 * Calculates the amount of water that should flow from one cell to another. This
-	 *  should not be used to calculate water flowing upward!
-	 *  
-	 * @param cellI - the cell to flow water from
-	 * @param cellX - the cell to flow water to
-	 */
-	private void flowWaterSide(Cell cellI, Cell cellX) {
-		//The saturation of the giving cell
-	  double iSatur = percentSaturation(cellI);
-		
-		//Only do calculations if...
-		//Percent saturation is greater than percent adhesion
-		if(iSatur <= cellI.getSoil().getWaterAdhesion()) {
-			return;
-		}
-		Point3D ci = cellI.getCoordinate();
-		Point3D cx = cellX.getCoordinate();
-		//The hydraulic head of the cell is greater than the cell its flowing to
-		if(hydraulicHead(cellI) <= hydraulicHead(cellX)) {
-			return;
-		}
-		//The cell being flowed to isn't full
-		if(percentSaturation(cellX) >= 99) {
-			return;
-		}
-		
-		//The average hydraulic conductivity
-		double K = cellI.getSoil().getHydraulicConductivity()*cellX.getSoil().getHydraulicConductivity()/2;
-		//The area of the face of the cell being flowed from
-		double A = cellI.getHeight()*Cell.getCellSize();
-		double min = Math.min(1, (hydraulicHead(cellI)-hydraulicHead(cellX))/Cell.getCellSize());
-		
-		double flowAmount = K * A * min * timeStep;
-		
-		change[ci.x][ci.y][ci.z] -= flowAmount;
-		change[cx.x][cx.y][cx.z] += flowAmount;	
-	}
-	
-	 /**
-   * Calculates the amount of water that should flow from one cell to another. This
-   *  should only be used for water flowing upwards!
-   *  
-   * @param cellI - the cell to flow water from
-   * @param cellX - the cell to flow water to
-   */
-	private void flowWaterUp(Cell cellI, Cell cellX) {
-	  //The percent saturations of each cell
-		double iSatur = percentSaturation(cellI);
-		double xSatur = percentSaturation(cellX);
-		
-		//Only do calculations if...
-		//Percent saturation is greater than percent adhesion in giving cell
-		if(iSatur <= cellI.getSoil().getWaterAdhesion()) {
-			return;
-		}
-		//Percent saturation is less than percent adhesion in receiving cell
-		if(xSatur > cellX.getSoil().getWaterAdhesion()) {
-			return;
-		}
-		//Cell i is more saturated than cell x
-		if(iSatur <= xSatur) {
-			return;
-		}
-		
-		
-    //The average hydraulic conductivity
-    double K = cellI.getSoil().getHydraulicConductivity()*cellX.getSoil().getHydraulicConductivity()/2;
-    //The area of the face of the cell being flowed from
-    double A = cellI.getHeight()*Cell.getCellSize();
-		double satDif = (iSatur-xSatur)/Cell.getCellSize();
-		
-		double flowAmount = K * A * satDif * timeStep;
-		
-		Point3D ci = cellI.getCoordinate();
-		Point3D cx = cellX.getCoordinate();
-		change[ci.x][ci.y][ci.z] -= flowAmount;
-		change[cx.x][cx.y][cx.z] += flowAmount;	
-	}
 
 	/**
 	 * Computes the hydraulic head of the given cell
@@ -206,8 +158,35 @@ public class WaterFlow {
 	 * 
 	 * @return the percent saturation of the given cell
 	 */
-	private  double percentSaturation(Cell c) {
+	private double percentSaturation(Cell c) {
 		return c.getSoil().getWaterCapacity()/c.getWaterVolume();
+	}
+	
+	private void reset(Double[][][] array) {
+	   //Reset the change holder
+    for(int k = 0; k < farm.getZCellCount(); k++) {
+      for(int j = 0; j < Farm.yCellCount; j++) {
+        for(int i = 0; i < Farm.xCellCount; i++) {
+          array[i][j][k] = new Double(0);
+        }
+      }
+    } 
+	}
+	
+	public double getPercentSaturation(int x, int y, int z) {
+	  return percentSaturation[x][y][z];
+	}
+	
+	public double getHydraulicHead(int x, int y, int z) {
+	  return hydraulicHead[x][y][z];
+	}
+	
+	public boolean ready() {
+	  return ready;
+	}
+	
+	public synchronized void workerDone() {
+	  finishedWorkers++;
 	}
 
 }
