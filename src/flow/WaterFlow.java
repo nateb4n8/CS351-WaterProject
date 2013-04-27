@@ -2,11 +2,13 @@ package flow;
 
 import cell.Cell;
 import cell.Farm;
+import cell.Plant;
+import cell.Point3D;
 
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
  *
- * TODO: Account for plants 
+ * TODO: Account for water that plants remove
  * TODO: Extra-farm flow
  * 
  * @author Max Ottesen
@@ -86,6 +88,36 @@ public class WaterFlow {
 	      }
 	    }
 	  }
+
+		//Loops and lets plants do growing calculations
+		//TODO: have plants remove water from system
+		//TODO: consider having worker threads do this
+		for(int k = 0; k < farm.getZCellCount(); k++) {
+			for(int j = 0; j < Farm.yCellCount; j++) {
+				for(int i = 0; i < Farm.xCellCount; i++) {
+					if(grid[i][j][k] == null) {
+						continue;
+					}
+					Plant plant = grid[i][j][k].getPlant();
+
+					if(plant == null) {
+						continue;
+					}
+					if(!plant.isDeadOrAlive()) {
+						continue;
+					}
+
+					double availableWater = 0;
+
+					for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
+						availableWater += grid[p.x][p.y][p.z].getWaterVolume();
+					}
+
+					plant.grow(availableWater);
+				}
+			}
+		}
+
 
 	  for(int i = 0; i < 4; i++) {
 	    workers[i].startCalculations();

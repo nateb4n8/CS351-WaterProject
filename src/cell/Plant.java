@@ -27,9 +27,7 @@ public enum Plant {
 
 	/**
 	 * Sets the constant values of a Plant type.
-	 * 
-	 * @param transpiration
-	 *            in mL/day
+	 *
 	 * @param maturationTime
 	 *            in days
 	 * @param matureDepth
