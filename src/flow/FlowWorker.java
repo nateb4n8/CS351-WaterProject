@@ -1,6 +1,7 @@
 package flow;
 
 import cell.Cell;
+import cell.Farm;
 import cell.Point3D;
 
 /**
@@ -53,12 +54,26 @@ public class FlowWorker extends Thread {
               continue;
             }
 
-            flowWaterSide(grid[i][j][k], grid[i-1][j][k]);
-            flowWaterSide(grid[i][j][k], grid[i+1][j][k]);
-            flowWaterSide(grid[i][j][k], grid[i][j-1][k]);
-            flowWaterSide(grid[i][j][k], grid[i][j+1][k]);
-            flowWaterSide(grid[i][j][k], grid[i][j][k-1]);
-            flowWaterUp(grid[i][j][k], grid[i][j][k+1]);
+	          if(i != 0) {
+		          flowWaterSide(grid[i][j][k], grid[i-1][j][k]);
+	          }
+	          if(i != Farm.xCellCount - 1) {
+		          flowWaterSide(grid[i][j][k], grid[i+1][j][k]);
+	          }
+
+	          if(j != 0) {
+		          flowWaterSide(grid[i][j][k], grid[i][j-1][k]);
+	          }
+	          if(j != Farm.yCellCount - 1) {
+		          flowWaterSide(grid[i][j][k], grid[i][j+1][k]);
+	          }
+
+	          if(k != 0) {
+		          flowWaterSide(grid[i][j][k], grid[i][j][k-1]);
+	          }
+	          if(k != maxZ - 1) {
+		          flowWaterUp(grid[i][j][k], grid[i][j][k+1]);
+	          }
 
           }
         }

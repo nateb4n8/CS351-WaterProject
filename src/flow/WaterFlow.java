@@ -1,9 +1,8 @@
 package flow;
 
-import cell.Cell;
-import cell.Farm;
-import cell.Plant;
-import cell.Point3D;
+import XML_Handler.XML_Handler;
+import cell.*;
+import topo.Topography;
 
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
@@ -28,6 +27,7 @@ public class WaterFlow {
 		this.farm = farm;
 		this.grid = farm.getGrid();
 		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
+		reset(change);
 		this.finishedWorkers = 0;
 		this.workers = new FlowWorker[4];
 		this.hydraulicHead = new double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
@@ -49,7 +49,9 @@ public class WaterFlow {
 	 */
 	public void update(double seconds) {
 		for(double i = 0; i < seconds; i += this.timeStep) {
+			long time = System.currentTimeMillis();
 			this.update();
+			System.out.println("+1 time step : " + (System.currentTimeMillis() - time));
 		}
 	}
 
@@ -58,7 +60,22 @@ public class WaterFlow {
 	 * Runs the model for one time step
 	 */
 	private void update() {
-	  
+
+		//Calculate all percent saturations
+		//TODO: consider having worker threads do this
+		for(int k = 0; k < farm.getZCellCount(); k++) {
+			for(int j = 0; j < Farm.yCellCount; j++) {
+				for(int i = 0; i < Farm.xCellCount; i++) {
+					if(grid[i][j][k] == null) {
+						percentSaturation[i][j][k] = new Double(-1);
+					}
+					else {
+						percentSaturation[i][j][k] = new Double(percentSaturation(grid[i][j][k]));
+					}
+				}
+			}
+		}
+
 	  //Calculate all hydraulic heads
 	  //TODO: consider having worker threads do this
 	  for(int k = 0; k < farm.getZCellCount(); k++) {
@@ -69,21 +86,6 @@ public class WaterFlow {
 	        }
 	        else {
 	          hydraulicHead[i][j][k] = new Double(hydraulicHead(grid[i][j][k]));
-	        }
-	      }
-	    }
-	  }
-	  
-	  //Calculate all percent saturations
-	  //TODO: consider having worker threads do this
-	  for(int k = 0; k < farm.getZCellCount(); k++) {
-	    for(int j = 0; j < Farm.yCellCount; j++) {
-	      for(int i = 0; i < Farm.xCellCount; i++) {
-	        if(grid[i][j][k] == null) {
-	          percentSaturation[i][j][k] = new Double(-1);
-	        }
-	        else {
-	          percentSaturation[i][j][k] = new Double(percentSaturation(grid[i][j][k]));
 	        }
 	      }
 	    }
@@ -139,6 +141,9 @@ public class WaterFlow {
 					if(grid[i][j][k] == null) {
 						continue;
 					}
+					if(change[i][j][k] == null) {
+						System.out.println(i + ", " + j + ", " + k);
+					}
 					grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + change[i][j][k]);
 				}
 			}
@@ -166,7 +171,7 @@ public class WaterFlow {
 		double heightAbove = 0;
 		double s;
 		for(int i = 1; i < farm.zCellCount; i++) {
-			s = percentSaturation(grid[x][y][z+i]);
+			s = percentSaturation[x][y][z+i];
 			if(s > 99) {
 				heightAbove += grid[x][y][z+i].getHeight();
 			}
@@ -240,5 +245,44 @@ public class WaterFlow {
 		for(int i = 0; i < workers.length; i++) {
 			workers[i].kill();
 		}
+	}
+
+
+	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+
+		System.out.print("...");
+		Farm farm = Topography.createFarm(0, 0);
+		System.out.println("topography : " + (System.currentTimeMillis() - time));
+
+		time = System.currentTimeMillis();
+
+		System.out.print("...");
+		//XML_Handler.initGround(farm, "C:/Program Files (x86)/JetBrains/IntelliJ IDEA 12.1.1/IDEA/Java/Groundwater_Flow/src/XML_Handler/FarmSetup.xml");
+		Cell[][][] grid = farm.getGrid();
+		for(int k = 0; k < farm.zCellCount; k++) {
+			for(int j = 0; j < Farm.yCellCount; j++) {
+				for(int i = 0; i < Farm.xCellCount; i++) {
+					if(grid[i][j][k] != null) {
+						grid[i][j][k].setSoil(Soil.GILASAND);
+					}
+				}
+			}
+		}
+		System.out.println("ground     : " + (System.currentTimeMillis() - time));
+
+		time = System.currentTimeMillis();
+
+		System.out.print("...");
+		WaterFlow water = new WaterFlow(farm);
+		System.out.println("flow       : " + (System.currentTimeMillis() - time));
+
+		System.out.println("Wait 1 second");
+		try {Thread.sleep(1000);}
+		catch(InterruptedException e) {}
+
+		water.update(5);
+
+		System.out.println("\nWaiting");
 	}
 }

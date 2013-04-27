@@ -14,7 +14,7 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class Topography {
-	private static final double     MAX_RELIEF = 3; //meters. The most the topography over the entire grid is allowed to vary
+	private static final double     MAX_RELIEF = 2; //meters. The most the topography over the entire grid is allowed to vary
 	private static final double     TOLERANCE  = 0.25; //meters. Changes larger this amount will not be accepted
 	private static final int        SIZE       = Farm.SIZE; //decimeters. length and width
 	private static final double[][] HEIGHTS  = {{50, 300}, {100, 700}, {150, 1500}}; //centimeters. {height of each layer, height of all layers with the same height}
@@ -65,20 +65,20 @@ public class Topography {
 
 		int baseLayers = (int)(HEIGHTS[0][1]/HEIGHTS[0][0]) + (int)(HEIGHTS[1][1]/HEIGHTS[1][0]) + (int)(HEIGHTS[2][1]/HEIGHTS[2][0]);
 
-		Cell[][][] grid = new Cell[SIZE][SIZE][baseLayers+(int)(minmax[1]*100)];
+		Cell[][][] grid = new Cell[SIZE][SIZE][baseLayers+1+(int)(minmax[1]*100)];
 
 
 		//Sets the top to air (null)
 		for(int j = 0; j < SIZE; j++) {
 			for(int i = 0; i < SIZE; i++) {
-				grid[i][j][baseLayers-1+(int)(minmax[1]*100)] = null;
+				grid[i][j][baseLayers+(int)(minmax[1]*100)] = null;
 			}
 		}
 
 
 		//Goes cell by cell and sets the height, depth, and coordinates of each cell.
 		//If you have a surface or air cell, set it to be one.
-		for(int k = 0; k < baseLayers-1+(int)(minmax[1]*100) ; k++) {
+		for(int k = 0; k < baseLayers+(int)(minmax[1]*100) ; k++) {
 			for(int j = 0; j < SIZE; j++) {
 				for(int i = 0; i < SIZE; i++) {
 					if(k >= 0 && k < HEIGHTS[2][1]/HEIGHTS[2][0]) {
@@ -125,7 +125,7 @@ public class Topography {
 		farm.setLongitude(longitude);
 		farm.setRelief(minmax[1]);
 		farm.setGrid(grid);
-		farm.setZCellCount(baseLayers+(int)(minmax[1]*100));
+		farm.setZCellCount(grid[0][0].length);
 
 		return farm;
 	}
@@ -238,12 +238,12 @@ public class Topography {
 
 		//Up until the point where you start seeing topography, just add the depth of the solid block below the topography + the topography
 		if(k >= 0 && k < HEIGHTS[2][1]/HEIGHTS[2][0]) {
-			depth += HEIGHTS[0][0]*HEIGHTS[0][1]+HEIGHTS[1][0]*HEIGHTS[1][1];
+			depth += HEIGHTS[0][1]+HEIGHTS[1][1];
 			depth += ((HEIGHTS[2][1]/HEIGHTS[2][0]-1)-k)*HEIGHTS[2][0];
 			depth += deviations[i][j] * 100;
 		}
 		else if(k >= HEIGHTS[2][1]/HEIGHTS[2][0] && k < HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0]) {
-			depth += HEIGHTS[1][0]*HEIGHTS[1][1];
+			depth += HEIGHTS[1][1];
 			depth += ((HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0]-1)-k)*HEIGHTS[1][0];
 			depth += deviations[i][j] * 100;
 		}
@@ -310,5 +310,16 @@ public class Topography {
 		Farm f = createFarm(0, 0);
 
 		System.out.println(f.zCellCount * Farm.xCellCount * Farm.yCellCount);
+
+		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
+		// Any attempt will result in an OutOfMemoryException.
+		System.out.println(Runtime.getRuntime().maxMemory());
+
+		// Get current size of heap in bytes
+		System.out.println(Runtime.getRuntime().totalMemory());
+
+		// Get amount of free memory within the heap in bytes. This size will increase
+		// after garbage collection and decrease as new objects are created.
+		System.out.println(Runtime.getRuntime().freeMemory());
 	}
 }
