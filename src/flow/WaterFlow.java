@@ -277,12 +277,14 @@ public class WaterFlow {
 		WaterFlow water = new WaterFlow(farm);
 		System.out.println("flow       : " + (System.currentTimeMillis() - time));
 
-		System.out.println("Wait 1 second");
-		try {Thread.sleep(1000);}
-		catch(InterruptedException e) {}
-
+		System.out.println("Updating model");
 		water.update(5);
 
 		System.out.println("\nWaiting");
+		try {Thread.sleep(5000);}
+		catch(InterruptedException e) {}
+
+		water.kill();
+		System.out.println("done");
 	}
 }
