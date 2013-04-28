@@ -105,7 +105,12 @@ public class Farm
 	public void setCrop(int idx, Crops c){
 	  if (idx < planted.length) planted[idx] = c;
 	}
-	
+	public double getCropQty(int quadrant){
+		return planted[quadrant].getCropSize();
+	}
+	public Plant getCrop(int quadrant){
+		return planted[quadrant].getPlant();
+	}
 	public void setWaterQty(int waterQty) {
 		this.waterQty = waterQty;
 	}

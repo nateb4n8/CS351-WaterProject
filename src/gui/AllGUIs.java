@@ -3,7 +3,7 @@ package gui;
 
 public class AllGUIs 
 {
-  static WaterProjectGUI[] guis = new WaterProjectGUI[20];
+/*  static WaterProjectGUI[] guis = new WaterProjectGUI[20];
   private static int counter = 0;
 public static void addGUI(WaterProjectGUI g)
 {
@@ -70,6 +70,6 @@ public static void subQ(int GuiNo, int amount)
 	guis[GuiNo].setQuantity(total);
 	guis[GuiNo].getQuantityLabel().setText("Quantity:("+guis[GuiNo].getQuantity()+")");
   } 	
-}
+} */
 }
 
