@@ -748,9 +748,11 @@ public void actionPerformed(ActionEvent e)
 		
 	    if(isNumeric(sell) == true && isNumeric(sellQ) == true && sellQuan <= cont.getQuantity())
 	    {
-		  String s = "$"+sellInput1.getText()+" per unit; " +"Quantity:"+ sellInput2.getText()+" ;GUI No:"+getGuiNumber();
+		  //String s = "$"+sellInput1.getText()+" per unit; " +"Quantity:"+ sellInput2.getText()+" ;GUI No:"+getGuiNumber();
 		  //AllGUIs.messageGUIs(s);
-	      
+	      cont.sell_water(Integer.parseInt(sellInput2.getText()), 
+	    		          Double.parseDouble(sellInput1.getText()),
+	    		          Integer.toString(getGuiNumber()));
 	    }
 	    sellInput1.setText("");
 	    sellInput2.setText("");

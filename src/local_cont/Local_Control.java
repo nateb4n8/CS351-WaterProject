@@ -1,5 +1,6 @@
 package local_cont;
 
+import server.Offer;
 import topo.Topography;
 import XML_Handler.XML_Handler;
 import gui.WaterProjectGUI;
@@ -48,13 +49,23 @@ public class Local_Control {
 		f.setMoney(f.getMoney()-amt);
 		gui.setMoneyLabel();		
 	}
- 
+	public Client_Msg[] sell_crops(){
+		Client_Msg[] msgs = new Client_Msg[4];
+		for (int i=0;i<4;i++){
+			msgs[i] = new Sell_Plant(f.getCrop(i), f.getCropQty(i));
+		}
+		return msgs;
+	}
 	public static void main(String args[]){
 		Local_Control me = new Local_Control();
 		gui = new WaterProjectGUI(me);
 	}
 	public int getQuantity() {
 		return (f==null)?10:f.getWaterQty();
+	}
+	public void addMoney(Receive_Money msg){
+		double total = f.getMoney() + msg.get_amt();
+		f.setMoney(total);
 	}
 	public void addQ(int amount)
 	{
@@ -69,6 +80,11 @@ public class Local_Control {
 		int total = getQuantity() - amount;
 		f.setWaterQty(total);
 		gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
+	}
+	public void sell_water(int qty, double amt, String name){
+		Offer sell = new Offer(name, qty, amt);
+		Client_Msg msg = new Sell_Water(sell);
+		// send message to server here.
 	}
 	public void buy(String s, int buyQ, int idx) {
 	    String amount = getSellingValue(s);
@@ -85,23 +101,28 @@ public class Local_Control {
 	    int guisQuan = getQuantity();
 	    int buyerNum = gui.getGuiNumber();
 	    System.out.println("BuyerNum= "+buyerNum);
+	    Offer buy = new Offer(Integer.toString(buyerNum),buyQ,sellAm);
 	    double total = sellAm*sellQuant;
-	    if(buyQ == sellQuant && guisMon >= total)
+	    if (guisMon >= total)
 	    {
-	    	gui.removeSellOffer(idx);
+		    if(buyQ == sellQuant)
+		    {
+		    	gui.removeSellOffer(idx);
+		    }
+		    else if(buyQ > sellQuant)
+		    {
+		    	gui.removeSellOffer(idx);
+		      int newQuantity = buyQ - sellQuant;
+		      
+		    }
+		    else if(buyQ < sellQuant)
+		    {
+		      int newQuantity = sellQuant - buyQ;
+		      String newString = setQuantity(s,newQuantity,sellerNum);
+		      gui.removeSellOffer(idx);
+		    }
+		    //Send Offer to server.
 	    }
-	    else if(buyQ > sellQuant && guisMon >= total)
-	    {
-	    	gui.removeSellOffer(idx);
-	      int newQuantity = buyQ - sellQuant;
-	      
-	    }
-	    else if(buyQ < sellQuant && guisMon >= total)
-	    {
-	      int newQuantity = sellQuant - buyQ;
-	      String newString = setQuantity(s,newQuantity,sellerNum);
-	      gui.removeSellOffer(idx);
-	    } 
 
 	}
 	public String getSellingValue(String s)
