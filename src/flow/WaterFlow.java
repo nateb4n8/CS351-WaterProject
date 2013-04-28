@@ -4,6 +4,9 @@ import XML_Handler.XML_Handler;
 import cell.*;
 import topo.Topography;
 
+import java.text.DecimalFormat;
+import java.util.Random;
+
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
  *
@@ -61,45 +64,26 @@ public class WaterFlow {
 	 */
 	private void update() {
 
+		double totalWater = 0;
 		//Calculate all percent saturations
+		//Calculate all hydraulic heads
+		//Loops and lets plants do growing calculations
 		//TODO: consider having worker threads do this
-		for(int k = 0; k < farm.getZCellCount(); k++) {
+		//TODO: have plants remove water from system
+		for(int k = farm.getZCellCount() - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
 			for(int j = 0; j < Farm.yCellCount; j++) {
 				for(int i = 0; i < Farm.xCellCount; i++) {
 					if(grid[i][j][k] == null) {
 						percentSaturation[i][j][k] = new Double(-1);
-					}
-					else {
-						percentSaturation[i][j][k] = new Double(percentSaturation(grid[i][j][k]));
-					}
-				}
-			}
-		}
-
-	  //Calculate all hydraulic heads
-	  //TODO: consider having worker threads do this
-	  for(int k = 0; k < farm.getZCellCount(); k++) {
-	    for(int j = 0; j < Farm.yCellCount; j++) {
-	      for(int i = 0; i < Farm.xCellCount; i++) {
-	        if(grid[i][j][k] == null) {
-	          hydraulicHead[i][j][k] = new Double(-1);
-	        }
-	        else {
-	          hydraulicHead[i][j][k] = new Double(hydraulicHead(grid[i][j][k]));
-	        }
-	      }
-	    }
-	  }
-
-		//Loops and lets plants do growing calculations
-		//TODO: have plants remove water from system
-		//TODO: consider having worker threads do this
-		for(int k = 0; k < farm.getZCellCount(); k++) {
-			for(int j = 0; j < Farm.yCellCount; j++) {
-				for(int i = 0; i < Farm.xCellCount; i++) {
-					if(grid[i][j][k] == null) {
+						hydraulicHead[i][j][k] = new Double(-1);
 						continue;
 					}
+
+					totalWater += grid[i][j][k].getWaterVolume();
+
+					percentSaturation[i][j][k] = new Double(percentSaturation(grid[i][j][k]));
+					hydraulicHead[i][j][k] = new Double(hydraulicHead(grid[i][j][k]));
+
 					Plant plant = grid[i][j][k].getPlant();
 
 					if(plant == null) {
@@ -120,29 +104,27 @@ public class WaterFlow {
 			}
 		}
 
+		System.out.println("Total Water = " + totalWater);
 
-	  for(int i = 0; i < 4; i++) {
+
+
+		for(int i = 0; i < 4; i++) {
 	    workers[i].startCalculations();
 	  }
 	  	  
-	  while(finishedWorkers != 4) {
+	  while(finishedWorkers < 4) {
 	    try{Thread.sleep(1);} 
 	    catch (InterruptedException e){}
 	  }
-	  
 	  finishedWorkers = 0;
-	  
-	   
-		
+
+
 		//Update the amount of water that all the cells have
 		for(int k = 0; k < farm.getZCellCount(); k++) {
 			for(int j = 0; j < Farm.yCellCount; j++) {
 				for(int i = 0; i < Farm.xCellCount; i++) {
 					if(grid[i][j][k] == null) {
 						continue;
-					}
-					if(change[i][j][k] == null) {
-						System.out.println(i + ", " + j + ", " + k);
 					}
 					grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + change[i][j][k]);
 				}
@@ -190,7 +172,7 @@ public class WaterFlow {
 	 * @return the percent saturation of the given cell
 	 */
 	private double percentSaturation(Cell c) {
-		return c.getSoil().getWaterCapacity()/c.getWaterVolume();
+		return c.getWaterVolume()/c.getSoil().getWaterCapacity();
 	}
 	
 	
@@ -257,6 +239,8 @@ public class WaterFlow {
 
 		time = System.currentTimeMillis();
 
+		Random rand = new Random();
+
 		System.out.print("...");
 		//XML_Handler.initGround(farm, "C:/Program Files (x86)/JetBrains/IntelliJ IDEA 12.1.1/IDEA/Java/Groundwater_Flow/src/XML_Handler/FarmSetup.xml");
 		Cell[][][] grid = farm.getGrid();
@@ -265,6 +249,9 @@ public class WaterFlow {
 				for(int i = 0; i < Farm.xCellCount; i++) {
 					if(grid[i][j][k] != null) {
 						grid[i][j][k].setSoil(Soil.GILASAND);
+						if(rand.nextDouble() < .75) {
+							grid[i][j][k].setWaterVolume(rand.nextInt(10));
+						}
 					}
 				}
 			}

@@ -82,15 +82,15 @@ public class Topography {
 			for(int j = 0; j < SIZE; j++) {
 				for(int i = 0; i < SIZE; i++) {
 					if(k >= 0 && k < HEIGHTS[2][1]/HEIGHTS[2][0]) {
-						grid[i][j][k] = new Cell(HEIGHTS[2][0]*(k+1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
+						grid[i][j][k] = new Cell(HEIGHTS[2][0], getDepth(i, j, k, deviation), new Point3D(i, j, k));
 						grid[i][j][k].setSurface(false);
 					}
 					else if(k >= HEIGHTS[2][1]/HEIGHTS[2][0] && k < HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0]) {
-						grid[i][j][k] = new Cell(HEIGHTS[2][0]*HEIGHTS[2][1] + HEIGHTS[1][0]*(k-HEIGHTS[2][1]/HEIGHTS[2][0]-1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
+						grid[i][j][k] = new Cell(HEIGHTS[1][0], getDepth(i, j, k, deviation), new Point3D(i, j, k));
 						grid[i][j][k].setSurface(false);
 					}
 					else if(k >= HEIGHTS[1][1]/HEIGHTS[1][0] + HEIGHTS[2][1]/HEIGHTS[2][0] && k < baseLayers) {
-						grid[i][j][k] = new Cell(HEIGHTS[2][0]*HEIGHTS[2][1] + HEIGHTS[1][0]*HEIGHTS[1][1] + HEIGHTS[0][0]*(k-(HEIGHTS[1][1]/HEIGHTS[1][0]+HEIGHTS[2][1]/HEIGHTS[2][0])-1), getDepth(i, j, k, deviation), new Point3D(i, j, k));
+						grid[i][j][k] = new Cell(HEIGHTS[0][0], getDepth(i, j, k, deviation), new Point3D(i, j, k));
 						if(k == baseLayers-1 && deviation[i][j] == 0.0) {
 							grid[i][j][k].setSurface(true);
 						}
@@ -102,7 +102,7 @@ public class Topography {
 						double d = getDepth(i, j, k, deviation);
 						if(d != -1)
 						{
-							grid[i][j][k] = new Cell(2500 + k, d, new Point3D(i, j, k));
+							grid[i][j][k] = new Cell(1, d, new Point3D(i, j, k));
 
 							if(d == 0) {
 								grid[i][j][k].setSurface(true);

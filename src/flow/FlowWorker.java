@@ -53,6 +53,9 @@ public class FlowWorker extends Thread {
             if(grid[i][j][k] == null) {
               continue;
             }
+	          if(grid[i][j][k].getWaterVolume() == 0) {
+		          continue;
+	          }
 
 	          if(i != 0) {
 		          flowWaterSide(grid[i][j][k], grid[i-1][j][k]);
