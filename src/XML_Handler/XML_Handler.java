@@ -316,7 +316,7 @@ public class XML_Handler{
 				double strata_ht = 0.0;
 				int strata_idx = 0;
 				boolean found = false; 
-				for (int z=h; z>0; z--)
+				for (int z=h; z>-1; z--)
 				{
 					//System.out.println(grid[x][y][z]);
 					if (grid[x][y][z] == null)
