@@ -1,10 +1,12 @@
 package flow;
 
 import XML_Handler.XML_Handler;
-import cell.*;
+import cell.Farm;
+import cell.Cell;
+import cell.Plant;
+import cell.Point3D;
+import cell.Soil;
 import topo.Topography;
-
-import java.text.DecimalFormat;
 import java.util.Random;
 
 /**
@@ -265,7 +267,7 @@ public class WaterFlow {
 		System.out.println("flow       : " + (System.currentTimeMillis() - time));
 
 		System.out.println("Updating model");
-		water.update(5);
+		water.update(25);
 
 		System.out.println("\nWaiting");
 		try {Thread.sleep(2500);}

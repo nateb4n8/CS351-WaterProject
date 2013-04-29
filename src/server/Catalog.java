@@ -19,7 +19,7 @@ public class Catalog
   
   public Catalog()
   {
-    this.sellOffers = new ArrayList<>(10);
+    this.sellOffers = new ArrayList<Offer>(10);
   }
   
   /**
