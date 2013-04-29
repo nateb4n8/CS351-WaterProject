@@ -249,7 +249,7 @@ public class WaterFlow {
 				for(int i = 0; i < Farm.xCellCount; i++) {
 					if(grid[i][j][k] != null) {
 						grid[i][j][k].setSoil(Soil.GILASAND);
-						if(rand.nextDouble() < .75) {
+						if(rand.nextDouble() < .01) {
 							grid[i][j][k].setWaterVolume(rand.nextInt(10));
 						}
 					}
@@ -268,7 +268,7 @@ public class WaterFlow {
 		water.update(5);
 
 		System.out.println("\nWaiting");
-		try {Thread.sleep(5000);}
+		try {Thread.sleep(2500);}
 		catch(InterruptedException e) {}
 
 		water.kill();
