@@ -28,3 +28,5 @@ Max (mottese): Water flow
 Robert(NinerzRuleAll): Plants
 
 Donald (swartzd3): Changing existing project to MVC design.
+
+Vivek (Keviv93): 3D Graphics. Water visualization, sliders, and speed
