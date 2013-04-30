@@ -52,5 +52,13 @@ public class Catalog
     }
     list.add(offer); //Add to end of list, highest unit price.
   }
+  public ArrayList<Offer> getOffersList()
+  {
+    return sellOffers;
+  }
+  public void removeOfferAt(int index)
+  {
+    sellOffers.remove(index);  
+  }
   
 }

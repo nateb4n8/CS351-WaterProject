@@ -44,6 +44,7 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 	private JTextField latTextField;
 	private JTextField longTextField;
 	private JTextField configPathTextField;
+	private JFileChooser chooser;
 	
 	private JLabel latitudeText;
 	private JLabel longText;
@@ -145,7 +146,10 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 		this.configPath = configPath;
 	}
 
-
+    public DisplayFarm getDisplayFarm()
+    {
+      return displayFarm;	
+    }
 
 
 	@Override
@@ -176,18 +180,23 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 	    //xmlHandler.initGround(farm, this.getConfigPath());
 	    
 	    this.displayFarm = new DisplayFarm(this.farm, this.panel);
-	    
+	    g.setDisplayFarm(this.displayFarm);
+	    g.setMoneyLabel();
 	    
 	  }
 	  else if(obj == browse)
 	  {
-		JFileChooser chooser = new JFileChooser();
+		if(chooser == null)
+		{
+		  chooser = new JFileChooser();
+		}
 		int returnVal = chooser.showOpenDialog(this);
 		if(returnVal == JFileChooser.APPROVE_OPTION) 
 		{
 		  
 		  String s = chooser.getSelectedFile().getPath();
 		  configPathTextField.setText(s);
+		  chooser.setCurrentDirectory(chooser.getSelectedFile());
 	    }	  
 	  }
 	}

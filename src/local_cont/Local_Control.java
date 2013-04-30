@@ -1,5 +1,6 @@
 package local_cont;
 
+import server.Catalog;
 import server.Offer;
 import topo.Topography;
 import XML_Handler.XML_Handler;
@@ -11,9 +12,12 @@ import cell.Plant;
 public class Local_Control {
 	private Farm f;
 	private static WaterProjectGUI gui;
+	Catalog catalog;
+	
 	public double getMoney(){
 
 		return (f==null)?0:f.getMoney();
+		
 	}
 	public Farm newFarm(double latitude, double longitude, String path){
 	  f = Topography.createFarm(latitude, longitude);
@@ -84,7 +88,14 @@ public class Local_Control {
 	public void sell_water(int qty, double amt, String name){
 		Offer sell = new Offer(name, qty, amt);
 		Client_Msg msg = new Sell_Water(sell);
+		
 		// send message to server here.
+		if(catalog == null)
+		{
+		  catalog = new Catalog();	
+		}
+		catalog.addSellOffer(sell);
+		gui.updateSellOffers(catalog.getOffersList());
 	}
 	public void buy(String s, int buyQ, int idx) {
 	    String amount = getSellingValue(s);
@@ -107,19 +118,35 @@ public class Local_Control {
 	    {
 		    if(buyQ == sellQuant)
 		    {
-		    	gui.removeSellOffer(idx);
+		    	subMoney(total);
+		    	addQ(sellQuant);
+		    	//gui.removeSellOffer(idx);
+		    	catalog.removeOfferAt(idx);
+		    	gui.updateSellOffers(catalog.getOffersList());
+		    	gui.getBuyQuantity().setText(" ");
 		    }
 		    else if(buyQ > sellQuant)
 		    {
-		    	gui.removeSellOffer(idx);
+		      subMoney(total);
+		      addQ(sellQuant);
+		      //gui.removeSellOffer(idx);
+		      catalog.removeOfferAt(idx);
 		      int newQuantity = buyQ - sellQuant;
-		      
+		      gui.getBuyQuantity().setText(Integer.toString(newQuantity));
+		      gui.updateSellOffers(catalog.getOffersList());
 		    }
 		    else if(buyQ < sellQuant)
 		    {
 		      int newQuantity = sellQuant - buyQ;
-		      String newString = setQuantity(s,newQuantity,sellerNum);
-		      gui.removeSellOffer(idx);
+		      //String newString = setQuantity(s,newQuantity,sellAm,sellerNum);
+		      Offer of = new Offer(Integer.toString(sellerNum),newQuantity,sellAm);
+		      subMoney(total);
+		      addQ(sellQuant);
+		      catalog.removeOfferAt(idx);
+		      catalog.addSellOffer(of);
+		      //System.out.println(newString);
+		      //gui.removeSellOffer(idx);
+		      gui.updateSellOffers(catalog.getOffersList());
 		    }
 		    //Send Offer to server.
 	    }
@@ -128,17 +155,32 @@ public class Local_Control {
 	public String getSellingValue(String s)
 	{
 	  String amount = "";
-	  for(int i=1;i<s.length();i++)
+	  int i;
+	  for(i=s.length()-24;i<s.length();i++)
 	  {
 		char c = s.charAt(i);
-		if(c == ' ')
+		if(c == ':')
 		{
 		  break;	
 		}
-		else
-		{
-		  amount = amount + c;
-		}
+		//else
+		//{
+		  //amount = amount + c;
+		//}
+	  }
+	  i= i+2;
+	  
+	  for(int j = i;j<s.length();j++)
+	  {
+	    char c = s.charAt(j);
+	    if(c == ',')
+	    {
+	      break;	
+	    }
+	    else
+	    {
+	     amount = amount + c;	
+	    }
 	  }
 	  return amount;
 	}
@@ -146,7 +188,7 @@ public class Local_Control {
 	{
 	  int start;
 	 
-	  for(start = 0;start<s.length();start++)
+	  for(start = s.length()-5;start<s.length();start++)
 	  {
 		char c = s.charAt(start);
 		if(c == ':')
@@ -161,15 +203,9 @@ public class Local_Control {
 	  for(int i = start;i<s.length();i++)
 	  {
 		char c = s.charAt(i);
-		if(c == ';')
-		{
-		  break;	
-		}
-		else
-		{
-	      quantity = quantity + c;
-	      i++;
-		}
+		quantity = quantity + c;
+	    i++;
+		
 	  }
 	  return quantity;
 	}
@@ -179,7 +215,7 @@ public class Local_Control {
 	  char c;
 	  int start;
 	  
-	  for(start = str.length()-4;start<str.length();start++)
+	  for(start = 0;start<str.length();start++)
 	  {
 	    c = str.charAt(start);
 	    if(c == ':')
@@ -190,29 +226,20 @@ public class Local_Control {
 	  }
 	  for(int i=start;i<str.length();i++)
 	  {
-	    number = number + str.charAt(i);	  
+		char ch= str.charAt(i);
+		if(ch == ',')
+		{
+		  break;	
+		}
+	    number = number + ch;
+	    
 	  }
-	  return number;
+	  return number.trim();
 	}
-	public String setQuantity(String s, int quantity, int sellerNo)
+	public String setQuantity(String s, int quantity,double unitPrice,int sellerNo)
 	{
-	  char c;
-	  String string = "";
-	  
-	  for(int i=0;i<s.length();i++)
-	  {
-		c = s.charAt(i);
-	    if(c == ':')
-	    {
-	      break;	
-	    }
-	    string = string + s.charAt(i);
-	  }
-	  string = string + ':';
-	  string = string + quantity;
-	  String addition = " ;GUI No:"+sellerNo;
-	  string = string + addition;
-	  return string;
+	  String result = "Seller: "+sellerNo+", "+"UnitPrice: "+unitPrice+", "+"Quantity"+":"+quantity;
+	  return result;
 	}
 
 	/**
