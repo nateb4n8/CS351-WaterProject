@@ -29,9 +29,8 @@ public class Catalog
    * @param quantity Amount of items to be sold
    * @param unitPrice Price of a single item
    */
-  public void addSellOffer(String merchantName, int quantity, double unitPrice)
+  public void addSellOffer(Offer offer)
   { 
-    Offer offer = new Offer(merchantName, quantity, unitPrice);
     this.addOfferByLowestPrice(offer, this.sellOffers);
   }
   
