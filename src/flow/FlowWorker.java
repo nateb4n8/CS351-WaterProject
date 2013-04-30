@@ -121,12 +121,12 @@ public class FlowWorker extends Thread {
     }
       
     //The average hydraulic conductivity
-    double K = (cellI.getSoil().getHydraulicConductivity()*cellX.getSoil().getHydraulicConductivity())/2;
+    double K = (cellI.getSoil().getHydraulicConductivity()+cellX.getSoil().getHydraulicConductivity())/2;
     //The area of the face of the cell being flowed from
     double A = cellI.getHeight()*Cell.getCellSize();
-    double min = Math.min(1, (m.getHydraulicHead(ci.x, ci.y, ci.z)-m.getHydraulicHead(cx.x, cx.y, cx.z))/Cell.getCellSize());
+    double min = Math.min(1, (m.getHydraulicHead(ci.x, ci.y, ci.z)-m.getHydraulicHead(cx.x, cx.y, cx.z)));
     
-    double flowAmount = K * A * min * timeStep;
+    double flowAmount = K * A * min * timeStep / Cell.getCellSize();
     
     synchronized(change[ci.x][ci.y][ci.z]) {
       synchronized(change[cx.x][cx.y][cx.z]) {
