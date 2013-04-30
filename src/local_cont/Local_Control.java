@@ -215,4 +215,12 @@ public class Local_Control {
 	  return string;
 	}
 
+	/**
+	 * Adds the passed in GUI to Local_Control if one desn't exist(null)
+	 * @param gui
+	 */
+	public void addWaterProjectGUI(WaterProjectGUI gui)
+	{
+	  if (this.gui == null) this.gui = gui;
+	}
 }
