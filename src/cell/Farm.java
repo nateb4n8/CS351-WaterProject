@@ -15,7 +15,7 @@ package cell;
 public class Farm
 {
 	private double money = 1000.00d;
-	public static final int SIZE = 150;
+	public static final int SIZE = 64;
 	Crops[] planted = new Crops[4];
 	private int waterQty = 10;
   public String errorText; //Error messages
