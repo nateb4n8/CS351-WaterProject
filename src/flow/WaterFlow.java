@@ -1,6 +1,5 @@
 package flow;
 
-import XML_Handler.XML_Handler;
 import cell.Farm;
 import cell.Cell;
 import cell.Plant;
@@ -156,7 +155,7 @@ public class WaterFlow {
 		double s;
 		for(int i = 1; i < farm.zCellCount; i++) {
 			s = percentSaturation[x][y][z+i];
-			if(s > 99) {
+			if(s > .99) {
 				heightAbove += grid[x][y][z+i].getHeight();
 			}
 			else {
@@ -235,15 +234,17 @@ public class WaterFlow {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		System.out.print("...");
+		System.out.println("INITIALIZATIONS");
+		System.out.print("  ...topography :");
 		Farm farm = Topography.createFarm(0, 0);
-		System.out.println("topography : " + (System.currentTimeMillis() - time));
+		System.out.println((System.currentTimeMillis() - time));
+		System.out.println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells");
 
 		time = System.currentTimeMillis();
 
 		Random rand = new Random();
 
-		System.out.print("...");
+		System.out.print("  ...ground     : ");
 		//XML_Handler.initGround(farm, "C:/Program Files (x86)/JetBrains/IntelliJ IDEA 12.1.1/IDEA/Java/Groundwater_Flow/src/XML_Handler/FarmSetup.xml");
 		Cell[][][] grid = farm.getGrid();
 		for(int k = 0; k < farm.zCellCount; k++) {
@@ -251,22 +252,22 @@ public class WaterFlow {
 				for(int i = 0; i < Farm.xCellCount; i++) {
 					if(grid[i][j][k] != null) {
 						grid[i][j][k].setSoil(Soil.GILASAND);
-						if(rand.nextDouble() < .01) {
+						if(rand.nextDouble() < .75) {
 							grid[i][j][k].setWaterVolume(rand.nextInt(10));
 						}
 					}
 				}
 			}
 		}
-		System.out.println("ground     : " + (System.currentTimeMillis() - time));
+		System.out.println((System.currentTimeMillis() - time));
 
 		time = System.currentTimeMillis();
 
-		System.out.print("...");
+		System.out.print("  ...flow       : ");
 		WaterFlow water = new WaterFlow(farm);
-		System.out.println("flow       : " + (System.currentTimeMillis() - time));
+		System.out.println((System.currentTimeMillis() - time));
 
-		System.out.println("Updating model");
+		System.out.println("\nUpdating model\n");
 		water.update(25);
 
 		System.out.println("\nWaiting");
