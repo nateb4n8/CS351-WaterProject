@@ -24,9 +24,8 @@ public class Topography {
 
 	/**
 	 * Takes a latitude and longitude that correspond to a piece of land and shapes a {@link Farm}
-	 * so that its topography mimics that piece of land. As of right now, this doesn't actually
-	 * mimic the land with the given lat/lon. This produces the land randomly since I don't have
-	 * the topo data that I need.
+	 * so that its topography mimics that piece of land. Right now, it is set up to generate land
+	 * randomly, though.
 	 *
 	 * @param latitude  - the latitude of the piece of land that the returned Farm will mimic
 	 * @param longitude - the latitude of the piece of land that the returned Farm will mimic
