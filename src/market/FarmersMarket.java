@@ -104,7 +104,7 @@ public class FarmersMarket {
 	private Random randomPriceGenerator;
 
 	// TODO Add balance double to Farm object
-	private void sellProduce(Plant plant, int quantity, Farm farm) {
+	private void sellProduce(Plant plant, int quantity) {
 		double total;
 		// use new setBalance method in farm class to update the farms balance
 
