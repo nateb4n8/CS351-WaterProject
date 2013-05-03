@@ -12,14 +12,13 @@ import cell.Point3D;
 public class FlowWorker extends Thread {
   private int          minX, maxX;
   private int          minY, maxY;
-	private int          zCellCount;
+  private int          zCellCount;
   private WaterFlow    m;
   private Cell[][][]   grid;
   private Double[][][] change;
   private boolean      calculate;
   private boolean      kill;
   private double       timeStep;
-	private Double       totalWater;
   
   
   public FlowWorker(int minX, int maxX, int minY, int maxY, int zCellCount, WaterFlow master, Cell[][][] grid, Double[][][] change, double timeStep) {
@@ -34,7 +33,6 @@ public class FlowWorker extends Thread {
     this.calculate = false;
     this.kill = false;
 	  this.zCellCount = zCellCount;
-	  this.totalWater = new Double(0);
   }
   
   
@@ -42,100 +40,97 @@ public class FlowWorker extends Thread {
     //Keep going until it's killed
     while(!kill) {
       //The master has to tell this thread to calculate before it will
-      if(!calculate) {
-        try {Thread.sleep(1);}
-        catch(InterruptedException e) {}
-        continue;
-      }
-
-
-	    synchronized(this) {
-		    this.totalWater = new Double(0);
-		    for(int k = zCellCount - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
-			    for(int j = minY; j < maxY; j++) {
-				    for(int i = minX; i < maxX; i++) {
-					    if(grid[i][j][k] == null) {
-						    m.setPercentSaturation(i, j, k, new Double(-1));;
-						    m.setHydraulicHead(i, j, k, new Double(-1));
-						    continue;
-					    }
-
-					    m.setPercentSaturation(i, j, k, new Double(percentSaturation(grid[i][j][k])));
-					    m.setHydraulicHead(i, j, k, new Double(hydraulicHead(grid[i][j][k])));
-
-					    this.totalWater += grid[i][j][k].getWaterVolume();
-
-					    //Plant plant = grid[i][j][k].getPlant();
-					    //
-					    //if(plant == null) {
-						   // continue;
-					    //}
-					    //if(!plant.isDeadOrAlive()) {
-						   // continue;
-					    //}
-					    //
-					    //double availableWater = 0;
-					    //
-					    //for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
-						   // availableWater += grid[p.x][p.y][p.z].getWaterVolume();
-					    //}
-					    //
-					    //plant.grow(availableWater);
-				    }
-			    }
-		    }
-	    }
-
-	    //Sets itself up so the master thread has to tell it to start before it does more calculations
-	    this.calculate = false;
-	    m.workerDone();
-
-
       while(!calculate) {
-	      if(kill) {return;}
-	      try {Thread.sleep(1);}
-	      catch(InterruptedException e) {}
+        if(kill) {return;}
+        try{Thread.sleep(1);}
+        catch(InterruptedException e) {}
       }
-      
-      //Flows water between all cells synchronously
-      for(int k = 0; k < zCellCount; k++) {
-        for(int j = minY; j < maxY; j++) {
-          for(int i = minX; i < maxX; i++) {
-            if(grid[i][j][k] == null) {
-              continue;
+
+      synchronized(this) {
+  		  for(int k = zCellCount - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
+  			  for(int j = minY; j < maxY; j++) {
+  				  for(int i = minX; i < maxX; i++) {
+  					  if(grid[i][j][k] == null) {
+  						  m.setPercentSaturation(i, j, k, new Double(-1));;
+  						  m.setHydraulicHead(i, j, k, new Double(-1));
+  						  continue;
+  					  }
+  
+  					  m.setPercentSaturation(i, j, k, new Double(percentSaturation(grid[i][j][k])));
+  					  m.setHydraulicHead(i, j, k, new Double(hydraulicHead(grid[i][j][k])));
+  
+  
+  					  //Plant plant = grid[i][j][k].getPlant();
+  					  //
+  					  //if(plant == null) {
+  						 // continue;
+  					  //}
+  					  //if(!plant.isDeadOrAlive()) {
+  						 // continue;
+  		   	    //}
+  			      //
+  					  //double availableWater = 0;
+  					  //
+  					  //for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
+  				      //availableWater += grid[p.x][p.y][p.z].getWaterVolume();
+  					  //}
+  					  //
+  					  //plant.grow(availableWater);
+  				  }
+  	      }
+  		  }
+  
+  	    //Sets itself up so the master thread has to tell it to start before it does more calculations
+  	    this.calculate = false;
+  	    m.workerDone();
+  
+  
+        while(!calculate) {
+  	      if(kill) {return;}
+  	      try {Thread.sleep(1);}
+  	      catch(InterruptedException e) {}
+        }
+        
+        //Flows water between all cells synchronously
+        for(int k = 0; k < zCellCount; k++) {
+          for(int j = minY; j < maxY; j++) {
+            for(int i = minX; i < maxX; i++) {
+              if(grid[i][j][k] == null) {
+                continue;
+              }
+  	          if(grid[i][j][k].getWaterVolume() == 0) {
+  		          continue;
+  	          }
+  
+  	          if(i != 0) {
+  		          flowWaterSide(grid[i][j][k], grid[i-1][j][k]);
+  	          }
+  	          if(i != Farm.xCellCount - 1) {
+  		          flowWaterSide(grid[i][j][k], grid[i+1][j][k]);
+  	          }
+  
+  	          if(j != 0) {
+  		          flowWaterSide(grid[i][j][k], grid[i][j-1][k]);
+  	          }
+  	          if(j != Farm.yCellCount - 1) {
+  		          flowWaterSide(grid[i][j][k], grid[i][j+1][k]);
+  	          }
+  
+  	          if(k != 0) {
+  		          flowWaterSide(grid[i][j][k], grid[i][j][k-1]);
+  	          }
+  	          if(k != zCellCount - 1) {
+  		          flowWaterUp(grid[i][j][k], grid[i][j][k+1]);
+  	          }
+  
             }
-	          if(grid[i][j][k].getWaterVolume() == 0) {
-		          continue;
-	          }
-
-	          if(i != 0) {
-		          flowWaterSide(grid[i][j][k], grid[i-1][j][k]);
-	          }
-	          if(i != Farm.xCellCount - 1) {
-		          flowWaterSide(grid[i][j][k], grid[i+1][j][k]);
-	          }
-
-	          if(j != 0) {
-		          flowWaterSide(grid[i][j][k], grid[i][j-1][k]);
-	          }
-	          if(j != Farm.yCellCount - 1) {
-		          flowWaterSide(grid[i][j][k], grid[i][j+1][k]);
-	          }
-
-	          if(k != 0) {
-		          flowWaterSide(grid[i][j][k], grid[i][j][k-1]);
-	          }
-	          if(k != zCellCount - 1) {
-		          flowWaterUp(grid[i][j][k], grid[i][j][k+1]);
-	          }
-
           }
         }
+        
+        //Sets itself up so the master thread has to tell it to start before it does more calculations
+        this.calculate = false;
+        m.workerDone();
       }
-      
-      //Sets itself up so the master thread has to tell it to start before it does more calculations
-      this.calculate = false;
-      m.workerDone();
     }
   }
   
@@ -282,10 +277,22 @@ public class FlowWorker extends Thread {
 	/**
 	 * @return the total amount of water in this worker's system
 	 */
-	public Double getTotalWater() {
-		synchronized(this) {
-			return this.totalWater;
-		}
+	public double getTotalWater() {
+	  synchronized(this) {
+  	  double totalWater = 0;
+      for(int k = 0; k < zCellCount; k++) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
+        for(int j = minY; j < maxY; j++) {
+          for(int i = minX; i < maxX; i++) {
+            if(grid[i][j][k] == null) {
+              continue;
+            }
+            totalWater += grid[i][j][k].getWaterVolume();
+          }
+        }
+      }
+    
+      return totalWater;
+	  }
 	}
   
   
