@@ -2,7 +2,6 @@ package flow;
 
 import cell.Farm;
 import cell.Cell;
-import cell.Plant;
 import cell.Point3D;
 import cell.Soil;
 import topo.Topography;
@@ -18,7 +17,7 @@ import java.util.Random;
  */
 public class WaterFlow {
 	
-	private double       timeStep = 1; //seconds
+	private double       timeStep = 540; //seconds
 	private Farm         farm;
 	private Cell[][][]   grid;
 	private Double[][][] change;
@@ -26,6 +25,7 @@ public class WaterFlow {
 	private double[][][] percentSaturation;
 	private FlowWorker[] workers;
 	private int          finishedWorkers;
+	private int          simulatedTime;
 
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
@@ -36,11 +36,12 @@ public class WaterFlow {
 		this.workers = new FlowWorker[4];
 		this.hydraulicHead = new double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.percentSaturation = new double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
+		this.simulatedTime = 0;
 		
-		workers[0] = new FlowWorker(0, Farm.xCellCount/2, 0, Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
-		workers[1] = new FlowWorker(Farm.xCellCount/2, Farm.xCellCount, 0, Farm.yCellCount/2, 0, farm.zCellCount, this, grid, change, timeStep);
-		workers[2] = new FlowWorker(0, Farm.xCellCount/2, Farm.yCellCount/2, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
-		workers[3] = new FlowWorker(Farm.xCellCount/2, Farm.xCellCount, Farm.yCellCount, Farm.yCellCount, 0, farm.zCellCount, this, grid, change, timeStep);
+		workers[0] = new FlowWorker(0, Farm.xCellCount/2, 0, Farm.yCellCount/2, farm.zCellCount, this, grid, change, timeStep);
+		workers[1] = new FlowWorker(Farm.xCellCount/2, Farm.xCellCount, 0, Farm.yCellCount/2, farm.zCellCount, this, grid, change, timeStep);
+		workers[2] = new FlowWorker(0, Farm.xCellCount/2, Farm.yCellCount/2, Farm.yCellCount, farm.zCellCount, this, grid, change, timeStep);
+		workers[3] = new FlowWorker(Farm.xCellCount/2, Farm.xCellCount, Farm.yCellCount, Farm.yCellCount, farm.zCellCount, this, grid, change, timeStep);
 		
 		for(int i = 0; i < 4; i++) {
 		  workers[i].start();
@@ -53,9 +54,10 @@ public class WaterFlow {
 	 */
 	public void update(double seconds) {
 		for(double i = 0; i < seconds; i += this.timeStep) {
-			long time = System.currentTimeMillis();
+			//long time = System.currentTimeMillis();
 			this.update();
-			System.out.println("+1 time step : " + (System.currentTimeMillis() - time));
+			simulatedTime += this.timeStep;
+			//System.out.println("+1 time step : " + (System.currentTimeMillis() - time));
 		}
 	}
 
@@ -65,59 +67,31 @@ public class WaterFlow {
 	 */
 	private void update() {
 
-		double totalWater = 0;
-		//Calculate all percent saturations
-		//Calculate all hydraulic heads
 		//Loops and lets plants do growing calculations
 		//TODO: consider having worker threads do this
 		//TODO: have plants remove water from system
-		for(int k = farm.getZCellCount() - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
-			for(int j = 0; j < Farm.yCellCount; j++) {
-				for(int i = 0; i < Farm.xCellCount; i++) {
-					if(grid[i][j][k] == null) {
-						percentSaturation[i][j][k] = new Double(-1);
-						hydraulicHead[i][j][k] = new Double(-1);
-						continue;
-					}
-
-					totalWater += grid[i][j][k].getWaterVolume();
-
-					percentSaturation[i][j][k] = new Double(percentSaturation(grid[i][j][k]));
-					hydraulicHead[i][j][k] = new Double(hydraulicHead(grid[i][j][k]));
-
-					Plant plant = grid[i][j][k].getPlant();
-
-					if(plant == null) {
-						continue;
-					}
-					if(!plant.isDeadOrAlive()) {
-						continue;
-					}
-
-					double availableWater = 0;
-
-					for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
-						availableWater += grid[p.x][p.y][p.z].getWaterVolume();
-					}
-
-					plant.grow(availableWater);
-				}
-			}
-		}
-
-		System.out.println("Total Water = " + totalWater);
-
-
-
 		for(int i = 0; i < 4; i++) {
+			workers[i].startCalculations();
+		}
+		while(finishedWorkers < 4) {
+			try{Thread.sleep(1);}
+			catch (InterruptedException e){}
+		}
+		finishedWorkers = 0;
+
+		Double totalWater = new Double(0);
+		for(int i = 0; i < 4; i++) {
+			totalWater += workers[i].getTotalWater();
 	    workers[i].startCalculations();
 	  }
-	  	  
 	  while(finishedWorkers < 4) {
-	    try{Thread.sleep(1);} 
+	    try{Thread.sleep(1);}
 	    catch (InterruptedException e){}
 	  }
 	  finishedWorkers = 0;
+
+
+		if(simulatedTime % 50 == 0) System.out.println(totalWater);
 
 
 		//Update the amount of water that all the cells have
@@ -137,44 +111,8 @@ public class WaterFlow {
 	}
 
 
-	/**
-	 * Computes the hydraulic head of the given cell
-	 * @param c - the cell being considered
-	 * @return the hydraulic head of the given cell
-	 */
-	private double hydraulicHead(Cell c) {
-		double saturation = percentSaturation(c);
-		double height = c.getHeight();
-		int x = c.getCoordinate().x;
-		int y = c.getCoordinate().y;
-		int z = c.getCoordinate().z;
-		
-		
-		//Adds the heights of all the cells above the given cell that are fully saturated
-		double heightAbove = 0;
-		double s;
-		for(int i = 1; i < farm.zCellCount; i++) {
-			s = percentSaturation[x][y][z+i];
-			if(s > .99) {
-				heightAbove += grid[x][y][z+i].getHeight();
-			}
-			else {
-				break;
-			}
-		}
-		
-		//returns the hydraulic head
-		return saturation*height + heightAbove;
-	}
 	
-	/**
-	 * Computes the percent saturation of the given cell
-	 * @param c - the cell being considered
-	 * @return the percent saturation of the given cell
-	 */
-	private double percentSaturation(Cell c) {
-		return c.getWaterVolume()/c.getSoil().getWaterCapacity();
-	}
+
 	
 	
 	/**
@@ -204,6 +142,17 @@ public class WaterFlow {
 	}
 	
 	 /**
+   * Sets a given cell to have a given percent saturation
+   * @param x - x coordinate of cell
+   * @param y - y coordinate of cell
+   * @param z - z coordinate of cell
+   * @param sat - percent saturation of cell
+   */
+	public void setPercentSaturation(int x, int y, int z, Double sat) {
+	  this.percentSaturation[x][y][z] = sat;
+	}
+	
+	 /**
    * Returns the hydraulic head of a specified cell
    * @param x - the X-coordinate of the cell
    * @param y - the Y-coordinate of the cell
@@ -212,6 +161,17 @@ public class WaterFlow {
    */
 	public double getHydraulicHead(int x, int y, int z) {
 	  return hydraulicHead[x][y][z];
+	}
+	
+	/**
+	 * Sets a given cell to have a given hydraulic head
+	 * @param x - x coordinate of cell
+	 * @param y - y coordinate of cell
+	 * @param z - z coordinate of cell
+	 * @param head - hydraulic head of cell
+	 */
+	public void setHydraulicHead(int x, int y, int z, Double head) {
+	  this.hydraulicHead[x][y][z] = head;
 	}
 	
 	/**
@@ -229,6 +189,9 @@ public class WaterFlow {
 			workers[i].kill();
 		}
 	}
+
+
+
 
 
 	public static void main(String[] args) {
@@ -267,8 +230,10 @@ public class WaterFlow {
 		WaterFlow water = new WaterFlow(farm);
 		System.out.println((System.currentTimeMillis() - time));
 
+		time = System.currentTimeMillis();
 		System.out.println("\nUpdating model\n");
-		water.update(25);
+		water.update(15778500);
+		System.out.println("Simulated " + water.simulatedTime + " seconds in " + (System.currentTimeMillis() - time)/1000 + " seconds");
 
 		System.out.println("\nWaiting");
 		try {Thread.sleep(2500);}
