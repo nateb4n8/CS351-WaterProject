@@ -8,8 +8,8 @@ import cell.Direction;
  * @author: Max Ottesen
  */
 public class FlowData extends NetworkData {
-	public  final Type type = Type.FlowWater;
-	public final Direction direction;
+	public final Type       type = Type.FlowWater;
+	public final Direction  direction;
 	public final double[][] water;
 
 	public FlowData(Direction direction, double[][] water) {
