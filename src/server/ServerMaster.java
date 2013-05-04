@@ -74,6 +74,14 @@ public class ServerMaster
   /** @return The server starting time **/
   public long getServerTime() { return this.time; }
 
+  //returns time server has been running
+  private double timeDiff()
+  {
+    long time = System.nanoTime() - stime;
+    double secDiff = (double) time / 1000000000.0;
+    return secDiff;
+  }
+
   public static void main(String args[])
   {
     int port = 0;
