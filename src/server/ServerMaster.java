@@ -1,3 +1,5 @@
+//Michael Asplund
+
 package server;
 
 
@@ -10,7 +12,7 @@ public class ServerMaster
 {
   private ServerSocket serverSocket;
   private LinkedList<ServerWorker> allConnections = new LinkedList<ServerWorker>();
-  private long time; //Server start time, used for transaction times.
+  private long stime; //Server start time, used for transaction times.
   private Catalog catalog;
 
   public ServerMaster(int portNumber)
@@ -26,7 +28,7 @@ public class ServerMaster
       System.exit(-1);
     }
     //Set server start time.
-    this.time = System.nanoTime();
+    this.stime = System.nanoTime();
     
     this.catalog = new Catalog();
     
@@ -62,7 +64,7 @@ public class ServerMaster
   /**
    * Removes the passed in ServerWorker thread from the list of connections.
    */
-  public void removeWorkerFromList(ServerWorker sw)
+  public void removeWorker(ServerWorker sw)
   {
         System.out.println(sw.name + " has quit the game.");
         allConnections.remove(sw);     
@@ -72,7 +74,7 @@ public class ServerMaster
   public Catalog getCatalog() { return this.catalog; }
   
   /** @return The server starting time **/
-  public long getServerTime() { return this.time; }
+  public long getServerTime() { return this.stime; }
 
   //returns time server has been running
   private double timeDiff()
@@ -99,3 +101,4 @@ public class ServerMaster
     new ServerMaster(port);
   }
 }
+

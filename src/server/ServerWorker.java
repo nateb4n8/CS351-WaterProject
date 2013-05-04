@@ -1,3 +1,5 @@
+//Michael Asplund
+
 package server;
 
 import java.io.BufferedReader;
@@ -76,18 +78,18 @@ public class ServerWorker extends Thread
         
         //feel free to add more else if's before the else
         //for any Type that are added to NetworkData
-        if (nd.type = Type.Msg)
+        if (nd.type == NetworkData.Type.Msg)
         {
           Msg message = (Msg)nd;
           String msg = message.msg;
           System.out.println(msg);
         }
-        else if (nd.type = Type.Name)
+        else if (nd.type == NetworkData.Type.Name)
         {
           Name n = (Name)nd;
           this.name = n.name;
         }
-        else if (nd.type = Type.Quit)
+        else if (nd.type == NetworkData.Type.Quit)
         {
           //System.exit(0);
           server.removeWorker(this);
@@ -97,7 +99,7 @@ public class ServerWorker extends Thread
         else
         {
           System.out.println("Unrecognized message from client");
-          NetworkData data = new Msg(name, "unknown type");
+          Msg data = new Msg(name, "unknown type");
           data.error = nd.type;
           send(data);
         }

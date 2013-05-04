@@ -5,6 +5,7 @@
 package server;
 public class Name extends NetworkData
 {
+  private static final long serialVersionUID = 1L;
   String name;
   
   public Name(String name)
