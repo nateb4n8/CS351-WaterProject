@@ -96,7 +96,7 @@ public class ServerWorker extends Thread
         }
         else
         {
-          System.out.println("Unrecognized message from client(" + timeDiff()+ ") = ");
+          System.out.println("Unrecognized message from client");
           NetworkData data = new Msg(name, "unknown type");
           data.error = nd.type;
           send(data);
