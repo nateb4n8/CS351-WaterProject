@@ -3,6 +3,7 @@ package flow;
 import cell.Farm;
 import cell.Cell;
 import cell.Soil;
+import server.FlowData;
 import topo.Topography;
 import java.util.Random;
 
@@ -15,9 +16,9 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class WaterFlow {
-	private static boolean supressOutput = false;
+	private static boolean suppressOutput = false;
 
-	private int          timeStep = 950; //seconds
+	private int          timeStep = 1000; //seconds
 	private Farm         farm;
 	private Cell[][][]   grid;
 	private Double[][][] change;
@@ -26,13 +27,14 @@ public class WaterFlow {
 	private FlowWorker[] workers;
 	private int          finishedWorkers;
 	private Integer      simulatedTime;
+	private long         realTime;
 
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
 		this.grid = farm.getGrid();
 		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
-    this.hydraulicHead = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
-    this.percentSaturation = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
+		this.hydraulicHead = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
+		this.percentSaturation = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		reset(change);
 		reset(hydraulicHead);
 		reset(percentSaturation);
@@ -56,12 +58,12 @@ public class WaterFlow {
 	 */
 	public void update(double seconds) {
 		for(double i = 0; i < seconds; i += this.timeStep) {
-			//long time = System.currentTimeMillis();
+			long time = System.currentTimeMillis();
 			this.update();
 			synchronized(simulatedTime) {
 				simulatedTime += this.timeStep;
 			}
-			//println("+1 time step : " + (System.currentTimeMillis() - time));
+			realTime += (System.currentTimeMillis() - time);
 		}
 	}
 
@@ -70,10 +72,54 @@ public class WaterFlow {
 	 * Runs the model for one time step
 	 */
 	private void update() {
-		//TODO: have plants remove water from system
+		//Check to see if model stats should be reported
+		if(simulatedTime % (timeStep*100) == 0) {
+			int avgTimeStep = 0;
+			if(simulatedTime != 0) {
+				avgTimeStep = (int) realTime/(simulatedTime/timeStep);
+			}
+			//Total up the water in the system
+			double totalWater = 0;
+			for(int i = 0; i < 4; i++) {
+				totalWater += workers[i].getTotalWater();
+			}
+
+			println(totalWater + " mL");
+			println(simulatedTime + " s");
+			println(avgTimeStep + " ms\n");
+		}
+
+
+
+		//Tell the workers to start the hydraulic head/percent saturation calculations
 		for(int i = 0; i < 4; i++) {
 			workers[i].startCalculations();
 		}
+		//Wait for calculations to complete
+		while(finishedWorkers < 4) {
+			try{Thread.sleep(1);}
+			catch(InterruptedException e){}
+		}
+		finishedWorkers = 0;
+
+
+		//Once heads/saturations have been calculated, tell the workers to start flow calculations
+		for(int i = 0; i < 4; i++) {
+	    workers[i].startCalculations();
+	  }
+		//Wait for the calculations to complete
+	  while(finishedWorkers < 4) {
+	    try{Thread.sleep(1);}
+	    catch(InterruptedException e){}
+	  }
+	  finishedWorkers = 0;
+
+
+		//Once the flow calculations have completed, tell the workers to update the water
+		for(int i = 0; i < 4; i++) {
+			workers[i].startCalculations();
+		}
+		//Wait for the calculations to complete
 		while(finishedWorkers < 4) {
 			try{Thread.sleep(1);}
 			catch(InterruptedException e){}
@@ -81,36 +127,7 @@ public class WaterFlow {
 		finishedWorkers = 0;
 
 		
-		for(int i = 0; i < 4; i++) {
-	    workers[i].startCalculations();
-	  }
-	  while(finishedWorkers < 4) {
-	    try{Thread.sleep(1);}
-	    catch(InterruptedException e){}
-	  }
-	  finishedWorkers = 0;
-
-	  double totalWater = 0;
-	  for(int i = 0; i < 4; i++) {
-	    totalWater += workers[i].getTotalWater();
-	  }
-
-		if(simulatedTime % (timeStep*100) == 0) println(totalWater + " " + simulatedTime);
-
-
-		//Update the amount of water that all the cells have
-		for(int k = 0; k < farm.getZCellCount(); k++) {
-			for(int j = 0; j < Farm.yCellCount; j++) {
-				for(int i = 0; i < Farm.xCellCount; i++) {
-					if(grid[i][j][k] == null) {
-						continue;
-					}
-					grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + change[i][j][k]);
-				}
-			}
-		}
-		
-		//Zero out the change holder
+		//Zero out my arrays
 		reset(change);
 		reset(hydraulicHead);
 		reset(percentSaturation);
@@ -179,6 +196,10 @@ public class WaterFlow {
 	  }
 	}
 
+	public void externalFlow(FlowData water) {
+
+	}
+
 	/**
 	 * @return the amount of simulated time that has elapsed
 	 */
@@ -215,7 +236,7 @@ public class WaterFlow {
 		print("  ...topography : ");
 		Farm farm = Topography.createFarm(0, 0);
 		println((System.currentTimeMillis() - time) + " ms");
-		println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells");
+		println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells in system");
 
 		time = System.currentTimeMillis();
 
@@ -244,14 +265,21 @@ public class WaterFlow {
 		WaterFlow water = new WaterFlow(farm);
 		println((System.currentTimeMillis() - time) + " ms");
 
-		time = System.currentTimeMillis();
 		println("\nStarting model\n");
-		water.update(18408207); //7 months = 18408207 seconds
-		println("Simulated " + water.simulatedTime + " seconds in " + (System.currentTimeMillis() - time)/1000 + " seconds");
+		println("Total water in system (in milliliters)");
+		println("Total time simulated (in seconds)");
+		println("Average calculation time per time step (in milliseconds)\n");
+		try{Thread.sleep(2500);}
+		catch(InterruptedException e){}
+
+		time = System.currentTimeMillis();
+		water.update(21037950); //8 months = 21037950 seconds //7 months = 18408207 seconds
+		println("Simulated " + water.simulatedTime + " seconds in " + (System.currentTimeMillis() - time) / 1000 + " " +
+		        "seconds");
 
 		println("\nWaiting");
-		try {Thread.sleep(2500);}
-		catch(InterruptedException e) {}
+		try{Thread.sleep(2500);}
+		catch(InterruptedException e){}
 
 		water.kill();
 		println("done");
@@ -262,7 +290,7 @@ public class WaterFlow {
 
 
 	private static void print(String s) {
-		if(!supressOutput) {
+		if(!suppressOutput) {
 			System.out.print(s);
 		}
 	}

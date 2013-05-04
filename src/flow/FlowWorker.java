@@ -46,6 +46,7 @@ public class FlowWorker extends Thread {
         catch(InterruptedException e) {}
       }
 
+	    //Calculates hyrdraulic heads/percent saturations of cells
       synchronized(this) {
   		  for(int k = zCellCount - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
   			  for(int j = minY; j < maxY; j++) {
@@ -58,8 +59,8 @@ public class FlowWorker extends Thread {
   
   					  m.setPercentSaturation(i, j, k, new Double(percentSaturation(grid[i][j][k])));
   					  m.setHydraulicHead(i, j, k, new Double(hydraulicHead(grid[i][j][k])));
-  
-  
+
+					    //TODO: have plants remove water from system
   					  //Plant plant = grid[i][j][k].getPlant();
   					  //
   					  //if(plant == null) {
@@ -130,6 +131,29 @@ public class FlowWorker extends Thread {
         //Sets itself up so the master thread has to tell it to start before it does more calculations
         this.calculate = false;
         m.workerDone();
+
+
+	      while(!calculate) {
+		      if(kill) {return;}
+		      try {Thread.sleep(1);}
+		      catch(InterruptedException e) {}
+	      }
+
+	      //Updates water volume of cells
+	      for(int k = 0; k < zCellCount; k++) {
+		      for(int j = minY; j < maxY; j++) {
+			      for(int i = minX; i < maxX; i++) {
+				      if(grid[i][j][k] == null) {
+					      continue;
+				      }
+				      grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + change[i][j][k]);
+			      }
+		      }
+	      }
+
+	      //Sets itself up so the master thread has to tell it to start before it does more calculations
+	      this.calculate = false;
+	      m.workerDone();
       }
     }
   }
