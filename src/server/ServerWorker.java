@@ -14,6 +14,7 @@ public class ServerWorker extends Thread
   private ObjectOutputStream clientOutStream;
   private ObjectInputStream clientInStream;
   private ServerMaster server; //To communicate with server.
+  public String name;
 
   public ServerWorker(Socket client, ServerMaster server)
   {
