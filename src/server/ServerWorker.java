@@ -49,7 +49,7 @@ public class ServerWorker extends Thread
     catch (IOException e) { e.printStackTrace(); }
   }
 
-  public void send(DataObject data)
+  public void send(NetworkData data)
   {
     System.out.println("ServerWorker.send(data)");
     try
