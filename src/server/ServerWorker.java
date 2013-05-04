@@ -69,9 +69,45 @@ public class ServerWorker extends Thread
       {
         Offer offer = (Offer) (clientInStream.readObject());
         System.out.println("Offer: "+offer.merchant+" : "+offer.quantity+" : "+offer.unitPrice);
+
+
+        System.out.println("Worker: listening to socket");
+        NetworkData nd = (NetworkData)clientInStream.readObject();
+        
+        //feel free to add more else if's before the else
+        //for any Type that are added to NetworkData
+        if (nd.type = Type.Msg)
+        {
+          Msg message = (Msg)nd;
+          String msg = message.msg;
+          System.out.println(msg);
+        }
+        else if (nd.type = Type.Name)
+        {
+          Name n = (Name)nd;
+          this.name = n.name;
+        }
+        else if (nd.type = Type.Quit)
+        {
+          //System.exit(0);
+          server.removeWorker(this);
+          //this.interrupt();
+          this.stop();
+        }
+        else
+        {
+          System.out.println("Unrecognized message from client(" + timeDiff()+ ") = ");
+          NetworkData data = new Msg(name, "unknown type");
+          data.error = nd.type;
+          send(data);
+        }
+
       }
       catch (Exception e)
       {
+        System.out.println("Invalid command");
+        NetworkData data = new Msg(name, "Invalid command");
+        send(data);
         e.printStackTrace();
       }
     }
