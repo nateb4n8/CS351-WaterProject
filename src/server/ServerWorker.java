@@ -48,6 +48,18 @@ public class ServerWorker extends Thread
     try { clientOutStream.writeObject(offer); }
     catch (IOException e) { e.printStackTrace(); }
   }
+
+  public void send(DataObject data)
+  {
+    System.out.println("ServerWorker.send(data)");
+    try
+    {
+      clientOutStream.writeObject(data);
+    } catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
   
   public void run()
   {
