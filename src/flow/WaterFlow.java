@@ -2,7 +2,6 @@ package flow;
 
 import cell.Farm;
 import cell.Cell;
-import cell.Point3D;
 import cell.Soil;
 import topo.Topography;
 import java.util.Random;
@@ -16,8 +15,9 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class WaterFlow {
-	
-	private double       timeStep = 540; //seconds
+	private static boolean supressOutput = false;
+
+	private int          timeStep = 950; //seconds
 	private Farm         farm;
 	private Cell[][][]   grid;
 	private Double[][][] change;
@@ -25,7 +25,7 @@ public class WaterFlow {
 	private Double[][][] percentSaturation;
 	private FlowWorker[] workers;
 	private int          finishedWorkers;
-	private int          simulatedTime;
+	private Integer      simulatedTime;
 
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
@@ -58,8 +58,10 @@ public class WaterFlow {
 		for(double i = 0; i < seconds; i += this.timeStep) {
 			//long time = System.currentTimeMillis();
 			this.update();
-			simulatedTime += this.timeStep;
-			//System.out.println("+1 time step : " + (System.currentTimeMillis() - time));
+			synchronized(simulatedTime) {
+				simulatedTime += this.timeStep;
+			}
+			//println("+1 time step : " + (System.currentTimeMillis() - time));
 		}
 	}
 
@@ -93,7 +95,7 @@ public class WaterFlow {
 	    totalWater += workers[i].getTotalWater();
 	  }
 
-		if(simulatedTime % (timeStep*100) == 0) System.out.println(totalWater + " " + simulatedTime);
+		if(simulatedTime % (timeStep*100) == 0) println(totalWater + " " + simulatedTime);
 
 
 		//Update the amount of water that all the cells have
@@ -113,7 +115,6 @@ public class WaterFlow {
 		reset(hydraulicHead);
 		reset(percentSaturation);
 	}
-
 	
 	/**
 	 * Sets a Double[][][] array to all 0s
@@ -177,6 +178,15 @@ public class WaterFlow {
 	    this.hydraulicHead[x][y][z] = head;
 	  }
 	}
+
+	/**
+	 * @return the amount of simulated time that has elapsed
+	 */
+	public int getSimulatedTime() {
+		synchronized(simulatedTime) {
+			return simulatedTime;
+		}
+	}
 	
 	/**
 	 * Lets a worker thread tell the master that it's done
@@ -201,17 +211,17 @@ public class WaterFlow {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		System.out.println("INITIALIZATIONS");
-		System.out.print("  ...topography : ");
+		println("INITIALIZATIONS");
+		print("  ...topography : ");
 		Farm farm = Topography.createFarm(0, 0);
-		System.out.println((System.currentTimeMillis() - time) + " ms");
-		System.out.println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells");
+		println((System.currentTimeMillis() - time) + " ms");
+		println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells");
 
 		time = System.currentTimeMillis();
 
 		Random rand = new Random();
 
-		System.out.print("  ...ground     : ");
+		print("  ...ground     : ");
 		//XML_Handler.initGround(farm, "C:/Program Files (x86)/JetBrains/IntelliJ IDEA 12.1.1/IDEA/Java/Groundwater_Flow/src/XML_Handler/FarmSetup.xml");
 		Cell[][][] grid = farm.getGrid();
 		for(int k = 0; k < farm.zCellCount; k++) {
@@ -226,24 +236,38 @@ public class WaterFlow {
 				}
 			}
 		}
-		System.out.println((System.currentTimeMillis() - time) + " ms");
+		println((System.currentTimeMillis() - time) + " ms");
 
 		time = System.currentTimeMillis();
 
-		System.out.print("  ...flow       : ");
+		print("  ...flow       : ");
 		WaterFlow water = new WaterFlow(farm);
-		System.out.println((System.currentTimeMillis() - time) + " ms");
+		println((System.currentTimeMillis() - time) + " ms");
 
 		time = System.currentTimeMillis();
-		System.out.println("\nUpdating model\n");
-		water.update(15778500);
-		System.out.println("Simulated " + water.simulatedTime + " seconds in " + (System.currentTimeMillis() - time)/1000 + " seconds");
+		println("\nStarting model\n");
+		water.update(18408207); //7 months = 18408207 seconds
+		println("Simulated " + water.simulatedTime + " seconds in " + (System.currentTimeMillis() - time)/1000 + " seconds");
 
-		System.out.println("\nWaiting");
+		println("\nWaiting");
 		try {Thread.sleep(2500);}
 		catch(InterruptedException e) {}
 
 		water.kill();
-		System.out.println("done");
+		println("done");
+	}
+
+
+
+
+
+	private static void print(String s) {
+		if(!supressOutput) {
+			System.out.print(s);
+		}
+	}
+
+	private static void println(String s) {
+		print(s + "\n");
 	}
 }
