@@ -64,17 +64,8 @@ public class ServerMaster
    */
   public void removeWorkerFromList(ServerWorker sw)
   {
-    int max = allConnections.size();
-    
-    for (int i=0; i<max; i++)
-    {
-      if (allConnections.get(i).getId() == sw.getId())
-      {
-        allConnections.remove(i);
-        System.out.println("ServerWorker Removed.");
-        break;
-      }
-    }
+        System.out.println(sw.name + " has quit the game.");
+        allConnections.remove(sw);     
   }
   
   /** @return The single Catalog **/
