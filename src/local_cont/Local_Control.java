@@ -62,7 +62,7 @@ public class Local_Control {
 	}
 	public static void main(String args[]){
 		Local_Control me = new Local_Control();
-		gui = new WaterProjectGUI(me);
+		gui = new WaterProjectGUI(me,"WGUI");
 	}
 	public int getQuantity() {
 		return (f==null)?10:f.getWaterQty();
@@ -76,14 +76,16 @@ public class Local_Control {
 	    //guis[GuiNo].addQuantity(amount);
 		int total = getQuantity() + amount;
 		f.setWaterQty(total);
-	    gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
+		gui.setQuantityLabel();
+	    //gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
 	}
 	public void subQ(int amount)
 	{
 	    //guis[GuiNo].subQuantity(amount);
 		int total = getQuantity() - amount;
 		f.setWaterQty(total);
-		gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
+		gui.setQuantityLabel();
+		//gui.getQuantityLabel().setText("Quantity:("+getQuantity()+")");
 	}
 	public void sell_water(int qty, double amt, String name){
 		Offer sell = new Offer(name, qty, amt);
@@ -105,49 +107,93 @@ public class Local_Control {
 	    String quant = getSellingQuantity(s);
 	    int sellQuant = Integer.parseInt(quant);
 	    System.out.println("Quantity: "+quant);
-	    String GuiNum = getGuiNofromStr(s);
-	    int sellerNum = Integer.parseInt(GuiNum);
-	    System.out.println("GUI Number is "+sellerNum);
+	    String sellerGuiName = getGuiNofromStr(s);
+	    
+	    System.out.println("GUI Name is "+sellerGuiName);
 	    double guisMon = getMoney();
 	    int guisQuan = getQuantity();
-	    int buyerNum = gui.getGuiNumber();
-	    System.out.println("BuyerNum= "+buyerNum);
-	    Offer buy = new Offer(Integer.toString(buyerNum),buyQ,sellAm);
+	    String buyer = gui.getGuiName();
+	    System.out.println("BuyerNum= "+buyer);
+	    Offer buy = new Offer(buyer,buyQ,sellAm);
+	    System.out.println(gui.getGuiName()+":"+sellerGuiName);
+	    boolean check = buyer.equals(sellerGuiName);
+	    System.out.println("Boolean:"+check);
 	    double total = sellAm*sellQuant;
 	    if (guisMon >= total)
 	    {
 		    if(buyQ == sellQuant)
 		    {
-		    	subMoney(total);
-		    	addQ(sellQuant);
-		    	//gui.removeSellOffer(idx);
-		    	catalog.removeOfferAt(idx);
-		    	gui.updateSellOffers(catalog.getOffersList());
-		    	gui.getBuyQuantity().setText(" ");
+		    	//If the buyer is the seller, just remove the offer, cancels offer.
+			    //No money or quantity is added or subtracted, offer is canceled.
+			    if(buyer.equals(sellerGuiName))
+			    {
+			      catalog.removeOfferAt(idx);
+			      gui.updateSellOffers(catalog.getOffersList());
+			      gui.getBuyQuantity().setText("");
+			    }
+			    else
+			    {
+		    	  subMoney(total);
+		    	  addQ(sellQuant);
+		    	  //gui.removeSellOffer(idx);
+		    	  catalog.removeOfferAt(idx);
+		    	  gui.updateSellOffers(catalog.getOffersList());
+		    	  gui.getBuyQuantity().setText("");
+			    }
+		    	
 		    }
 		    else if(buyQ > sellQuant)
 		    {
-		      subMoney(total);
-		      addQ(sellQuant);
-		      //gui.removeSellOffer(idx);
-		      catalog.removeOfferAt(idx);
-		      int newQuantity = buyQ - sellQuant;
-		      gui.getBuyQuantity().setText(Integer.toString(newQuantity));
-		      gui.updateSellOffers(catalog.getOffersList());
+		      //If the buyer is the seller, just remove the offer, cancels offer.
+		      //No money or quantity is added or subtracted, offer is canceled.
+			  if(buyer.equals(sellerGuiName))
+			  {
+			    catalog.removeOfferAt(idx);
+			    gui.updateSellOffers(catalog.getOffersList());
+			    gui.getBuyQuantity().setText("");
+			  }
+			  else
+			  {
+		        subMoney(total);
+		        addQ(sellQuant);
+		        //gui.removeSellOffer(idx);
+		        catalog.removeOfferAt(idx);
+		        int newQuantity = buyQ - sellQuant;
+		        gui.getBuyQuantity().setText(Integer.toString(newQuantity));
+		        gui.updateSellOffers(catalog.getOffersList());
+			  }
+		      
 		    }
 		    else if(buyQ < sellQuant)
 		    {
 		      int newQuantity = sellQuant - buyQ;
-		      //String newString = setQuantity(s,newQuantity,sellAm,sellerNum);
-		      Offer of = new Offer(Integer.toString(sellerNum),newQuantity,sellAm);
-		      subMoney(total);
-		      addQ(sellQuant);
-		      catalog.removeOfferAt(idx);
-		      catalog.addSellOffer(of);
-		      //System.out.println(newString);
-		      //gui.removeSellOffer(idx);
-		      gui.updateSellOffers(catalog.getOffersList());
+		      //If the buyer is the seller, just remove the offer, cancels offer.
+		      //No money or quantity is added or subtracted, offer is canceled.
+			  if(buyer.equals(sellerGuiName))
+			  {
+			    catalog.removeOfferAt(idx);
+				gui.updateSellOffers(catalog.getOffersList());
+				Offer of = new Offer(sellerGuiName,newQuantity,sellAm);
+				catalog.addSellOffer(of);
+				gui.updateSellOffers(catalog.getOffersList());
+				gui.getBuyQuantity().setText(Integer.toString(newQuantity));
+			  }
+			  else
+			  {
+		        
+		        //String newString = setQuantity(s,newQuantity,sellAm,sellerNum);
+		        Offer of = new Offer(sellerGuiName,newQuantity,sellAm);
+		        subMoney(total);
+		        addQ(sellQuant);
+		        catalog.removeOfferAt(idx);
+		        catalog.addSellOffer(of);
+		        //System.out.println(newString);
+		        //gui.removeSellOffer(idx);
+		        gui.updateSellOffers(catalog.getOffersList());
+			  }
+		      
 		    }
+		    
 		    //Send Offer to server.
 	    }
 

@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -182,7 +183,29 @@ public class CreateFarmGUI extends JFrame implements ActionListener, ChangeListe
 	    this.displayFarm = new DisplayFarm(this.farm, this.panel);
 	    g.setDisplayFarm(this.displayFarm);
 	    g.setMoneyLabel();
+	    int maxX = this.farm.getXCellCount();
+	    int maxY = this.farm.getYCellCount();
+	    int maxZ = this.farm.getZCellCount();
+	    g.setMaxX(maxX);
+	    g.setMaxY(maxY);
+	    g.setMaxZ(maxZ);
+	    g.setSliderValues(0, maxX, 0, maxY, 0, maxZ);
+	    g.setSliderText(0, maxX, 0, maxY, 0, maxZ);
 	    
+	    g.slider_X1.setMinimum(0);
+	    g.slider_X2.setMaximum(maxX);
+	    g.slider_Y1.setMinimum(0);
+	    g.slider_Y2.setMaximum(maxY);
+	    g.slider_Z1.setMinimum(0);
+	    g.slider_Z2.setMaximum(maxZ);
+	    
+	    g.slider_X1.setValue(0);
+	    g.slider_X2.setValue(0);
+	    g.slider_Y1.setValue(0);
+	    g.slider_Y2.setValue(0);
+	    g.slider_Z1.setValue(0);
+	    g.slider_Z2.setValue(0);
+	   
 	  }
 	  else if(obj == browse)
 	  {
