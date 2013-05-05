@@ -26,7 +26,7 @@ Nathan (nacosta): Listings of offers and a bit of server.
 
 Max (mottese): Water flow
 
-Robert(NinerzRuleAll): Plants
+Robert(NinerzRuleAll): Plants, TimeKeeper, ElevationData, Climate
 
 Donald (swartzd3): Changing existing project to MVC design.
 

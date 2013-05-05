@@ -1,4 +1,8 @@
 package timeKeeper;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import climate.Climate;
 
 /**
@@ -11,8 +15,10 @@ public class TimeKeeper {
 	
 	private int _numberOfMilliSecsPerDay; 
 	private int _currentDay;
+	private int _currentYear;
 	private Climate _currentClimate;
 	private int _currentClimateDaysRemaining;
+	private Timer _timeKeeperTimer;
 	
 	/**
 	 * Creates TimeKeeper, should be one per game when Server created
@@ -21,9 +27,11 @@ public class TimeKeeper {
 	public TimeKeeper(int numberOfMilliSecsPerDay){
 		this._numberOfMilliSecsPerDay = numberOfMilliSecsPerDay;
 		this._currentClimate = Climate.JANUARY;
-		this._currentDay = 1;
+		this._currentDay = 0;
+		this._currentYear = 0;
 		this._currentClimateDaysRemaining = _currentClimate.getDuration();
-		
+		this._timeKeeperTimer = new Timer();
+		this._timeKeeperTimer.schedule(new AdvanceDayTask(),0,_numberOfMilliSecsPerDay);		
 	}
 
 	/**
@@ -45,6 +53,14 @@ public class TimeKeeper {
 
 	/**
 	 * 
+	 * @return current year count 
+	 */
+	public int get_currentYear() {
+		return _currentYear;
+	}
+
+	/**
+	 * 
 	 * @return current game sessions current climate
 	 */
 	public Climate getCurrentClimate() {
@@ -55,14 +71,19 @@ public class TimeKeeper {
 	 * advances the current day while checking to see if climate also needs to be advanced
 	 */
 	public void advanceCurrentDay() {
-		if(this._currentClimateDaysRemaining > 0){
+		if(this._currentClimateDaysRemaining >1){
 		this._currentDay++;
+		
 		this._currentClimateDaysRemaining--;
 		}
 		else{
+			if(this._currentClimate.toString().equals("DECEMBER")){
+				this._currentYear++;
+			}
 			this._currentDay++;
 			this.advanceCurrentClimate(this._currentClimate);
 		}
+		
 	}
 
 
@@ -98,6 +119,7 @@ public class TimeKeeper {
 				this._currentClimateDaysRemaining = this._currentClimate.getDuration();
 				break;		
 		case 9: this._currentClimate = Climate.OCTOBER;
+				this._currentClimateDaysRemaining = this._currentClimate.getDuration();
 				break;	
 		case 10: this._currentClimate = Climate.NOVEMBER;
 				this._currentClimateDaysRemaining = this._currentClimate.getDuration(); 
@@ -109,13 +131,19 @@ public class TimeKeeper {
 				this._currentClimateDaysRemaining = this._currentClimate.getDuration();
 				break;				
 		}
+		
+	
 	}
 
-
-	
-	
-	 
-	
-	
+	/**
+	 * Class to advance day every _numberOfSeconds in Day 
+	 * @author Robert Trujillo
+	 *
+	 */
+	class AdvanceDayTask extends TimerTask {	        
+        public void run() {
+            	advanceCurrentDay(); 
+        }
+    }	
 
 }

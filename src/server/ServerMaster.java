@@ -8,12 +8,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import timeKeeper.TimeKeeper;
+
 public class ServerMaster
 {
   private ServerSocket serverSocket;
   private LinkedList<ServerWorker> allConnections = new LinkedList<ServerWorker>();
   private long stime; //Server start time, used for transaction times.
   private Catalog catalog;
+  private TimeKeeper timeKeeper;
 
   public ServerMaster(int portNumber)
   {
@@ -31,6 +34,7 @@ public class ServerMaster
     this.stime = System.nanoTime();
     
     this.catalog = new Catalog();
+    this.timeKeeper = new TimeKeeper(822);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
     
     waitForConnection();
   }
@@ -84,7 +88,14 @@ public class ServerMaster
     return secDiff;
   }
 
-  public static void main(String args[])
+  /**
+   * @return ServerMaster game's TimeKeeper
+   */
+  public TimeKeeper getTimeKeeper() {
+	return timeKeeper;
+}
+
+public static void main(String args[])
   {
     int port = 0;
     try
