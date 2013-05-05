@@ -21,7 +21,8 @@ Make sure you include units, though! If you don't put M, it will assume you are 
 
 Please add your name and current roles of the project.
 
-Nathan (nacosta): Listings of buy and sell offers.
+Nathan (nacosta): Listings of offers and a bit of server.
+-Skype: logic0verflow
 
 Max (mottese): Water flow
 
