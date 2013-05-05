@@ -11,9 +11,9 @@ import java.io.Serializable;
 public class FlowData extends NetworkData implements Serializable {
 	public final Type       type = Type.FlowWater;
 	public final Direction  direction;
-	public final double[][] water;
+	public final Double[][] water;
 
-	public FlowData(Direction direction, double[][] water) {
+	public FlowData(Direction direction, Double[][] water) {
 		this.direction = direction;
 		this.water = water;
 	}
