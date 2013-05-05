@@ -31,11 +31,11 @@ public class Catalog
    */
   public String addSellOffer(Offer offer)
   { 
-    if (offerExist(offer)) return "Error(Catalog): Offer already exist!";
+    if (offerExist(offer)) return "Error: Offer already exist!";
     else
     {
       this.addOfferByLowestPrice(offer, this.sellOffers);
-      return "Success(Catalog): Offer has been added.";
+      return "Success: Offer has been added.";
     }
   }
   

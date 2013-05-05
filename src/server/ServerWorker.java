@@ -10,6 +10,8 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.sun.org.apache.bcel.internal.generic.IINC;
+
 public class ServerWorker extends Thread
 {
   private Socket client;
@@ -95,6 +97,15 @@ public class ServerWorker extends Thread
           server.removeWorker(this);
           //this.interrupt();
           this.stop();
+        }
+        else if (nd.type == NetworkData.Type.SellWater)
+        {
+          Offer inOffer = (Offer)(nd);
+          String result = this.server.getCatalog().addSellOffer(inOffer);
+          if (result.startsWith("Error"))
+          {
+            this.send(new Msg(inOffer.merchant, result));
+          }
         }
         else
         {
