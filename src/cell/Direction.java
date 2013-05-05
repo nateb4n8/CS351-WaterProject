@@ -6,7 +6,6 @@ package cell;
 
 /**
  * @author nacosta
- *
  */
 public enum Direction
 {

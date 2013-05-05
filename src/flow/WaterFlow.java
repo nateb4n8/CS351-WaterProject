@@ -1,5 +1,6 @@
 package flow;
 
+import cell.Direction;
 import cell.Farm;
 import cell.Cell;
 import cell.Soil;
@@ -59,7 +60,9 @@ public class WaterFlow {
 	public void update(double seconds) {
 		for(double i = 0; i < seconds; i += this.timeStep) {
 			long time = System.currentTimeMillis();
-			this.update();
+			synchronized(grid) {
+				this.update();
+			}
 			synchronized(simulatedTime) {
 				simulatedTime += this.timeStep;
 			}
@@ -197,11 +200,73 @@ public class WaterFlow {
 	}
 
 	public void rain(double waterPerCell) {
-
+		synchronized(grid) {
+			for(int k = 0; k < farm.getZCellCount(); k++) {
+				for(int j = 0; j < Farm.yCellCount; j++) {
+					for(int i = 0; i < Farm.xCellCount; i++) {
+						if(grid[i][j][k] == null) {
+							continue;
+						}
+						if(grid[i][j][k].isSurface()) {
+							grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + waterPerCell);
+						}
+					}
+				}
+			}
+		}
 	}
 
-	public void externalFlow(FlowData water) {
+	public void externalFlow(FlowData data) {
+		int minX, maxX;
+		int minY, maxY;
 
+		//Flow to the opposite side that the water is coming from
+		if(data.direction == Direction.NORTH) {
+			minX = 0;
+			maxX = Farm.xCellCount;
+			minY = 0;
+			maxY = 1;
+		}
+		else if(data.direction == Direction.EAST) {
+			minX = 0;
+			maxX = 1;
+			minY = 0;
+			maxY = Farm.yCellCount;
+		}
+		else if(data.direction == Direction.SOUTH) {
+			minX = 0;
+			maxX = Farm.xCellCount;
+			minY = Farm.yCellCount - 1;
+			maxY = Farm.yCellCount;
+		}
+		else if(data.direction == Direction.WEST) {
+			minX = Farm.xCellCount - 1;
+			maxX = Farm.xCellCount;
+			minY = 0;
+			maxY = Farm.yCellCount;
+		}
+		else {
+			return;
+		}
+
+		synchronized(grid) {
+			int maxZ = 1; //TODO: Farms need the same height
+			for(int k = 0; k < maxZ; k++) {
+				for(int j = minY; j < maxY; j++) {
+					for(int i = minX; i < maxX; i++) {
+						int index;
+						if(data.direction == Direction.NORTH || data.direction == Direction.SOUTH) {
+							index = i;
+						}
+						else {
+							index = j;
+						}
+
+						grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + data.water[index][k]);
+					}
+				}
+			}
+		}
 	}
 
 	/**
