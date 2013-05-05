@@ -29,9 +29,39 @@ public class Catalog
    * @param quantity Amount of items to be sold
    * @param unitPrice Price of a single item
    */
-  public void addSellOffer(Offer offer)
+  public String addSellOffer(Offer offer)
   { 
-    this.addOfferByLowestPrice(offer, this.sellOffers);
+    if (offerExist(offer)) return "Error(Catalog): Offer already exist!";
+    else
+    {
+      this.addOfferByLowestPrice(offer, this.sellOffers);
+      return "Success(Catalog): Offer has been added.";
+    }
+  }
+  
+  /**
+   * Checks if the passed Offer exist within the Catalog(sellOffer List)
+   * @param offer Being searched for in the sellOffers
+   * @return true if offer is found, false otherwise
+   */
+  public boolean offerExist(Offer offer)
+  {
+    int totalOffers = this.sellOffers.size();
+    for (int i=0; i<totalOffers; i++)
+    {
+      String merchant = this.sellOffers.get(i).merchant;
+      int quantity = this.sellOffers.get(i).quantity;
+      double unitPrice = this.sellOffers.get(i).unitPrice;
+      
+      if (offer.merchant.equalsIgnoreCase(merchant))
+      { if (offer.quantity == quantity)
+        { if (offer.unitPrice == unitPrice)
+          { return true;
+          }
+        }
+      }
+    }
+    return false;
   }
   
   /**
@@ -52,13 +82,15 @@ public class Catalog
     }
     list.add(offer); //Add to end of list, highest unit price.
   }
-  public ArrayList<Offer> getOffersList()
-  {
-    return sellOffers;
-  }
-  public void removeOfferAt(int index)
-  {
-    sellOffers.remove(index);  
-  }
+  
+  /**
+   * @return The list of sellOffers.
+   */
+  public ArrayList<Offer> getOffersList() { return sellOffers; }
+  
+  /**
+   * @param index The index of the offer to be removed.
+   */
+  public void removeOfferAt(int index) { sellOffers.remove(index); }
   
 }
