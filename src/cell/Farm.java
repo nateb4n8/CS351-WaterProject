@@ -39,6 +39,14 @@ public class Farm
   public int getZCellCount()
   { return grid[0][0].length;
   }
+  public int getXCellCount()
+  {
+    return SIZE;	  
+  }
+  public int getYCellCount()
+  {
+    return SIZE;	  
+  }
   
   /**
    * @return the latitude
