@@ -1,5 +1,5 @@
 package timeKeeper;
-import Climate.Climate;
+import climate.Climate;
 
 /**
  * Author: Robert Trujillo  

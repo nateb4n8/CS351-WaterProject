@@ -196,6 +196,10 @@ public class WaterFlow {
 	  }
 	}
 
+	public void rain(double waterPerCell) {
+
+	}
+
 	public void externalFlow(FlowData water) {
 
 	}
