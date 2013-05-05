@@ -11,8 +11,8 @@ import java.util.Random;
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
  *
- * TODO: Account for water that plants remove
  * TODO: Extra-farm flow
+ * TODO: Decide when to rain?
  * 
  * @author Max Ottesen
  */
@@ -29,6 +29,7 @@ public class WaterFlow {
 	private int          finishedWorkers;
 	private Integer      simulatedTime;
 	private long         realTime;
+	private Double[][][] resevoirs;
 
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
@@ -36,9 +37,11 @@ public class WaterFlow {
 		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
 		this.hydraulicHead = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.percentSaturation = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
+		this.resevoirs = new Double[Farm.xCellCount][Farm.yCellCount][4];
 		reset(change);
 		reset(hydraulicHead);
 		reset(percentSaturation);
+		reset(resevoirs);
 		this.finishedWorkers = 0;
 		this.workers = new FlowWorker[4];
 		this.simulatedTime = 0;

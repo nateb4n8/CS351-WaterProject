@@ -46,7 +46,7 @@ public class FlowWorker extends Thread {
         catch(InterruptedException e) {}
       }
 
-	    //Calculates hyrdraulic heads/percent saturations of cells
+	    //Calculates hyrdraulic heads/percent saturations of cells. Also handles plant water consumption
       synchronized(this) {
   		  for(int k = zCellCount - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
   			  for(int j = minY; j < maxY; j++) {
@@ -60,23 +60,12 @@ public class FlowWorker extends Thread {
   					  m.setPercentSaturation(i, j, k, new Double(percentSaturation(grid[i][j][k])));
   					  m.setHydraulicHead(i, j, k, new Double(hydraulicHead(grid[i][j][k])));
 
-					    //TODO: have plants remove water from system
-  					  //Plant plant = grid[i][j][k].getPlant();
-  					  //
-  					  //if(plant == null) {
-  						 // continue;
-  					  //}
-  					  //if(!plant.isDeadOrAlive()) {
-  						 // continue;
-  		   	    //}
-  			      //
-  					  //double availableWater = 0;
-  					  //
-  					  //for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
-  				      //availableWater += grid[p.x][p.y][p.z].getWaterVolume();
-  					  //}
-  					  //
-  					  //plant.grow(availableWater);
+					    Plant plant = grid[i][j][k].getPlant();
+					    //If the simulation is within 1 time step of a day, there is a plant, and it is alive
+					    if(plant != null && plant.isDeadOrAlive() && (m.getSimulatedTime() % 86400) < timeStep) {
+						    handlePlant(plant, i , j, k);
+					    }
+
   				  }
   	      }
   		  }
@@ -318,7 +307,34 @@ public class FlowWorker extends Thread {
       return totalWater;
 	  }
 	}
-  
+
+
+	private void handlePlant(Plant plant, int i, int j, int k) {
+		double availableWater = 0;
+		int cells = 0;
+		for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
+			availableWater += grid[p.x][p.y][p.z].getWaterVolume();
+			cells++;
+		}
+		plant.grow(availableWater);
+		double toDrink = plant.getWaterConsumption() / cells; //Amount of water to be removed from each cell
+		double extra = 0;
+		for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
+			Cell c = grid[p.x][p.y][p.z];
+
+			if(c.getWaterVolume() < toDrink) {
+				extra += (toDrink - c.getWaterVolume());
+				c.setWaterVolume(0);
+			}
+			else if(c.getWaterVolume() < (toDrink + extra)) {
+				extra = (toDrink + extra) - c.getWaterVolume();
+				c.setWaterVolume(0);
+			}
+			else {
+				c.setWaterVolume((c.getWaterVolume() - toDrink) - extra);
+			}
+		}
+	}
   
   /**
    * Lets this thread now that it's OK to start doing its calculations
