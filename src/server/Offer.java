@@ -12,7 +12,7 @@ import java.io.Serializable;
  * an amount of a product, price for a single unit, and the name of
  * the merchant making the offer. May need a to add a product type.
  */
-public class Offer implements Serializable
+public class Offer extends NetworkData implements Serializable
 {
   public int quantity; //Number of units being sold
   public double unitPrice; //Price for a single/individual unit
@@ -20,6 +20,7 @@ public class Offer implements Serializable
   
   public Offer(String merchantName, int quantity, double unitPrice)
   {
+    this.type = NetworkData.Type.SellWater;
     this.quantity = quantity;
     this.unitPrice = unitPrice;
     this.merchant = merchantName;
