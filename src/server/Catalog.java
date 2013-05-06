@@ -83,6 +83,36 @@ public class Catalog
     list.add(offer); //Add to end of list, highest unit price.
   }
   
+  
+  /**
+   * Removes the offer in the Catalog that matches the passed offer.
+   * @param offer to be removed from catalog
+   * @return A message if removal was (un)successful.
+   */
+  public String removeOffer(Offer offer)
+  {
+    boolean removed = false;
+    
+    int totalOffers = this.sellOffers.size();
+    for (int i=0; i<totalOffers; i++)
+    {
+      String merchant = this.sellOffers.get(i).merchant;
+      int quantity = this.sellOffers.get(i).quantity;
+      double unitPrice = this.sellOffers.get(i).unitPrice;
+      
+      if (offer.merchant.equalsIgnoreCase(merchant))
+      { if (offer.quantity == quantity)
+        { if (offer.unitPrice == unitPrice)
+          { 
+            this.removeOfferAt(i);
+            return "Success: Offer has been removed from catalog.";
+          }
+        }
+      }
+    }
+    return "Error: Offer not found in catalog, removal unsuccessful.";
+  }
+  
   /**
    * @return The list of sellOffers.
    */
