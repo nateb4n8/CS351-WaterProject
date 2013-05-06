@@ -20,7 +20,7 @@ public class Offer extends NetworkData implements Serializable
   
   public Offer(String merchantName, int quantity, double unitPrice)
   {
-    this.type = NetworkData.Type.SellWater;
+    this.type = NetworkData.Type.WATEROFFER;
     this.quantity = quantity;
     this.unitPrice = unitPrice;
     this.merchant = merchantName;

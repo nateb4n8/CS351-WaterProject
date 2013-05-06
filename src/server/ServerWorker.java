@@ -98,7 +98,7 @@ public class ServerWorker extends Thread
           //this.interrupt();
           this.stop();
         }
-        else if (nd.type == NetworkData.Type.SellWater)
+        else if (nd.type == NetworkData.Type.WATEROFFER)
         {
           Offer inOffer = (Offer)(nd);
           String result = this.server.getCatalog().addSellOffer(inOffer);

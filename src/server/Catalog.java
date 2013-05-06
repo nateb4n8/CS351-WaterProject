@@ -91,8 +91,6 @@ public class Catalog
    */
   public String removeOffer(Offer offer)
   {
-    boolean removed = false;
-    
     int totalOffers = this.sellOffers.size();
     for (int i=0; i<totalOffers; i++)
     {
