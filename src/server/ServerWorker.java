@@ -10,7 +10,8 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import com.sun.org.apache.bcel.internal.generic.IINC;
+//import com.sun.org.apache.bcel.internal.generic.IINC;
+//talk to michael if you really need this
 
 public class ServerWorker extends Thread
 {
