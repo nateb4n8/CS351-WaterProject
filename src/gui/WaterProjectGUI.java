@@ -33,6 +33,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import server.Catalog;
+import server.Name;
+import server.NetworkData;
 import server.Offer;
 
 import local_cont.Local_Control;
@@ -91,7 +93,7 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   private JLabel buyQuantity;
   private JLabel moneyLabel;
   private JLabel quantityLabel;
-  private JLabel seasonLabel;
+  private JLabel monthLabel;
   //Create the JButtons users can press.
   private JButton sellButton;
   private JButton buyButton;
@@ -171,6 +173,8 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   private int width;
   //The Gui's name, User specifies name when they create a WaterProjectGUI.
   private String GuiName;
+  //Name will be the same as GuiName given by user.
+  private Name clientName;
 /**
  * WaterProjectGUI constructor creates the GUI with a jpanel for the displayFarm,
  * sliders to interact with the displayFarm, and various options to make sell offers
@@ -178,11 +182,12 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
  * @param l (Local_Control)
  * @param name (Name user wants for the GUI)
  */
-public WaterProjectGUI(Local_Control l, String name)
+public WaterProjectGUI(Local_Control l)
 {
 	cont = l;
 	width = 500;
 	height = 500;
+	
 	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 	
 	int x = (dim.width-width)/2;
@@ -194,9 +199,15 @@ public WaterProjectGUI(Local_Control l, String name)
 	int buttonWidth = 90;
 	//sliderWidth is how long to make the sliders.
 	int sliderWidth = 200;
+	//An input box comes up, in which the user inputs a name.
+	//The name is then made into a type "Name", which will be sent to the
+	//Server to connect. 
+	String name = JOptionPane.showInputDialog("Please enter in a name.");
 	GuiName = name;
+	clientName = new Name(name);
+	
 	//Create a new JFrame that displays the GUI's specified name.
-    frame = new JFrame("Water GUI: Name:"+GuiName);
+    frame = new JFrame("Water GUI: Name: "+GuiName);
     //Set the size, and set layout to null, so we can specify the bounds for all the
     //components.
     frame.setSize(width+300,height+255);
@@ -324,7 +335,7 @@ public WaterProjectGUI(Local_Control l, String name)
     lat_label = new JLabel("Latitude (in decimal) = ");
     long_label = new JLabel("Longitude (in decimal) = ");
     sell_offers = new JLabel("Sell Offers");
-    seasonLabel = new JLabel("Season: ");
+    monthLabel = new JLabel("Month: ");
     //Money Label will display the money the user has currently.
     moneyLabel = new JLabel("Money: "+cont.getMoney());
     //Quantity Label displays the current quantity of water rights the user has.
@@ -357,7 +368,7 @@ public WaterProjectGUI(Local_Control l, String name)
     frame.add(Q4);
     frame.add(quantityLabel);
     frame.add(moneyLabel);
-    frame.add(seasonLabel);
+    frame.add(monthLabel);
     //Set bounds of all the labels and combo boxes, pick where you want them to be
     //on the frame. Parameters are (x position, y position, width of component, height of component.)
     sellWaterLabel.setBounds(355,height+15,sliderWidth+30,rowHeight);
@@ -384,7 +395,7 @@ public WaterProjectGUI(Local_Control l, String name)
     Q4.setBounds(470,height+110,110,rowHeight);
     quantityLabel.setBounds(width+120,450,80,rowHeight);
     moneyLabel.setBounds(width+10,450,100,rowHeight);
-    seasonLabel.setBounds(width+25+buttonWidth,5,85,rowHeight);
+    monthLabel.setBounds(width+25+buttonWidth,5,155,rowHeight);
     //Create the sliders corresponding to each of the slider labels. These sliders are the ones
     //that you move and pick a value.
     
@@ -461,7 +472,6 @@ public WaterProjectGUI(Local_Control l, String name)
     //Finally, set the frame visibility to true. 
     frame.setVisible(true);
     
-    
     }
 
 //The method is used to check if the input the user supplies is actually a number.
@@ -522,6 +532,12 @@ public String getGuiName()
 {
   return GuiName;	
 }
+//Returns the client's name, which is the same name as the GuiName,
+//but just in "Name" type instead of a string.
+public Name getClientName()
+{
+  return clientName;	
+}
 //Returns the listModel, to update or clear it.
 public DefaultListModel getListModel()
 {
@@ -570,6 +586,10 @@ public JPanel getBorder()
 public void enablePlantButton()
 {
   plantButton.setEnabled(true);	
+}
+public void setMonth(String month)
+{
+  monthLabel.setText("Month: "+month);	
 }
 //I needed to flip the values so that the 
 //Slider would highlight from the correct side.
