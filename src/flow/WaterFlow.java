@@ -11,7 +11,7 @@ import java.util.Random;
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
  *
- * TODO: Extra-farm flow
+ * TODO: Fix extra-farm flow
  * TODO: Decide when to rain?
  *
  * @author Max Ottesen
@@ -20,21 +20,26 @@ public class WaterFlow {
 	private static boolean suppressOutput = false;
 
 	private int          timeStep = 1000; //seconds
+	private int          finishedWorkers;
+	private long         realTime;
+	private Integer      simulatedTime;
 	private Farm         farm;
 	private Cell[][][]   grid;
 	private Double[][][] change;
 	private Double[][][] hydraulicHead;
 	private Double[][][] percentSaturation;
-	private FlowWorker[] workers;
-	private int          finishedWorkers;
-	private Integer      simulatedTime;
-	private long         realTime;
 	private Double[][][] reservoirs;
+	private FlowWorker[] workers;
 
+
+	/**
+	 * Creates a WaterFlow object that will simulate the water flowing in and through the given Farm
+	 * @param farm - the Farm that this object will simulate water flow for
+	 */
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
 		this.grid = farm.getGrid();
-		this.change = new Double[Farm.SIZE][Farm.SIZE][farm.zCellCount];
+		this.change = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.hydraulicHead = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.percentSaturation = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.reservoirs = new Double[4][Farm.xCellCount][Farm.yCellCount];
@@ -61,10 +66,33 @@ public class WaterFlow {
 	}
 
 
-	/** Runs the model for a given number of seconds */
+	/**
+	 * Runs the model for a given number of seconds
+	 * @param seconds - the number of seconds to run the model for. This may or may not run the model for the exact amount
+	 *                of seconds because the time step may not match up evenly. In that case, it will simulate slightly
+	 *                farther in the future than the given time.
+	 */
 	public void update(double seconds) {
 		for(double i = 0; i < seconds; i += this.timeStep) {
 			long time = System.currentTimeMillis();
+
+			//Check to see if model stats should be reported
+			if(simulatedTime % (timeStep * 100) == 0) {
+				int avgTimeStep = 0;
+				if(simulatedTime != 0) {
+					avgTimeStep = (int) realTime / (simulatedTime / timeStep);
+				}
+				//Total up the water in the system
+				double totalWater = 0;
+				for(int x = 0; x < workers.length; x++) {
+					totalWater += workers[x].getTotalWater();
+				}
+
+				println(totalWater + " mL");
+				println(simulatedTime + " s");
+				println(avgTimeStep + " ms\n");
+			}
+
 			synchronized(grid) {
 				this.update();
 			}
@@ -78,24 +106,6 @@ public class WaterFlow {
 
 	/** Runs the model for one time step */
 	private void update() {
-		//Check to see if model stats should be reported
-		if(simulatedTime % (timeStep * 100) == 0) {
-			int avgTimeStep = 0;
-			if(simulatedTime != 0) {
-				avgTimeStep = (int) realTime / (simulatedTime / timeStep);
-			}
-			//Total up the water in the system
-			double totalWater = 0;
-			for(int i = 0; i < workers.length; i++) {
-				totalWater += workers[i].getTotalWater();
-			}
-
-			println(totalWater + " mL");
-			println(simulatedTime + " s");
-			println(avgTimeStep + " ms\n");
-		}
-
-
 		//Tell the workers to start the hydraulic head/percent saturation calculations
 		for(int i = 0; i < 4; i++) {
 			workers[i].startCalculations();
@@ -138,9 +148,7 @@ public class WaterFlow {
 		reset(percentSaturation);
 	}
 
-	/**
-	 * Sends the server water that it will carry to a different farm
-	 */
+	/** Sends the server water that it will carry to a different farm */
 	private void flowOutOfFarm() {
 		FlowData north = new FlowData(Direction.NORTH, reservoirs[0]);
 		FlowData east  = new FlowData(Direction.EAST,  reservoirs[1]);
@@ -154,7 +162,6 @@ public class WaterFlow {
 
 	/**
 	 * Sets a Double[][][] array to all 0s
-	 *
 	 * @param array - the array to be reset
 	 */
 	private void reset(Double[][][] array) {
@@ -170,11 +177,9 @@ public class WaterFlow {
 
 	/**
 	 * Returns the percent saturation of a specified cell
-	 *
 	 * @param x - the X-coordinate of the cell
 	 * @param y - the Y-coordinate of the cell
 	 * @param z - the Z-coordinate of the cell
-	 *
 	 * @return the percent saturation of the cell
 	 */
 	protected double getPercentSaturation(int x, int y, int z) {
@@ -183,7 +188,6 @@ public class WaterFlow {
 
 	/**
 	 * Sets a given cell to have a given percent saturation
-	 *
 	 * @param x   - x coordinate of cell
 	 * @param y   - y coordinate of cell
 	 * @param z   - z coordinate of cell
@@ -197,11 +201,9 @@ public class WaterFlow {
 
 	/**
 	 * Returns the hydraulic head of a specified cell
-	 *
 	 * @param x - the X-coordinate of the cell
 	 * @param y - the Y-coordinate of the cell
 	 * @param z - the Z-coordinate of the cell
-	 *
 	 * @return the hydraulic head of the cell
 	 */
 	protected double getHydraulicHead(int x, int y, int z) {
@@ -210,7 +212,6 @@ public class WaterFlow {
 
 	/**
 	 * Sets a given cell to have a given hydraulic head
-	 *
 	 * @param x    - x coordinate of cell
 	 * @param y    - y coordinate of cell
 	 * @param z    - z coordinate of cell
@@ -222,6 +223,10 @@ public class WaterFlow {
 		}
 	}
 
+	/**
+	 * Adds a given amount of water to all surface cells, effectively simulating a rainstorm (in 1 time step)
+	 * @param waterPerCell - the amount of water that each surface cell receives from the rain
+	 */
 	public void rain(double waterPerCell) {
 		synchronized(grid) {
 			for(int k = 0; k < farm.getZCellCount(); k++) {
@@ -315,7 +320,7 @@ public class WaterFlow {
 		}
 	}
 
-
+	/** This should only be used for testing purposes */
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
@@ -378,12 +383,14 @@ public class WaterFlow {
 	}
 
 
+	/** Used as a replacement for System.out.print(); so that I can easily turn output on or off */
 	private static void print(String s) {
 		if(!suppressOutput) {
 			System.out.print(s);
 		}
 	}
 
+	/** Used as a replacement for System.out.println(); Simply calls print(s + "\n"); */
 	private static void println(String s) {
 		print(s + "\n");
 	}

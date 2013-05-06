@@ -7,22 +7,33 @@ import cell.Point3D;
 
 /**
  * A FlowWorker is a thread used by WaterFlow in order to split up the ground water calculations
- *
  * @author Max Ottesen
  */
 public class FlowWorker extends Thread {
+	private boolean      calculate;
+	private boolean      kill;
 	private int          minX, maxX;
 	private int          minY, maxY;
 	private int          zCellCount;
+	private double       timeStep;
 	private WaterFlow    m;
 	private Cell[][][]   grid;
 	private Double[][][] change;
 	private Double[][][] reservoirs;
-	private boolean      calculate;
-	private boolean      kill;
-	private double       timeStep;
 
-
+	/**
+	 * Creates a worker thread to do part of the water flow calculations
+	 * @param minX - starting value of this thread's x range (inclusive)
+	 * @param maxX - ending value of this thread's x range (exclusive)
+	 * @param minY - starting value of this thread's y range (inclusive)
+	 * @param maxY - ending value of this thread's y range (exclusive)
+	 * @param zCellCount - the ending of this thread's z range (exclusive). Goes from [0, zCellCount)
+	 * @param master - the WaterFlow object that this thread reports to
+	 * @param grid - the Cell[][][] that this thread works with
+	 * @param change - the Double[][][] that the calculation results are stored in
+	 * @param reservoirs - the Double[][][] that cross-farm calculation results are stored in
+	 * @param timeStep - the time step that will be used in the flow calculations
+	 */
 	public FlowWorker(int minX, int maxX, int minY, int maxY, int zCellCount, WaterFlow master, Cell[][][] grid,
 	                  Double[][][] change, Double[][][] reservoirs, double timeStep) {
 		this.minX = minX;
@@ -39,7 +50,7 @@ public class FlowWorker extends Thread {
 		this.zCellCount = zCellCount;
 	}
 
-
+	/** Starts this worker in a loop where it will wait until it's told to do calculations or until it is killed */
 	public void run() {
 		//Keep going until it's killed
 		while(!kill) {
@@ -50,7 +61,7 @@ public class FlowWorker extends Thread {
 				catch(InterruptedException e){}
 			}
 
-			//Calculates hyrdraulic heads/percent saturations of cells. Also handles plant water consumption
+			//Calculates hydraulic heads/percent saturations of cells. Also handles plant water consumption
 			synchronized(this) {
 				for(int k = zCellCount - 1; k >= 0; k--) { //k's count down so that the hydraulic head calculations can be
 				// done in the same loop as the percent saturations
@@ -150,8 +161,7 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Calculates the amount of water that should flow from one cell to another. This
-	 * should not be used to calculate water flowing upward!
-	 *
+	 *  should not be used to calculate water flowing upward!
 	 * @param cellI - the cell to flow water from
 	 * @param cellX - the cell to flow water to
 	 */
@@ -197,8 +207,7 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Calculates the amount of water that should flow from one cell to another. This
-	 * should only be used for water flowing upwards!
-	 *
+	 *  should only be used for water flowing upwards!
 	 * @param cellI - the cell to flow water from
 	 * @param cellX - the cell to flow water to
 	 */
@@ -247,32 +256,36 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Calculates the amount of water that should flow out of the edge of the farm
-	 *
 	 * @param cell - the cell that water is flowing from
 	 * @param reservoir - the temporary holder for water flowing from the farm
 	 */
 	private void flowToReservoir(Cell cell, Double reservoir) {
+		Point3D p = cell.getCoordinate();
+		double iSatur = m.getPercentSaturation(p.x, p.y, p.z);
+
+		//Only do calculation if percent saturation is greater than the percent adhesion of the giving cell
+		if(iSatur <= cell.getSoil().getWaterAdhesion()) {
+			return;
+		}
+
 		double K = cell.getSoil().getHydraulicConductivity();
 		double A = Cell.getCellSize() * cell.getHeight();
-		Point3D p = cell.getCoordinate();
-		double min = Math.min(1, m.getHydraulicHead(p.x, p.y, p.z));
+		double min = Math.min(1, m.getHydraulicHead(p.x, p.y, p.z)/Cell.getCellSize());
 
 		double amount = K * A * min * timeStep;
 
-		//synchronized(cell) {
-		//	synchronized(reservoir) {
-		//		cell.setWaterVolume(cell.getWaterVolume() - amount);
-		//		reservoir += amount;
-		//	}
-		//}
+		synchronized(cell) {
+			synchronized(reservoir) {
+				cell.setWaterVolume(cell.getWaterVolume() - amount);
+				reservoir += amount;
+			}
+		}
 	}
 
 
 	/**
 	 * Computes the hydraulic head of the given cell
-	 *
 	 * @param c - the cell being considered
-	 *
 	 * @return the hydraulic head of the given cell
 	 */
 	private double hydraulicHead(Cell c) {
@@ -302,9 +315,7 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Computes the percent saturation of the given cell
-	 *
 	 * @param c - the cell being considered
-	 *
 	 * @return the percent saturation of the given cell
 	 */
 	private double percentSaturation(Cell c) {
