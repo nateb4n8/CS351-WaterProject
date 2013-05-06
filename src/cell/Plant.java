@@ -9,10 +9,15 @@ package cell;
  */
 public enum Plant {
 	// Plant Types and Attributes
-	PINTOBEANS(21, 114, 11, 4, .37), SUNFLOWER(91, 25, 30, 12, .37), AMARANTH(
-			14, 18, 4, 2, .19), CHILE(119, 61, 5, 1, .37), SWEETCORN(
-			77, 46, 20, 3, .57), SUMMERSQUASH(49, 92, 45, 3, .37), WINTERSQUASH(
-			112, 122, 120, 3, .37), POTATOES(119, 46, 30, 15, .37), SWEETPEPPER(80, 31, 3, 1, .37);
+	PINTOBEANS(21, 114, 11, 4, .37),
+	SUNFLOWER(91, 25, 30, 12, .37),
+	AMARANTH(14, 18, 4, 2, .19),
+	CHILE(119, 61, 5, 1, .37),
+	SWEETCORN(77, 46, 20, 3, .57),
+	SUMMERSQUASH(49, 92, 45, 3, .37),
+	WINTERSQUASH(112, 122, 120, 3, .37),
+	POTATOES(119, 46, 30, 15, .37),
+	SWEETPEPPER(80, 31, 3, 1, .37);
 
 	private double _transpiration;
 	private int _maturationTime;

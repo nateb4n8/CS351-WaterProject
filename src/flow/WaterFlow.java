@@ -1,9 +1,6 @@
 package flow;
 
-import cell.Direction;
-import cell.Farm;
-import cell.Cell;
-import cell.Soil;
+import cell.*;
 import server.FlowData;
 import topo.Topography;
 import java.util.Random;
@@ -344,7 +341,7 @@ public class WaterFlow {
 
 		println("INITIALIZATIONS");
 		print("  ...topography : ");
-		Farm farm = Topography.createFarm(0, 0);
+		Farm farm = Topography.createFarm(-1000, -1000);
 		println((System.currentTimeMillis() - time) + " ms");
 		println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells in system");
 
@@ -364,6 +361,9 @@ public class WaterFlow {
 						if(rand.nextDouble() < .75) {
 							grid[i][j][k].setWaterVolume(rand.nextInt(10));
 						}
+						//if(grid[i][j][k].isSurface()) {
+						//	grid[i][j][k].setPlant(Plant.CHILE);
+						//}
 					}
 				}
 			}

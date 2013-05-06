@@ -186,7 +186,7 @@ public class FlowWorker extends Thread {
 			return;
 		}
 		//The cell being flowed to isn't full
-		if(m.getPercentSaturation(cx.x, cx.y, cx.z) >= 99) {
+		if(m.getPercentSaturation(cx.x, cx.y, cx.z) >= .99) {
 			return;
 		}
 
@@ -275,14 +275,14 @@ public class FlowWorker extends Thread {
 		double A = Cell.getCellSize() * cell.getHeight();
 		double min = Math.min(1, m.getHydraulicHead(p.x, p.y, p.z)/Cell.getCellSize());
 
-		double flowAmount = K * A * min * timeStep;
+		double flowAmount = K * A * min * timeStep / 10000;
 
-		synchronized(reservoirs[x][y][z]) {
-			synchronized(change[p.x][p.y][p.z]) {
-				change[p.x][p.y][p.z] -= flowAmount;
-				reservoirs[x][y][z] += flowAmount;
-			}
-		}
+		//synchronized(reservoirs[x][y][z]) {
+		//	synchronized(change[p.x][p.y][p.z]) {
+		//		change[p.x][p.y][p.z] -= flowAmount;
+		//		reservoirs[x][y][z] += flowAmount;
+		//	}
+		//}
 	}
 
 
