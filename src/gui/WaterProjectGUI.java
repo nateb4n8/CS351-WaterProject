@@ -19,6 +19,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -90,6 +91,7 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   private JLabel buyQuantity;
   private JLabel moneyLabel;
   private JLabel quantityLabel;
+  private JLabel seasonLabel;
   //Create the JButtons users can press.
   private JButton sellButton;
   private JButton buyButton;
@@ -322,6 +324,7 @@ public WaterProjectGUI(Local_Control l, String name)
     lat_label = new JLabel("Latitude (in decimal) = ");
     long_label = new JLabel("Longitude (in decimal) = ");
     sell_offers = new JLabel("Sell Offers");
+    seasonLabel = new JLabel("Season: ");
     //Money Label will display the money the user has currently.
     moneyLabel = new JLabel("Money: "+cont.getMoney());
     //Quantity Label displays the current quantity of water rights the user has.
@@ -354,6 +357,7 @@ public WaterProjectGUI(Local_Control l, String name)
     frame.add(Q4);
     frame.add(quantityLabel);
     frame.add(moneyLabel);
+    frame.add(seasonLabel);
     //Set bounds of all the labels and combo boxes, pick where you want them to be
     //on the frame. Parameters are (x position, y position, width of component, height of component.)
     sellWaterLabel.setBounds(355,height+15,sliderWidth+30,rowHeight);
@@ -380,6 +384,7 @@ public WaterProjectGUI(Local_Control l, String name)
     Q4.setBounds(470,height+110,110,rowHeight);
     quantityLabel.setBounds(width+120,450,80,rowHeight);
     moneyLabel.setBounds(width+10,450,100,rowHeight);
+    seasonLabel.setBounds(width+25+buttonWidth,5,85,rowHeight);
     //Create the sliders corresponding to each of the slider labels. These sliders are the ones
     //that you move and pick a value.
     
@@ -452,7 +457,7 @@ public WaterProjectGUI(Local_Control l, String name)
     frame.add(border);
     frame.add(border2);
     frame.add(panel);
-   
+    
     //Finally, set the frame visibility to true. 
     frame.setVisible(true);
     
@@ -642,6 +647,12 @@ public void updateSellOffers(ArrayList<Offer> offers)
     
   }
 }
+//displayMessage can be used for displaying messages such as "You bought the offer",
+//Or "Buying offer failed!" and so on.
+public void displayMessage(String message)
+{
+  JOptionPane.showMessageDialog(null, message,"Message",JOptionPane.INFORMATION_MESSAGE);
+}
 //Removes, the Offer at the specified index of the list. 
 //The list and the ArrayList of Offers will have the same index.
 public void removeSellOffer(int index)
@@ -676,7 +687,7 @@ public void actionPerformed(ActionEvent e)
 	    {
 	       loadPath = chooser.getSelectedFile().getPath();
 	       System.out.println("You chose to open this file: "+getLoadPath());
-	       
+	       cont.loadFarm(loadPath);
 	    }
 	}
 	else if(obj == createButton)
