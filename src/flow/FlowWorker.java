@@ -277,12 +277,12 @@ public class FlowWorker extends Thread {
 
 		double flowAmount = K * A * min * timeStep / 10000;
 
-		//synchronized(reservoirs[x][y][z]) {
-		//	synchronized(change[p.x][p.y][p.z]) {
-		//		change[p.x][p.y][p.z] -= flowAmount;
-		//		reservoirs[x][y][z] += flowAmount;
-		//	}
-		//}
+		synchronized(reservoirs[x][y][z]) {
+			synchronized(change[p.x][p.y][p.z]) {
+				change[p.x][p.y][p.z] -= flowAmount;
+				reservoirs[x][y][z] += flowAmount;
+			}
+		}
 	}
 
 
@@ -354,27 +354,27 @@ public class FlowWorker extends Thread {
 	 */
 	private void handlePlant(Plant plant, int i, int j, int k) {
 		double availableWater = 0;
-		int cells = 0;
-		for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
-			availableWater += grid[p.x][p.y][p.z].getWaterVolume();
-			cells++;
+		int depth = plant.getMatureDepth();
+		int z = k;
+		for(int x = depth; x > 0; x -= grid[i][j][z].getHeight()) {
+		  availableWater += grid[i][j][z--].getWaterVolume();
 		}
 		plant.grow(availableWater);
-		double toDrink = plant.getWaterConsumption() / cells; //Amount of water to be removed from each cell
-		double extra = 0;
-		for(Point3D p : plant.get_rootCellCoordinates(new Point3D(i, j, k))) {
-			Cell c = grid[p.x][p.y][p.z];
-
+		double toDrink = plant.getWaterConsumption(); //Amount of water that still needs to be removed
+		z = k;
+		for(int x = depth; x > 0; x -= grid[i][j][z].getHeight()) {
+		  if(toDrink == 0) {
+		    break;
+		  }
+			Cell c = grid[i][j][z--];
+			
 			if(c.getWaterVolume() < toDrink) {
-				extra += (toDrink - c.getWaterVolume());
-				c.setWaterVolume(0);
-			}
-			else if(c.getWaterVolume() < (toDrink + extra)) {
-				extra = (toDrink + extra) - c.getWaterVolume();
+				toDrink -= c.getWaterVolume();
 				c.setWaterVolume(0);
 			}
 			else {
-				c.setWaterVolume((c.getWaterVolume() - toDrink) - extra);
+				toDrink = 0;
+				c.setWaterVolume(c.getWaterVolume() - toDrink);
 			}
 		}
 	}
