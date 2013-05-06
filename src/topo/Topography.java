@@ -14,7 +14,7 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class Topography {
-	private static final double     MAX_RELIEF   = .05; //meters. The most the topography over the entire grid is allowed to vary
+	private static final double     MAX_RELIEF   = .00; //meters. The most the topography over the entire grid is allowed to vary
 	private static final double     TOLERANCE    = 0.01; //meters. Changes larger this amount will not be accepted
 	private static final int        SIZE         = Farm.SIZE; //meters. length and width
 	private static final double[][] HEIGHTS      = {{100, 300}, {100, 300}, {100, 400}}; //centimeters. {height of each layer, height of all layers with the same height}
@@ -309,7 +309,7 @@ public class Topography {
 	}
 
 	public static void main(String[] args) {
-		Farm f = createFarm(0, 0);
+		Farm f = createFarm(1000, 1000);
 
 		System.out.println(f.zCellCount * Farm.xCellCount * Farm.yCellCount);
 
