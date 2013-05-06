@@ -3,14 +3,19 @@
 package server;
 
 
+import ServerWorker;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import server.NetworkData.Type;
 import timeKeeper.TimeKeeper;
 
-public class ServerMaster
+public class ServerMaster implements KeyListener
 {
   private ServerSocket serverSocket;
   private LinkedList<ServerWorker> allConnections = new LinkedList<ServerWorker>();
@@ -30,12 +35,12 @@ public class ServerMaster
       e.printStackTrace();
       System.exit(-1);
     }
-    //Set server start time.
-    this.stime = System.nanoTime();
+    
     
     this.catalog = new Catalog();
-    this.timeKeeper = new TimeKeeper(822);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
     
+    
+    System.out.println("Press s to start");
     waitForConnection();
   }
 
@@ -74,6 +79,14 @@ public class ServerMaster
         allConnections.remove(sw);     
   }
   
+  public void broadcast(NetworkData data)
+  {
+    for (ServerWorker workers : allConnections)
+    {
+      workers.send(data);
+    }
+  }
+  
   /** @return The single Catalog **/
   public Catalog getCatalog() { return this.catalog; }
   
@@ -92,7 +105,7 @@ public class ServerMaster
    * @return ServerMaster game's TimeKeeper
    */
   public TimeKeeper getTimeKeeper() {
-	return timeKeeper;
+    return timeKeeper;
 }
 
 public static void main(String args[])
@@ -111,5 +124,33 @@ public static void main(String args[])
 
     new ServerMaster(port);
   }
+
+@Override
+public void keyPressed(KeyEvent arg0)
+{
+  if(arg0.getKeyChar() == 's' || arg0.getKeyChar() == 'S')
+  {
+    //Set server start time.
+    this.stime = System.nanoTime();
+    this.timeKeeper = new TimeKeeper(822);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
+    NetworkData go = new Msg("me", "hi");
+    go.type = Type.Start;
+    broadcast(go);
+  }
+}
+
+@Override
+public void keyReleased(KeyEvent arg0)
+{
+  // TODO Auto-generated method stub
+  
+}
+
+@Override
+public void keyTyped(KeyEvent arg0)
+{
+  // TODO Auto-generated method stub
+  
+}
 }
 
