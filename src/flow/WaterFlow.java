@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * WaterFlow is a class that computes how water should flow from cell to cell.
  *
- * TODO: Fix extra-farm flow
+ * TODO: Flow water across server
  * TODO: Decide when to rain?
  *
  * @author Max Ottesen
@@ -39,7 +39,7 @@ public class WaterFlow {
 		this.change = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.hydraulicHead = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.percentSaturation = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
-		this.reservoirs = new Double[4][Farm.xCellCount][Farm.yCellCount];
+		this.reservoirs = new Double[4][Farm.SIZE][farm.zCellCount];
 		reset(change);
 		reset(hydraulicHead);
 		reset(percentSaturation);
@@ -95,6 +95,16 @@ public class WaterFlow {
 				println(totalWater + " mL");
 				println(simulatedTime + " s");
 				println(avgTimeStep + " ms\n");
+			}
+			
+			//Flow between farms every 15 time steps
+			if(simulatedTime % (timeStep * 15) == 0 && simulatedTime != 0) {
+			  flowOutOfFarm();
+			}
+			
+			//This tests if my rain method works correctly
+			if(simulatedTime % (timeStep * 1000) == 0 && simulatedTime != 0) {
+			  rain(11);
 			}
 
 			synchronized(grid) {
@@ -154,12 +164,17 @@ public class WaterFlow {
 
 
 	/** Sends the server water that it will carry to a different farm */
-	private void flowOutOfFarm() {
+	private void flowOutOfFarm() {    
 		FlowData north = new FlowData(Direction.NORTH, reservoirs[0]);
 		FlowData east  = new FlowData(Direction.EAST,  reservoirs[1]);
 		FlowData south = new FlowData(Direction.SOUTH, reservoirs[2]);
 		FlowData west  = new FlowData(Direction.WEST,  reservoirs[3]);
 
+		flowIntoFarm(north);
+		flowIntoFarm(east);
+		flowIntoFarm(south);
+		flowIntoFarm(west);
+		
 		synchronized(reservoirs) {
 			reset(reservoirs);
 		}
@@ -239,15 +254,15 @@ public class WaterFlow {
 	 * @param waterPerCell - the amount of water that each surface cell receives from the rain
 	 */
 	public void rain(double waterPerCell) {
-		synchronized(grid) {
-			for(int k = 0; k < farm.getZCellCount(); k++) {
-				for(int j = 0; j < Farm.yCellCount; j++) {
-					for(int i = 0; i < Farm.xCellCount; i++) {
-						if(grid[i][j][k] == null || !grid[i][j][k].isSurface()) {
-							continue;
-						}
-
-					  grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + waterPerCell);
+		for(int k = 0; k < farm.getZCellCount(); k++) {
+			for(int j = 0; j < Farm.yCellCount; j++) {
+				for(int i = 0; i < Farm.xCellCount; i++) {
+					if(grid[i][j][k] == null || !grid[i][j][k].isSurface()) {
+						continue;
+					}
+						
+					synchronized(change[i][j][k]) {
+					  change[i][j][k] += waterPerCell;
 					}
 				}
 			}
@@ -291,25 +306,36 @@ public class WaterFlow {
 		else {
 			return;
 		}
-
-		synchronized(grid) {
-			int maxZ = 1; //TODO: Farms need the same height
-			for(int k = 0; k < maxZ; k++) {
-				for(int j = minY; j < maxY; j++) {
-					for(int i = minX; i < maxX; i++) {
-						int index;
-						if(data.direction == Direction.NORTH || data.direction == Direction.SOUTH) {
-							index = i;
-						}
-						else {
-							index = j;
-						}
-
-						grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + data.water[index][k]);
+		
+		int maxZ = farm.zCellCount; //TODO: Farms with edges that don't match up need to be dealt with.
+		for(int k = 0; k < maxZ; k++) {
+			for(int j = minY; j < maxY; j++) {
+				for(int i = minX; i < maxX; i++) {
+					if(grid[i][j][k] == null) {
+					  continue;
+					}
+					  
+					int index;
+					if(data.direction == Direction.NORTH || data.direction == Direction.SOUTH) {
+						index = i;
+					}
+					else {
+						index = j;
+					}
+						
+					//Right now I just skip places where the land doesn't match up
+					if(data.water.length <= index || data.water[0].length <= k) {
+						continue;
+					}
+						
+						
+					synchronized(change[i][j][k]) {
+						change[i][j][k] += data.water[index][k];
 					}
 				}
 			}
 		}
+		
 	}
 
 
@@ -341,7 +367,7 @@ public class WaterFlow {
 
 		println("INITIALIZATIONS");
 		print("  ...topography : ");
-		Farm farm = Topography.createFarm(-1000, -1000);
+		Farm farm = Topography.createFarm(1000, 1000); //ABQ lat/lon Topography.createFarm(35.0844, 106.6506);
 		println((System.currentTimeMillis() - time) + " ms");
 		println("    " + (farm.getZCellCount() * Farm.xCellCount * Farm.yCellCount) + " cells in system");
 
@@ -359,11 +385,11 @@ public class WaterFlow {
 					if(grid[i][j][k] != null) {
 						grid[i][j][k].setSoil(Soil.GILASAND);
 						if(rand.nextDouble() < .75) {
-							grid[i][j][k].setWaterVolume(rand.nextInt(10));
+							grid[i][j][k].setWaterVolume(rand.nextInt(100));
 						}
-						//if(grid[i][j][k].isSurface()) {
-						//	grid[i][j][k].setPlant(Plant.CHILE);
-						//}
+						if(grid[i][j][k].isSurface()) {
+							grid[i][j][k].setPlant(Plant.CHILE);
+						}
 					}
 				}
 			}
