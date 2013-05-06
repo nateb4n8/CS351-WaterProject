@@ -121,6 +121,10 @@ public class ServerWorker extends Thread
             this.send(message);
           }
         }
+        else if(nd.type == NetworkData.Type.FlowWater)
+        {
+          server.flowWater(this, (FlowData)nd);
+        }
         else
         {
           System.out.println("Unrecognized message from client");

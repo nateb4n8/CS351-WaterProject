@@ -12,6 +12,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import cell.Direction;
+
 import server.NetworkData.Type;
 import timeKeeper.TimeKeeper;
 
@@ -163,7 +165,77 @@ public class ServerMaster implements KeyListener
    */
   public TimeKeeper getTimeKeeper() {
     return timeKeeper;
-}
+  }
+  
+  public void flowWater(ServerWorker worker, FlowData data)
+  {
+    int wx,wy;
+    //find where worker is
+    for(int x= 0; x < farmgrid.length; x++)
+    {
+      for(int y= 0; y < farmgrid[0].length; y++)
+      {
+        if(farmgrid[x][y] == worker)
+        {
+          wx = x;
+          wy = y;
+        }
+      }
+    }
+    boolean notnull = true;
+    while(notnull)
+    {
+      if(data.direction == Direction.NORTH)
+      {
+        if(wy == 0)
+        {
+          wy = farmgrid[0].length -1;
+        }
+        else
+        {
+          wy--;
+        }
+      }
+      else if(data.direction == Direction.SOUTH)
+      {
+        if(wy == farmgrid[0].length -1)
+        {
+          wy = 0;
+        }
+        else
+        {
+          wy++;
+        }
+      }
+      else if(data.direction == Direction.EAST)
+      {
+        if(wx == farmgrid.length -1)
+        {
+          wx = 0;
+        }
+        else
+        {
+          wx--;
+        }
+      }
+      else if(data.direction == Direction.WEST)
+      {
+        if(wx == 0)
+        {
+          wx = farmgrid.length -1;
+        }
+        else
+        {
+          wx++;
+        }
+      }
+      if(farmgrid[wx][wy] != null)
+      {
+        notnull = false;
+      }
+    }
+    farmgrid[wx][wy].send(data);
+  }
 
 public static void main(String args[])
   {
