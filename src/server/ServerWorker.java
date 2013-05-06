@@ -102,10 +102,23 @@ public class ServerWorker extends Thread
         else if (nd.type == NetworkData.Type.WATEROFFER)
         {
           Offer inOffer = (Offer)(nd);
-          String result = this.server.getCatalog().addSellOffer(inOffer);
+          String result = null;
+          
+          if (inOffer.offerType == null)
+          { result = "Error: OfferType not specified.";
+          }
+          else if(inOffer.offerType == Offer.OfferType.ADDSELL)
+          { result = this.server.getCatalog().addSellOffer(inOffer);
+          }
+          else if(inOffer.offerType == Offer.OfferType.REMOVESELL)
+          { result = this.server.getCatalog().removeOffer(inOffer);
+          }
+          
           if (result.startsWith("Error"))
           {
-            this.send(new Msg(inOffer.merchant, result));
+            Msg message = new Msg(inOffer.merchant, result);
+            message.error = NetworkData.Type.WATEROFFER;
+            this.send(message);
           }
         }
         else

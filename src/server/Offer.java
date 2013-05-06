@@ -17,6 +17,7 @@ public class Offer extends NetworkData implements Serializable
   public int quantity; //Number of units being sold
   public double unitPrice; //Price for a single/individual unit
   public String merchant; //Name of the seller
+  public OfferType offerType;
   
   public Offer(String merchantName, int quantity, double unitPrice)
   {
@@ -25,4 +26,9 @@ public class Offer extends NetworkData implements Serializable
     this.unitPrice = unitPrice;
     this.merchant = merchantName;
   }
+  
+  public void setOfferType(OfferType type) { this.offerType = type; }
+  
+  public enum OfferType { ADDBUY, ADDSELL, REMOVEBUY, REMOVESELL }
+  
 }
