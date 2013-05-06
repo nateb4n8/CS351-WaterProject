@@ -3,7 +3,7 @@
 package server;
 
 
-import ServerWorker;
+//import ServerWorker;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -22,7 +22,9 @@ public class ServerMaster implements KeyListener
   private long stime; //Server start time, used for transaction times.
   private Catalog catalog;
   private TimeKeeper timeKeeper;
-
+  private ServerWorker[][] farmgrid = new ServerWorker[2][2];
+  private int farmcount = 0;
+  
   public ServerMaster(int portNumber)
   {
     try
@@ -56,6 +58,7 @@ public class ServerMaster implements KeyListener
         worker.start();
         System.out.println("ServerMaster: New Client Connection");
         allConnections.add(worker);
+        makeGrid(worker);
       }
       catch (IOException e)
       {
@@ -65,6 +68,48 @@ public class ServerMaster implements KeyListener
     }
   }
 
+  private void makeGrid(ServerWorker farm)
+  {
+    if(farmcount > farmgrid.length * farmgrid[0].length)
+    {
+      if(farmgrid.length > farmgrid[0].length)
+      {
+        farmgrid = new ServerWorker[farmgrid.length][farmgrid[0].length + 1];
+      }
+      else
+      {
+        farmgrid = new ServerWorker[farmgrid.length + 1][farmgrid[0].length];
+      }
+      int x = 0,y=0;
+      for (ServerWorker workers : allConnections)
+      {
+        if(x >= farmgrid.length)
+        {
+          x = 0;
+          y++;
+        }
+        farmgrid[x][y] = workers;
+        x++;
+      }
+    }
+    else
+    {
+      for(int x= 0; x < farmgrid.length; x++)
+      {
+        for(int y= 0; y < farmgrid[0].length; y++)
+        {
+          if(farmgrid[x][y] == null)
+          {
+            farmgrid[x][y] = farm;
+            x = farmgrid.length;
+            y = farmgrid[0].length;
+          }
+        }
+      }
+    }
+    farmcount++;
+  }
+  
   public void cleanConnectionList()
   {
     allConnections.clear(); //Removes all ServerWorkers
@@ -76,7 +121,19 @@ public class ServerMaster implements KeyListener
   public void removeWorker(ServerWorker sw)
   {
         System.out.println(sw.name + " has quit the game.");
-        allConnections.remove(sw);     
+        allConnections.remove(sw);
+        int x=0, y=0;
+        farmgrid = new ServerWorker[farmgrid.length][farmgrid[0].length];
+        for (ServerWorker workers : allConnections)
+        {
+          if(x >= farmgrid.length)
+          {
+            x = 0;
+            y++;
+          }
+          farmgrid[x][y] = workers;
+          x++;
+        }
   }
   
   public void broadcast(NetworkData data)
