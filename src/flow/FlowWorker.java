@@ -21,6 +21,7 @@ public class FlowWorker extends Thread {
 	private Double[][][] change;
 	private Double[][][] reservoirs;
 
+
 	/**
 	 * Creates a worker thread to do part of the water flow calculations
 	 * @param minX - starting value of this thread's x range (inclusive)
@@ -49,6 +50,7 @@ public class FlowWorker extends Thread {
 		this.kill = false;
 		this.zCellCount = zCellCount;
 	}
+
 
 	/** Starts this worker in a loop where it will wait until it's told to do calculations or until it is killed */
 	public void run() {
@@ -102,24 +104,24 @@ public class FlowWorker extends Thread {
 				for(int k = 0; k < zCellCount; k++) {
 					for(int j = minY; j < maxY; j++) {
 						for(int i = minX; i < maxX; i++) {
-							if(grid[i][j][k] == null || grid[i][j][k].getWaterVolume() == 0) {
+							if(grid[i][j][k] == null || grid[i][j][k].getWaterVolume() <= 0) {
 								continue;
 							}
 
 							if(i != 0) flowWaterSide(grid[i][j][k], grid[i - 1][j][k]);
-							else flowToReservoir(grid[i][j][k], reservoirs[3][j][k]); //Flow to West reservoir
+							else flowToReservoir(grid[i][j][k], 3, j, k); //Flow to West reservoir
 
 
 							if(i != Farm.xCellCount - 1) flowWaterSide(grid[i][j][k], grid[i + 1][j][k]);
-							else flowToReservoir(grid[i][j][k], reservoirs[1][j][k]); //Flow to East reservoir
+							else flowToReservoir(grid[i][j][k], 1, j, k); //Flow to East reservoir
 
 
 							if(j != 0) flowWaterSide(grid[i][j][k], grid[i][j - 1][k]);
-							else flowToReservoir(grid[i][j][k], reservoirs[2][i][k]); //Flow to South reservoir
+							else flowToReservoir(grid[i][j][k], 2, i, k); //Flow to South reservoir
 
 
 							if(j != Farm.yCellCount - 1) flowWaterSide(grid[i][j][k], grid[i][j + 1][k]);
-							else flowToReservoir(grid[i][j][k], reservoirs[0][i][k]); //Flow to North reservoir
+							else flowToReservoir(grid[i][j][k], 0, i, k); //Flow to North reservoir
 
 
 							if(k != 0) flowWaterSide(grid[i][j][k], grid[i][j][k - 1]);
@@ -150,7 +152,6 @@ public class FlowWorker extends Thread {
 						}
 					}
 				}
-
 				//Sets itself up so the master thread has to tell it to start before it does more calculations
 				this.calculate = false;
 				m.workerDone();
@@ -197,13 +198,14 @@ public class FlowWorker extends Thread {
 
 		double flowAmount = K * A * min * timeStep / Cell.getCellSize();
 
-		synchronized(change[ci.x][ci.y][ci.z]) {
-			synchronized(change[cx.x][cx.y][cx.z]) {
+		synchronized(change[cx.x][cx.y][cx.z]) {
+			synchronized(change[ci.x][ci.y][ci.z]) {
 				change[ci.x][ci.y][ci.z] -= flowAmount;
 				change[cx.x][cx.y][cx.z] += flowAmount;
 			}
 		}
 	}
+
 
 	/**
 	 * Calculates the amount of water that should flow from one cell to another. This
@@ -217,7 +219,6 @@ public class FlowWorker extends Thread {
 		}
 		Point3D ci = cellI.getCoordinate();
 		Point3D cx = cellX.getCoordinate();
-
 
 		//The percent saturations of each cell
 		double iSatur = m.getPercentSaturation(ci.x, ci.y, ci.z);
@@ -237,7 +238,6 @@ public class FlowWorker extends Thread {
 			return;
 		}
 
-
 		//The average hydraulic conductivity
 		double K = (cellI.getSoil().getHydraulicConductivity() + cellX.getSoil().getHydraulicConductivity()) / 2;
 		//The area of the face of the cell being flowed from
@@ -246,20 +246,23 @@ public class FlowWorker extends Thread {
 
 		double flowAmount = K * A * satDif * timeStep;
 
-		synchronized(change[ci.x][ci.y][ci.z]) {
-			synchronized(change[cx.x][cx.y][cx.z]) {
+		synchronized(change[cx.x][cx.y][cx.z]) {
+			synchronized(change[ci.x][ci.y][ci.z]) {
 				change[ci.x][ci.y][ci.z] -= flowAmount;
 				change[cx.x][cx.y][cx.z] += flowAmount;
 			}
 		}
 	}
 
+
 	/**
 	 * Calculates the amount of water that should flow out of the edge of the farm
 	 * @param cell - the cell that water is flowing from
-	 * @param reservoir - the temporary holder for water flowing from the farm
+	 * @param x - the x coordinate of the reservoir to flow into
+	 * @param y - the y coordinate of the reservoir to flow into
+	 * @param z - the Z coordinate of the reservoir to flow into
 	 */
-	private void flowToReservoir(Cell cell, Double reservoir) {
+	private void flowToReservoir(Cell cell, int x, int y, int z) {
 		Point3D p = cell.getCoordinate();
 		double iSatur = m.getPercentSaturation(p.x, p.y, p.z);
 
@@ -272,12 +275,12 @@ public class FlowWorker extends Thread {
 		double A = Cell.getCellSize() * cell.getHeight();
 		double min = Math.min(1, m.getHydraulicHead(p.x, p.y, p.z)/Cell.getCellSize());
 
-		double amount = K * A * min * timeStep;
+		double flowAmount = K * A * min * timeStep;
 
-		synchronized(cell) {
-			synchronized(reservoir) {
-				cell.setWaterVolume(cell.getWaterVolume() - amount);
-				reservoir += amount;
+		synchronized(reservoirs[x][y][z]) {
+			synchronized(change[p.x][p.y][p.z]) {
+				change[p.x][p.y][p.z] -= flowAmount;
+				reservoirs[x][y][z] += flowAmount;
 			}
 		}
 	}
@@ -295,7 +298,6 @@ public class FlowWorker extends Thread {
 		int z = c.getCoordinate().z;
 		double saturation = m.getPercentSaturation(x, y, z);
 
-
 		//Adds the heights of all the cells above the given cell that are fully saturated
 		double heightAbove = 0;
 		double s;
@@ -308,10 +310,10 @@ public class FlowWorker extends Thread {
 				break;
 			}
 		}
-
 		//returns the hydraulic head
 		return saturation * height + heightAbove;
 	}
+
 
 	/**
 	 * Computes the percent saturation of the given cell
@@ -322,12 +324,13 @@ public class FlowWorker extends Thread {
 		return c.getWaterVolume() / c.getSoil().getWaterCapacity();
 	}
 
+
 	/** @return the total amount of water in this worker's system */
 	public double getTotalWater() {
 		synchronized(this) {
 			double totalWater = 0;
-			for(int k = 0; k < zCellCount; k++) { //k's count down so that the hydraulic head calculations can be done in
-			// the same loop as the percent saturations
+			//k's count down so that the hydraulic head calculations can be done in the same loop as the percent saturations
+			for(int k = 0; k < zCellCount; k++) {
 				for(int j = minY; j < maxY; j++) {
 					for(int i = minX; i < maxX; i++) {
 						if(grid[i][j][k] == null) {
@@ -337,7 +340,6 @@ public class FlowWorker extends Thread {
 					}
 				}
 			}
-
 			return totalWater;
 		}
 	}
@@ -377,10 +379,12 @@ public class FlowWorker extends Thread {
 		}
 	}
 
+
 	/** Lets this thread now that it's OK to start doing its calculations */
 	public void startCalculations() {
 		this.calculate = true;
 	}
+
 
 	/** Kills this thread by letting its run() loop end */
 	public void kill() {

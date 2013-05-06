@@ -87,6 +87,13 @@ public class WaterFlow {
 				for(int x = 0; x < workers.length; x++) {
 					totalWater += workers[x].getTotalWater();
 				}
+				for(int z = 0; z < reservoirs.length; z++) {
+					for(int y = 0; y < reservoirs[0][0].length; y++) {
+						for(int x = 0; x < reservoirs[0].length; x++) {
+							totalWater += reservoirs[z][x][y];
+						}
+					}
+				}
 
 				println(totalWater + " mL");
 				println(simulatedTime + " s");
@@ -148,6 +155,7 @@ public class WaterFlow {
 		reset(percentSaturation);
 	}
 
+
 	/** Sends the server water that it will carry to a different farm */
 	private void flowOutOfFarm() {
 		FlowData north = new FlowData(Direction.NORTH, reservoirs[0]);
@@ -159,6 +167,7 @@ public class WaterFlow {
 			reset(reservoirs);
 		}
 	}
+
 
 	/**
 	 * Sets a Double[][][] array to all 0s
@@ -175,6 +184,7 @@ public class WaterFlow {
 		}
 	}
 
+
 	/**
 	 * Returns the percent saturation of a specified cell
 	 * @param x - the X-coordinate of the cell
@@ -185,6 +195,7 @@ public class WaterFlow {
 	protected double getPercentSaturation(int x, int y, int z) {
 		return percentSaturation[x][y][z];
 	}
+
 
 	/**
 	 * Sets a given cell to have a given percent saturation
@@ -199,6 +210,7 @@ public class WaterFlow {
 		}
 	}
 
+
 	/**
 	 * Returns the hydraulic head of a specified cell
 	 * @param x - the X-coordinate of the cell
@@ -209,6 +221,7 @@ public class WaterFlow {
 	protected double getHydraulicHead(int x, int y, int z) {
 		return hydraulicHead[x][y][z];
 	}
+
 
 	/**
 	 * Sets a given cell to have a given hydraulic head
@@ -223,6 +236,7 @@ public class WaterFlow {
 		}
 	}
 
+
 	/**
 	 * Adds a given amount of water to all surface cells, effectively simulating a rainstorm (in 1 time step)
 	 * @param waterPerCell - the amount of water that each surface cell receives from the rain
@@ -232,17 +246,17 @@ public class WaterFlow {
 			for(int k = 0; k < farm.getZCellCount(); k++) {
 				for(int j = 0; j < Farm.yCellCount; j++) {
 					for(int i = 0; i < Farm.xCellCount; i++) {
-						if(grid[i][j][k] == null) {
+						if(grid[i][j][k] == null || !grid[i][j][k].isSurface()) {
 							continue;
 						}
-						if(grid[i][j][k].isSurface()) {
-							grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + waterPerCell);
-						}
+
+					  grid[i][j][k].setWaterVolume(grid[i][j][k].getWaterVolume() + waterPerCell);
 					}
 				}
 			}
 		}
 	}
+
 
 	/**
 	 * Takes FlowData from another Farm and puts it into this Farm
@@ -301,6 +315,7 @@ public class WaterFlow {
 		}
 	}
 
+
 	/** @return the amount of simulated time that has elapsed */
 	public int getSimulatedTime() {
 		synchronized(simulatedTime) {
@@ -308,10 +323,12 @@ public class WaterFlow {
 		}
 	}
 
+
 	/** Lets a worker thread tell the master that it's done */
 	protected synchronized void workerDone() {
 		finishedWorkers++;
 	}
+
 
 	/** Lets all the worker threads die */
 	public void kill() {
@@ -319,6 +336,7 @@ public class WaterFlow {
 			workers[i].kill();
 		}
 	}
+
 
 	/** This should only be used for testing purposes */
 	public static void main(String[] args) {
@@ -362,10 +380,8 @@ public class WaterFlow {
 		println("Total water in system (in milliliters)");
 		println("Total time simulated (in seconds)");
 		println("Average calculation time per time step (in milliseconds)\n");
-		try {
-			Thread.sleep(2500);
-		} catch(InterruptedException e) {
-		}
+		try{Thread.sleep(2500);}
+		catch(InterruptedException e){}
 
 		time = System.currentTimeMillis();
 		water.update(18408206); //8 months = 21037950 seconds //7 months = 18408206 seconds
@@ -373,10 +389,8 @@ public class WaterFlow {
 		        "seconds");
 
 		println("\nWaiting");
-		try {
-			Thread.sleep(2500);
-		} catch(InterruptedException e) {
-		}
+		try{Thread.sleep(2500);}
+		catch(InterruptedException e){}
 
 		water.kill();
 		println("done");
@@ -389,6 +403,7 @@ public class WaterFlow {
 			System.out.print(s);
 		}
 	}
+
 
 	/** Used as a replacement for System.out.println(); Simply calls print(s + "\n"); */
 	private static void println(String s) {

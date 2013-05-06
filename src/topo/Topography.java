@@ -18,7 +18,6 @@ public class Topography {
 	private static final double     TOLERANCE    = 0.01; //meters. Changes larger this amount will not be accepted
 	private static final int        SIZE         = Farm.SIZE; //meters. length and width
 	private static final double[][] HEIGHTS      = {{100, 300}, {100, 300}, {100, 400}}; //centimeters. {height of each layer, height of all layers with the same height}
-	//private static final double     TOTAL_HEIGHT = 1000; //centimeters. total height of solid block
 	private static final Random     rand         = new Random();
 
 
@@ -35,13 +34,16 @@ public class Topography {
 	public static Farm createFarm(double latitude, double longitude) {
 		double[][] deviation; //meters
 
-		//Generates a 2D array of doubles to correspond to heights of a specific i,j column. This is essentially the shape
-		// of the land that the program will run on. It's a random, but smooth, topography.
-		deviation = getDeviations();
-
-		//Querys a google database to get elevation data.
-//		ElevationData ed = new ElevationData(longitude, latitude);
-//		deviation = ed.getElevations();
+		if(longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+			//Generates a 2D array of doubles to correspond to heights of a specific i,j column. This is essentially the shape
+			// of the land that the program will run on. It's a random, but smooth, topography.
+			deviation = getDeviations();
+		}
+		else {
+			//Querys a google database to get elevation data.
+			ElevationData ed = new ElevationData(longitude, latitude);
+			deviation = ed.getElevations();
+		}
 		
     double[] minmax = adjustForMinMax(deviation);
 
