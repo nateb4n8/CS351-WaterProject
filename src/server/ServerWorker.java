@@ -107,6 +107,9 @@ public class ServerWorker extends Thread
           if (inOffer.offerType == null)
           { result = "Error: OfferType not specified.";
           }
+          else if (this.name != inOffer.merchant)
+          { result = "Error: Cannot work with other user offers.";
+          }
           else if(inOffer.offerType == Offer.OfferType.ADDSELL)
           { result = this.server.getCatalog().addSellOffer(inOffer);
           }
