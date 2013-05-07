@@ -21,8 +21,8 @@ public class Topography {
 	 * Takes a latitude and longitude that correspond to a piece of land and shapes a {@link Farm}
 	 * so that its topography mimics that piece of land. Right now, it is set up to generate land
 	 * randomly, though.
-	 * @param latitude  - the latitude of the piece of land that the returned Farm will mimic
-	 * @param longitude - the latitude of the piece of land that the returned Farm will mimic
+	 * @param latitude  the latitude of the piece of land that the returned Farm will mimic
+	 * @param longitude the latitude of the piece of land that the returned Farm will mimic
 	 * @return a Farm that has been given topographic shape
 	 */
 	public static Farm createFarm(double latitude, double longitude) {
@@ -115,7 +115,7 @@ public class Topography {
 	 * Generates a random, but smooth topography using the given MAX_RELIEF, TOLERANCE, and SIZE. The MAX_RELIEF is the total
 	 *  amount of difference there is allowed to be in the elevations. The TOLERANCE is the largest height difference between
 	 *  two blocks that will be accepted. The SIZE is the length and width of the land
-	 * @return - a 2D array of doubles that correspond to heights
+	 * @return a 2D array of doubles that correspond to heights
 	 */
 	private static double[][] getDeviations() {
 		double chance; //that this height will used
@@ -178,8 +178,8 @@ public class Topography {
 
 	/**
 	 * Takes a given set of deviations in height and adjusts them to be in the range 0 to maxDeviation.
-	 * @param deviation - the deviations in height to adjust
-	 * @return - the minimum and maximum deviations
+	 * @param deviation the deviations in height to adjust
+	 * @return the minimum and maximum deviations
 	 */
 	private static double[] adjustForMinMax(double[][] deviation) {
 		double[] minmax = {MAX_RELIEF, 0.0}; //Start with the min at MAX and the max at 0
@@ -214,11 +214,11 @@ public class Topography {
 
 	/**
 	 * Takes coordinates and tells you how deep in the ground they are
-	 * @param i - the x coordinate of the cell
-	 * @param j - the y coordinate of the cell
-	 * @param k - the z coordinate of the cell
-	 * @param deviations - the height deviations in the surface of the land
-	 * @return - the depth of the cell
+	 * @param i the x coordinate of the cell
+	 * @param j the y coordinate of the cell
+	 * @param k the z coordinate of the cell
+	 * @param deviations the height deviations in the surface of the land
+	 * @return the depth of the cell
 	 */
 	private static double getDepth(int i, int j, int k, double[][] deviations) {
 		double depth = 0;
@@ -255,10 +255,10 @@ public class Topography {
 
 	/**
 	 * Takes a height and helps determine whether it will be kept or not depending on the surrounding heights.
-	 * @param previous1 - the deviation in height of the square two squares away from the num in question
-	 * @param previous2 - the deviation in height of the square one square away from the num in question
-	 * @param num - the deviation in height of the square in question
-	 * @return - a number that will affect the chance of num being picked
+	 * @param previous1 the deviation in height of the square two squares away from the num in question
+	 * @param previous2 the deviation in height of the square one square away from the num in question
+	 * @param num the deviation in height of the square in question
+	 * @return a number that will affect the chance of num being picked
 	 */
 	private static double chance(double previous1, double previous2, double num) {
 		double chance = 0;
@@ -301,9 +301,9 @@ public class Topography {
 
 	/**
 	 * Takes a given height and helps decide whether it will be kept based on surrounding heights
-	 * @param previous - the deviation in height of the square next to the num in question
-	 * @param num - the deviation in height of the square in question
-	 * @return - a number that will affect the chance of num being picked
+	 * @param previous the deviation in height of the square next to the num in question
+	 * @param num the deviation in height of the square in question
+	 * @return a number that will affect the chance of num being picked
 	 */
 	private static double chance(double previous, double num) {
 		//If there is only 1 cell neighboring a cell you are calculating the height for (in a given direction), then simply

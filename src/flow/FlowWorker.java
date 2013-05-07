@@ -24,16 +24,16 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Creates a worker thread to do part of the water flow calculations
-	 * @param minX - starting value of this thread's x range (inclusive)
-	 * @param maxX - ending value of this thread's x range (exclusive)
-	 * @param minY - starting value of this thread's y range (inclusive)
-	 * @param maxY - ending value of this thread's y range (exclusive)
-	 * @param zCellCount - the ending of this thread's z range (exclusive). Goes from [0, zCellCount)
-	 * @param master - the WaterFlow object that this thread reports to
-	 * @param grid - the Cell[][][] that this thread works with
-	 * @param change - the Double[][][] that the calculation results are stored in
-	 * @param reservoirs - the Double[][][] that cross-farm calculation results are stored in
-	 * @param timeStep - the time step that will be used in the flow calculations
+	 * @param minX starting value of this thread's x range (inclusive)
+	 * @param maxX ending value of this thread's x range (exclusive)
+	 * @param minY starting value of this thread's y range (inclusive)
+	 * @param maxY ending value of this thread's y range (exclusive)
+	 * @param zCellCount the ending of this thread's z range (exclusive). Goes from [0, zCellCount)
+	 * @param master the WaterFlow object that this thread reports to
+	 * @param grid the Cell[][][] that this thread works with
+	 * @param change the Double[][][] that the calculation results are stored in
+	 * @param reservoirs the Double[][][] that cross-farm calculation results are stored in
+	 * @param timeStep the time step that will be used in the flow calculations
 	 */
 	public FlowWorker(int minX, int maxX, int minY, int maxY, int zCellCount, WaterFlow master, Cell[][][] grid,
 	                  Double[][][] change, Double[][][] reservoirs, double timeStep) {
@@ -163,8 +163,8 @@ public class FlowWorker extends Thread {
 	/**
 	 * Calculates the amount of water that should flow from one cell to another. This
 	 *  should not be used to calculate water flowing upward!
-	 * @param cellI - the cell to flow water from
-	 * @param cellX - the cell to flow water to
+	 * @param cellI the cell to flow water from
+	 * @param cellX the cell to flow water to
 	 */
 	private void flowWaterSide(Cell cellI, Cell cellX) {
 		if(cellX == null) {
@@ -210,8 +210,8 @@ public class FlowWorker extends Thread {
 	/**
 	 * Calculates the amount of water that should flow from one cell to another. This
 	 *  should only be used for water flowing upwards!
-	 * @param cellI - the cell to flow water from
-	 * @param cellX - the cell to flow water to
+	 * @param cellI the cell to flow water from
+	 * @param cellX the cell to flow water to
 	 */
 	private void flowWaterUp(Cell cellI, Cell cellX) {
 		if(cellX == null) {
@@ -257,10 +257,10 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Calculates the amount of water that should flow out of the edge of the farm
-	 * @param cell - the cell that water is flowing from
-	 * @param x - the x coordinate of the reservoir to flow into
-	 * @param y - the y coordinate of the reservoir to flow into
-	 * @param z - the Z coordinate of the reservoir to flow into
+	 * @param cell the cell that water is flowing from
+	 * @param x the x coordinate of the reservoir to flow into
+	 * @param y the y coordinate of the reservoir to flow into
+	 * @param z the Z coordinate of the reservoir to flow into
 	 */
 	private void flowToReservoir(Cell cell, int x, int y, int z) {
 		Point3D p = cell.getCoordinate();
@@ -288,7 +288,7 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Computes the hydraulic head of the given cell
-	 * @param c - the cell being considered
+	 * @param c the cell being considered
 	 * @return the hydraulic head of the given cell
 	 */
 	private double hydraulicHead(Cell c) {
@@ -317,7 +317,7 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Computes the percent saturation of the given cell
-	 * @param c - the cell being considered
+	 * @param c the cell being considered
 	 * @return the percent saturation of the given cell
 	 */
 	private double percentSaturation(Cell c) {
@@ -347,10 +347,10 @@ public class FlowWorker extends Thread {
 
 	/**
 	 * Takes a plant and removes the water it will use from the system
-	 * @param plant - the plant that will be handled
-	 * @param i - its x coordinate
-	 * @param j - its y coordinate
-	 * @param k - its z coordinate
+	 * @param plant the plant that will be handled
+	 * @param i its x coordinate
+	 * @param j its y coordinate
+	 * @param k its z coordinate
 	 */
 	private void handlePlant(Plant plant, int i, int j, int k) {
 		if(!m.includePlants) {

@@ -6,11 +6,9 @@ import topo.Topography;
 import java.util.Random;
 
 /**
- * WaterFlow is a class that computes how water should flow from cell to cell.
- *
- * TODO: Flow water across server
+ * WaterFlow is a class that computes how water should flow from cell to cell. <p />
+ * TODO: Flow water across server <br />
  * TODO: Decide when to rain?
- *
  * @author Max Ottesen
  */
 public class WaterFlow {
@@ -33,7 +31,7 @@ public class WaterFlow {
 
 	/**
 	 * Creates a WaterFlow object that will simulate the water flowing in and through the given Farm
-	 * @param farm - the Farm that this object will simulate water flow for
+	 * @param farm the Farm that this object will simulate water flow for
 	 */
 	public WaterFlow(Farm farm) {
 		this.farm = farm;
@@ -67,7 +65,7 @@ public class WaterFlow {
 
 	/**
 	 * Runs the model for a given number of seconds
-	 * @param seconds - the number of seconds to run the model for. This may or may not run the model for the exact amount
+	 * @param seconds the number of seconds to run the model for. This may or may not run the model for the exact amount
 	 *                of seconds because the time step may not match up evenly. In that case, it will simulate slightly
 	 *                farther in the future than the given time.
 	 */
@@ -185,7 +183,7 @@ public class WaterFlow {
 
 	/**
 	 * Sets a Double[][][] array to all 0s
-	 * @param array - the array to be reset
+	 * @param array the array to be reset
 	 */
 	private void reset(Double[][][] array) {
 		//Reset the change holder
@@ -201,9 +199,9 @@ public class WaterFlow {
 
 	/**
 	 * Returns the percent saturation of a specified cell
-	 * @param x - the X-coordinate of the cell
-	 * @param y - the Y-coordinate of the cell
-	 * @param z - the Z-coordinate of the cell
+	 * @param x the X-coordinate of the cell
+	 * @param y the Y-coordinate of the cell
+	 * @param z the Z-coordinate of the cell
 	 * @return the percent saturation of the cell
 	 */
 	protected double getPercentSaturation(int x, int y, int z) {
@@ -213,10 +211,10 @@ public class WaterFlow {
 
 	/**
 	 * Sets a given cell to have a given percent saturation
-	 * @param x   - x coordinate of cell
-	 * @param y   - y coordinate of cell
-	 * @param z   - z coordinate of cell
-	 * @param sat - percent saturation of cell
+	 * @param x   x coordinate of cell
+	 * @param y   y coordinate of cell
+	 * @param z   z coordinate of cell
+	 * @param sat percent saturation of cell
 	 */
 	protected void setPercentSaturation(int x, int y, int z, Double sat) {
 		synchronized(this.percentSaturation[x][y][z]) {
@@ -227,9 +225,9 @@ public class WaterFlow {
 
 	/**
 	 * Returns the hydraulic head of a specified cell
-	 * @param x - the X-coordinate of the cell
-	 * @param y - the Y-coordinate of the cell
-	 * @param z - the Z-coordinate of the cell
+	 * @param x the X-coordinate of the cell
+	 * @param y the Y-coordinate of the cell
+	 * @param z the Z-coordinate of the cell
 	 * @return the hydraulic head of the cell
 	 */
 	protected double getHydraulicHead(int x, int y, int z) {
@@ -239,10 +237,10 @@ public class WaterFlow {
 
 	/**
 	 * Sets a given cell to have a given hydraulic head
-	 * @param x    - x coordinate of cell
-	 * @param y    - y coordinate of cell
-	 * @param z    - z coordinate of cell
-	 * @param head - hydraulic head of cell
+	 * @param x    x coordinate of cell
+	 * @param y    y coordinate of cell
+	 * @param z    z coordinate of cell
+	 * @param head hydraulic head of cell
 	 */
 	protected void setHydraulicHead(int x, int y, int z, Double head) {
 		synchronized(this.hydraulicHead[x][y][z]) {
@@ -253,7 +251,7 @@ public class WaterFlow {
 
 	/**
 	 * Adds a given amount of water to all surface cells, effectively simulating a rainstorm (in 1 time step)
-	 * @param waterPerCell - the amount of water that each surface cell receives from the rain
+	 * @param waterPerCell the amount of water that each surface cell receives from the rain
 	 */
 	public void rain(double waterPerCell) {
 		for(int k = 0; k < farm.getZCellCount(); k++) {
@@ -274,7 +272,7 @@ public class WaterFlow {
 
 	/**
 	 * Takes FlowData from another Farm and puts it into this Farm
-	 * @param data - the water to be put into the farm
+	 * @param data the water to be put into the farm
 	 */
 	public void flowIntoFarm(FlowData data) {
 		int minX, maxX;
