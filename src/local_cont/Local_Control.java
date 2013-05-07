@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import server.Catalog;
+import server.NetworkData;
 import server.Offer;
 import topo.Topography;
 import XML_Handler.XML_Handler;
@@ -21,16 +22,13 @@ public class Local_Control
   private static WaterProjectGUI gui;
   Catalog catalog;
 
-  private Socket clientSocket;
-  private ObjectOutputStream outputStream;
-  private ObjectInputStream inputStream;
+  
+  private Socket clientSocket; //
+  private ObjectOutputStream outputStream; //Stream used to send objects
+  private ObjectInputStream inputStream; //Stream used to receive objects
 
-  public double getMoney()
-  {
-
-    return (f == null) ? 0 : f.getMoney();
-
-  }
+  
+  public double getMoney() { return (f == null) ? 0 : f.getMoney(); }
 
   public Farm newFarm(double latitude, double longitude, String path)
   {
@@ -41,13 +39,8 @@ public class Local_Control
 
   public void saveFarm(String path)
   {
-    try
-    {
-      XML_Handler.save(f, path);
-    }
-    catch (Exception e)
-    {
-    }
+    try { XML_Handler.save(f, path); }
+    catch (Exception e) { }
   }
 
   public Farm loadFarm(String path)
@@ -137,11 +130,8 @@ public class Local_Control
     Client_Msg msg = new Sell_Water(sell);
 
     // send message to server here.
-    if (catalog == null)
-    {
-      catalog = new Catalog();
-    }
-    catalog.addSellOffer(sell);
+    this.sendObject(sell);
+    
     gui.updateSellOffers(catalog.getOffersList());
   }
 
@@ -351,6 +341,12 @@ public class Local_Control
       this.gui = gui;
   }
 
+  /**
+   * Opens a connection to the specified host with the portNumber.
+   * @param host Server/Client IP address
+   * @param portNumber used to open a new Socket
+   * @return True if connection was successful, false otherwise.
+   */
   private boolean openConnection(String host, int portNumber)
   {
 
@@ -395,4 +391,17 @@ public class Local_Control
     return true;
 
   }
+  
+  
+  /**
+   * Sends the passed in NetworkData object over the network using the
+   * ObjectOutputStream.
+   * @param object
+   */
+  public void sendObject(NetworkData object)
+  {
+    try { outputStream.writeObject(object); }
+    catch (IOException e) { e.printStackTrace(); }
+  }
+  
 }
