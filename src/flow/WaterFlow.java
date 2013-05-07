@@ -12,9 +12,10 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class WaterFlow {
-	private static final boolean includeOutput = true;
-	private static final boolean includeRain   = true;
-	public  static final boolean includePlants = true;
+	private static final boolean includeOutput  = true;
+	private static final boolean includeRain    = true;
+	private static final boolean startWithWater = false;
+	public  static final boolean includePlants  = false;
 
 	private int          timeStep = 1000; //seconds
 	private int          finishedWorkers;
@@ -91,8 +92,11 @@ public class WaterFlow {
 						}
 					}
 				}
+				Cell c = getSurfaceCell();
+
 
 				println(totalWater + " mL");
+				println(c.getWaterVolume() + " mL in " + c.getCoordinate());
 				println(simulatedTime + " s");
 				println(avgTimeStep + " ms\n");
 			}
@@ -103,7 +107,7 @@ public class WaterFlow {
 			}
 			
 			//This tests if my rain method works correctly
-			if(simulatedTime % (timeStep * 1000) == 0 && simulatedTime != 0 && includeRain) {
+			if(simulatedTime % (timeStep * 500) == 0 && includeRain) {
 			  rain(11); //11 mL per cell
 			}
 
@@ -115,6 +119,19 @@ public class WaterFlow {
 			}
 			realTime += (System.currentTimeMillis() - time);
 		}
+	}
+	
+	private Cell getSurfaceCell() {
+		for(int k = 0; k < farm.zCellCount; k++) {
+			for(int j = 0; j < Farm.yCellCount; j++) {
+				for(int x = 0; x < Farm.xCellCount; x++) {
+					if(grid[x][j][k].isSurface()) {
+						return grid[x][j][k];
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 
@@ -382,7 +399,7 @@ public class WaterFlow {
 				for(int i = 0; i < Farm.xCellCount; i++) {
 					if(grid[i][j][k] != null) {
 						grid[i][j][k].setSoil(Soil.GILASAND);
-						if(rand.nextDouble() < .75) {
+						if(startWithWater && rand.nextDouble() < .75) {
 							grid[i][j][k].setWaterVolume(rand.nextInt(100));
 						}
 						if(grid[i][j][k].isSurface()) {
@@ -402,6 +419,7 @@ public class WaterFlow {
 
 		println("\nStarting model\n");
 		println("Total water in system (in milliliters)");
+		println("Water in a surface cell (in milliliters)");
 		println("Total time simulated (in seconds)");
 		println("Average calculation time per time step (in milliseconds)\n");
 		try{Thread.sleep(2500);}
