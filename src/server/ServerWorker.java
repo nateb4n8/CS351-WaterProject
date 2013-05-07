@@ -94,6 +94,7 @@ public class ServerWorker extends Thread
         {
           Name n = (Name)nd;
           this.name = n.name;
+          System.out.println(name +" has connected\n");
         }
         else if (nd.type == NetworkData.Type.Quit)
         {
