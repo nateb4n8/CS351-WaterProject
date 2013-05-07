@@ -1,3 +1,5 @@
+package graphics;
+
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
@@ -10,10 +12,8 @@ import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.texture.Texture;
-
 import java.awt.BorderLayout;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -23,6 +23,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.util.Random;
+import cell.*;
 
 
 public class DisplayFarm implements GLEventListener
@@ -66,7 +67,7 @@ public class DisplayFarm implements GLEventListener
 
 	private Cell[][][] grid;
 
-	public DisplayFarm2(Farm farm, JPanel panel) 
+	public DisplayFarm(Farm farm, JPanel panel) 
 	{
 		this.farm = farm;
 		this.panel = panel;
@@ -460,42 +461,42 @@ public class DisplayFarm implements GLEventListener
 
 	private Color getColor(Cell cell)
 	{
-		if(cell.getPlantType() != null)
+		if(cell.getPlant() != null)
 		{
 			Cell p = cell;
-			if(p.getPlantType() == Plant.PINTOBEANS)
+			if(p.getPlant() == Plant.PINTOBEANS)
 			{
 				return new Color(0xCC, 0, 0); //dark red
 			}
-			else if(p.getPlantType() == Plant.SUNFLOWER)
+			else if(p.getPlant() == Plant.SUNFLOWER)
 			{
 				return new Color(0xFF, 0x66, 0); //dark orange
 			}
-			else if(p.getPlantType() == Plant.AMARANTH)
+			else if(p.getPlant() == Plant.AMARANTH)
 			{
 				return new Color(0x99, 0, 0); //maroon
 			}
-			else if(p.getPlantType() == Plant.CHILE)
+			else if(p.getPlant() == Plant.CHILE)
 			{
 				return new Color(0xFF, 0, 0); //red
 			}
-			else if(p.getPlantType() == Plant.SWEETCORN)
+			else if(p.getPlant() == Plant.SWEETCORN)
 			{
 				return new Color(0xFF, 0xFF, 0); //yellow
 			}
-			else if(p.getPlantType() == Plant.SUMMERSQUASH)
+			else if(p.getPlant() == Plant.SUMMERSQUASH)
 			{
 				return new Color(0x66, 0xFF, 0x33); //light green
 			}
-			else if(p.getPlantType() == Plant.WINTERSQUASH)
+			else if(p.getPlant() == Plant.WINTERSQUASH)
 			{
 				return new Color(0xFF, 0xCC, 0x33); //light orange
 			}
-			else if(p.getPlantType() == Plant.POTATOES)
+			else if(p.getPlant() == Plant.POTATOES)
 			{
 				return new Color(0x33, 0x99, 0); //dark green
 			}
-			else if(p.getPlantType() == Plant.SWEETPEPPER)
+			else if(p.getPlant() == Plant.SWEETPEPPER)
 			{
 				return new Color(0xCC, 0xFF, 0); //lime yellow
 			}
@@ -539,7 +540,7 @@ public class DisplayFarm implements GLEventListener
 	private void makeCube(GL2 gl, int x, int y, int z, double cell_width_height, double cell_depth)
 	{
 
-		Double blueness = this.grid[x][y][z].getWater();
+		Double blueness = this.grid[x][y][z].getWaterVolume()/this.grid[x][y][z].getSoil().getWaterCapacity();
 
 		Color cellColor = this.getColor(this.grid[x][y][z]);
 
