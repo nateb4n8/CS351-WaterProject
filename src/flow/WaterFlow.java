@@ -42,13 +42,13 @@ public class WaterFlow {
 		this.hydraulicHead = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.percentSaturation = new Double[Farm.xCellCount][Farm.yCellCount][farm.zCellCount];
 		this.reservoirs = new Double[4][Farm.SIZE][farm.zCellCount];
+		this.finishedWorkers = 0;
+		this.workers = new FlowWorker[4];
+		this.simulatedTime = 0;
 		reset(change);
 		reset(hydraulicHead);
 		reset(percentSaturation);
 		reset(reservoirs);
-		this.finishedWorkers = 0;
-		this.workers = new FlowWorker[4];
-		this.simulatedTime = 0;
 
 		workers[0] = new FlowWorker(0, Farm.xCellCount / 2, 0, Farm.yCellCount / 2, farm.zCellCount, this, grid, change,
 		                            reservoirs, timeStep);
@@ -106,7 +106,7 @@ public class WaterFlow {
 			
 			//This tests if my rain method works correctly
 			if(simulatedTime % (timeStep * 1000) == 0 && simulatedTime != 0 && includeRain) {
-			  rain(11);
+			  rain(11); //11 mL per cell
 			}
 
 			synchronized(grid) {
@@ -324,7 +324,7 @@ public class WaterFlow {
 					else {
 						index = j;
 					}
-
+						
 					if(data.water.length <= index || data.water[0].length <= k) {
 						continue;
 					}
