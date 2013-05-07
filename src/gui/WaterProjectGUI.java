@@ -119,7 +119,7 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
   //it will use the farm's x,y,z axis. 
   private int maxX = 70;
   private int maxY = 70;
-  private int maxZ = 16;
+  private int maxZ = 12;
   private int valX1 = 0;
   private int valX2 = maxX;
   private int valY1 = 0;
@@ -335,7 +335,7 @@ public WaterProjectGUI(Local_Control l)
     lat_label = new JLabel("Latitude (in decimal) = ");
     long_label = new JLabel("Longitude (in decimal) = ");
     sell_offers = new JLabel("Sell Offers");
-    monthLabel = new JLabel("Month: ");
+    monthLabel = new JLabel("");
     //Money Label will display the money the user has currently.
     moneyLabel = new JLabel("Money: "+cont.getMoney());
     //Quantity Label displays the current quantity of water rights the user has.
