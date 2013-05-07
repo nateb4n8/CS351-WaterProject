@@ -81,7 +81,7 @@ public class FlowWorker extends Thread {
 
 							Plant plant = grid[i][j][k].getPlant();
 							//If the simulation is within 1 time step of a day, there is a plant, and it is alive
-							if(plant != null && plant.isDeadOrAlive() && (m.getSimulatedTime() % 86400) < timeStep) {
+							if(plant != null && plant.isDeadOrAlive() && (m.getSimulatedTime() % 86400) < timeStep && m.getSimulatedTime() != 0) {
 								handlePlant(plant, i, j, k);
 							}
 
@@ -353,6 +353,10 @@ public class FlowWorker extends Thread {
 	 * @param k - its z coordinate
 	 */
 	private void handlePlant(Plant plant, int i, int j, int k) {
+		if(!m.includePlants) {
+			return;
+		}
+
 		double availableWater = 0;
 		int depth = plant.getMatureDepth();
 		int z = k;
@@ -366,15 +370,19 @@ public class FlowWorker extends Thread {
 		  if(toDrink == 0) {
 		    break;
 		  }
-			Cell c = grid[i][j][z--];
+			Cell c = grid[i][j][z];
 			
 			if(c.getWaterVolume() < toDrink) {
+				synchronized(change[i][j][z--]) {
+					change[i][j][z] -= c.getWaterVolume();
+				}
 				toDrink -= c.getWaterVolume();
-				c.setWaterVolume(0);
 			}
 			else {
+				synchronized(change[i][j][z--]) {
+					change[i][j][z] -= toDrink;
+				}
 				toDrink = 0;
-				c.setWaterVolume(c.getWaterVolume() - toDrink);
 			}
 		}
 	}

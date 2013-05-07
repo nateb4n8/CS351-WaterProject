@@ -14,7 +14,9 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class WaterFlow {
-	private static boolean suppressOutput = false;
+	private static final boolean suppressOutput = false;
+	private static final boolean includeRain    = true;
+	public  static final boolean includePlants  = true;
 
 	private int          timeStep = 1000; //seconds
 	private int          finishedWorkers;
@@ -103,7 +105,7 @@ public class WaterFlow {
 			}
 			
 			//This tests if my rain method works correctly
-			if(simulatedTime % (timeStep * 1000) == 0 && simulatedTime != 0) {
+			if(simulatedTime % (timeStep * 1000) == 0 && simulatedTime != 0 && includeRain) {
 			  rain(11);
 			}
 
@@ -307,7 +309,7 @@ public class WaterFlow {
 			return;
 		}
 		
-		int maxZ = farm.zCellCount; //TODO: Farms with edges that don't match up need to be dealt with.
+		int maxZ = farm.zCellCount;
 		for(int k = 0; k < maxZ; k++) {
 			for(int j = minY; j < maxY; j++) {
 				for(int i = minX; i < maxX; i++) {
@@ -327,8 +329,7 @@ public class WaterFlow {
 					if(data.water.length <= index || data.water[0].length <= k) {
 						continue;
 					}
-						
-						
+
 					synchronized(change[i][j][k]) {
 						change[i][j][k] += data.water[index][k];
 					}
