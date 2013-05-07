@@ -101,8 +101,9 @@ public class FarmersMarket {
 		}
 	}
 	
-	private void openFarmersMarket(Date gameDate) {
-		this.setGameDate(gameDate);
+	private void openFarmersMarket() {
+		//this.setGameDate(gameDate);
+		timeKeeper.getCurrentDay();
 	}
 
 	// TODO Add price today/tomorrow
