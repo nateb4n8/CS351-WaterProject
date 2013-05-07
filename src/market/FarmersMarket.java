@@ -3,6 +3,7 @@ package market;
 import java.util.Date;
 import java.util.Random;
 
+import server.SellProduce2;
 import server.TimeKeeper;
 
 import climate.Climate;
@@ -110,45 +111,45 @@ public class FarmersMarket {
 		timeKeeper.getCurrentDay();
 	}
 	
-	public SellProduce SellProduce(Plant plant, int quantity) {
+	public SellProduce SellProduce(SellProduce2 x) {
 		// use new setBalance method in farm class to update the farms balance
 		dollars = 0;
-		switch (plant) {
+		switch (x.plant) {
 		case PINTOBEANS:
-			dollars = FarmersMarket.getPrices()[0] * quantity;
-			FarmersMarket.getQuantitySold()[0] += quantity;
+			dollars = FarmersMarket.getPrices()[0] * x.quantity;
+			FarmersMarket.getQuantitySold()[0] += x.quantity;
 			break;
 		case SUNFLOWER:
-			dollars = FarmersMarket.getPrices()[1] * quantity;
-			FarmersMarket.getQuantitySold()[1] += quantity;
+			dollars = FarmersMarket.getPrices()[1] * x.quantity;
+			FarmersMarket.getQuantitySold()[1] += x.quantity;
 			break;
 		case AMARANTH:
-			dollars = FarmersMarket.getPrices()[2] * quantity;
-			FarmersMarket.getQuantitySold()[2] += quantity;
+			dollars = FarmersMarket.getPrices()[2] * x.quantity;
+			FarmersMarket.getQuantitySold()[2] += x.quantity;
 			break;
 		case CHILE:
-			dollars = FarmersMarket.getPrices()[3] * quantity;
-			FarmersMarket.getQuantitySold()[3] += quantity;
+			dollars = FarmersMarket.getPrices()[3] * x.quantity;
+			FarmersMarket.getQuantitySold()[3] += x.quantity;
 			break;
 		case SWEETCORN:
-			dollars = FarmersMarket.getPrices()[4] * quantity;
-			FarmersMarket.getQuantitySold()[4] += quantity;
+			dollars = FarmersMarket.getPrices()[4] * x.quantity;
+			FarmersMarket.getQuantitySold()[4] += x.quantity;
 			break;
 		case SUMMERSQUASH:
-			dollars = FarmersMarket.getPrices()[5] * quantity;
-			FarmersMarket.getQuantitySold()[5] += quantity;
+			dollars = FarmersMarket.getPrices()[5] * x.quantity;
+			FarmersMarket.getQuantitySold()[5] += x.quantity;
 			break;
 		case WINTERSQUASH:
-			dollars = FarmersMarket.getPrices()[6] * quantity;
-			FarmersMarket.getQuantitySold()[6] += quantity;
+			dollars = FarmersMarket.getPrices()[6] * x.quantity;
+			FarmersMarket.getQuantitySold()[6] += x.quantity;
 			break;
 		case POTATOES:
-			dollars = FarmersMarket.getPrices()[7] * quantity;
-			FarmersMarket.getQuantitySold()[7] += quantity;
+			dollars = FarmersMarket.getPrices()[7] * x.quantity;
+			FarmersMarket.getQuantitySold()[7] += x.quantity;
 			break;
 		case SWEETPEPPER:
-			dollars = FarmersMarket.getPrices()[8] * quantity;
-			FarmersMarket.getQuantitySold()[8] += quantity;
+			dollars = FarmersMarket.getPrices()[8] * x.quantity;
+			FarmersMarket.getQuantitySold()[8] += x.quantity;
 			break;
 		}
 		
