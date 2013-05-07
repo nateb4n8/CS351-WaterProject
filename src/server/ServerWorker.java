@@ -25,7 +25,10 @@ public class ServerWorker extends Thread
   {
     this.client = client;
     this.server = server;
-
+  }
+  
+  public void createConnection()
+  {
     try
     {
       clientOutStream = new ObjectOutputStream(client.getOutputStream());

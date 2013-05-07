@@ -26,12 +26,28 @@ public class ServerMaster implements KeyListener
   private TimeKeeper timeKeeper;
   private ServerWorker[][] farmgrid = new ServerWorker[2][2];
   private int farmcount = 0;
+  private int port = 0;
+  
+  public void startListening()
+  {
+    serverSocket = createSocket();
+    
+    this.catalog = new Catalog();
+    
+    System.out.println("Press s to start");
+    waitForConnection();
+  }
   
   public ServerMaster(int portNumber)
   {
+  	port = portNumber;
+  }
+  
+  protected ServerSocket createSocket()
+  {
     try
     {
-      serverSocket = new ServerSocket(portNumber);
+      serverSocket = new ServerSocket(port);
     }
     catch (IOException e)
     {
@@ -39,13 +55,6 @@ public class ServerMaster implements KeyListener
       e.printStackTrace();
       System.exit(-1);
     }
-    
-    
-    this.catalog = new Catalog();
-    
-    
-    System.out.println("Press s to start");
-    waitForConnection();
   }
 
   public void waitForConnection()
@@ -57,6 +66,7 @@ public class ServerMaster implements KeyListener
       {
         Socket client = serverSocket.accept();
         ServerWorker worker = new ServerWorker(client, this);
+        worker.createConnection();
         worker.start();
         System.out.println("ServerMaster: New Client Connection");
         allConnections.add(worker);
@@ -251,7 +261,8 @@ public static void main(String args[])
       System.exit(0);
     }
 
-    new ServerMaster(port);
+    ServerMaster server = new ServerMaster(port);
+    server.startListening();
   }
 
 @Override
