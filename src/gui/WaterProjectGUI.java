@@ -185,6 +185,11 @@ public class WaterProjectGUI extends JFrame implements ActionListener, ChangeLis
 public WaterProjectGUI(Local_Control l)
 {
 	cont = l;
+	
+	/******************Insert Server Info Here*************************/
+	cont.openConnection("ServerIP", 9999);
+	/******************************************************************/
+	
 	width = 500;
 	height = 500;
 	

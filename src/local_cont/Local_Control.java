@@ -347,7 +347,7 @@ public class Local_Control
    * @param portNumber used to open a new Socket
    * @return True if connection was successful, false otherwise.
    */
-  private boolean openConnection(String host, int portNumber)
+  public boolean openConnection(String host, int portNumber)
   {
 
     try
