@@ -12,9 +12,9 @@ import java.util.Random;
  * @author Max Ottesen
  */
 public class WaterFlow {
-	private static final boolean suppressOutput = false;
-	private static final boolean includeRain    = true;
-	public  static final boolean includePlants  = true;
+	private static final boolean includeOutput = true;
+	private static final boolean includeRain   = true;
+	public  static final boolean includePlants = true;
 
 	private int          timeStep = 1000; //seconds
 	private int          finishedWorkers;
@@ -423,7 +423,7 @@ public class WaterFlow {
 
 	/** Used as a replacement for System.out.print(); so that I can easily turn output on or off */
 	private static void print(String s) {
-		if(!suppressOutput) {
+		if(includeOutput) {
 			System.out.print(s);
 		}
 	}
