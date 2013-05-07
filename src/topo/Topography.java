@@ -3,67 +3,45 @@ package topo;
 import cell.Cell;
 import cell.Farm;
 import cell.Point3D;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Random;
 
 /**
  * Topography is a class that is only used to generate the shape of a piece of land.
- *
  * @author Max Ottesen
  */
 public class Topography {
-	private static final double     MAX_RELIEF   = 0.05; //meters. The most the topography over the entire grid is allowed to vary
-	private static final double     TOLERANCE    = 0.01; //meters. Changes larger this amount will not be accepted
-	private static final int        SIZE         = Farm.SIZE; //meters. length and width
-	private static final double[][] HEIGHTS      = {{100, 300}, {100, 300}, {100, 400}}; //centimeters. {height of each layer, height of all layers with the same height}
-	private static final Random     rand         = new Random();
+	private static final double     MAX_RELIEF = 0.05; //meters. The most the topography over the entire grid is allowed to vary
+	private static final double     TOLERANCE  = 0.01; //meters. Changes larger this amount will not be accepted
+	private static final int        SIZE       = Farm.SIZE; //meters. length and width
+	private static final double[][] HEIGHTS    = {{100, 300}, {100, 300}, {100, 400}}; //centimeters. {height of each layer, height of all layers with the same height}
+	private static final Random     rand       = new Random();
 
 
 	/**
 	 * Takes a latitude and longitude that correspond to a piece of land and shapes a {@link Farm}
 	 * so that its topography mimics that piece of land. Right now, it is set up to generate land
 	 * randomly, though.
-	 *
 	 * @param latitude  - the latitude of the piece of land that the returned Farm will mimic
 	 * @param longitude - the latitude of the piece of land that the returned Farm will mimic
-	 *
 	 * @return a Farm that has been given topographic shape
 	 */
 	public static Farm createFarm(double latitude, double longitude) {
 		double[][] deviation; //meters
 
+		//If the given lat/lon don't correspond to a real life location, use randomly generated topography
 		if(longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
 			//Generates a 2D array of doubles to correspond to heights of a specific i,j column. This is essentially the shape
 			// of the land that the program will run on. It's a random, but smooth, topography.
 			deviation = getDeviations();
 		}
+		//Otherwise, get the elevation data from the internet
 		else {
-			//Querys a google database to get elevation data.
+			//Queries a google database to get elevation data
 			ElevationData ed = new ElevationData(longitude, latitude);
 			deviation = ed.getElevations();
 		}
 		
     double[] minmax = adjustForMinMax(deviation);
-
-		//For debugging. Prints a MATLAB matrix so I can call bar3(A) and see what my land looks like in 3D
-		//try {
-		//	PrintWriter out = new PrintWriter(new FileWriter("C:/Users/Max/Desktop/file.txt"));
-		//	out.print("A = [");
-		//	for(int j = 0; j < SIZE; j++) {
-		//		for(int i = 0; i < SIZE; i++) {
-		//			out.print((deviation[i][j]+25) + " "); //+25 meters for the solid block that's always present
-		//		}
-		//		out.print("; ");
-		//	}
-		//	out.println("];");
-		//	out.close();
-		//	System.out.print("done");
-		//} catch(IOException e) {
-		//	e.printStackTrace();
-		//};
-
 
 		int baseLayers = (int)(HEIGHTS[0][1]/HEIGHTS[0][0]) + (int)(HEIGHTS[1][1]/HEIGHTS[1][0]) + (int)(HEIGHTS[2][1]/HEIGHTS[2][0]);
 
@@ -132,6 +110,7 @@ public class Topography {
 		return farm;
 	}
 
+
 	/**
 	 * Generates a random, but smooth topography using the given MAX_RELIEF, TOLERANCE, and SIZE. The MAX_RELIEF is the total
 	 *  amount of difference there is allowed to be in the elevations. The TOLERANCE is the largest height difference between
@@ -193,12 +172,15 @@ public class Topography {
 				}
 			}
 		}
-
-
-
 		return deviation;
 	}
 
+
+	/**
+	 * Takes a given set of deviations in height and adjusts them to be in the range 0 to maxDeviation.
+	 * @param deviation - the deviations in height to adjust
+	 * @return - the minimum and maximum deviations
+	 */
 	private static double[] adjustForMinMax(double[][] deviation) {
 		double[] minmax = {MAX_RELIEF, 0.0}; //Start with the min at MAX and the max at 0
 
@@ -229,6 +211,15 @@ public class Topography {
 		return minmax;
 	}
 
+
+	/**
+	 * Takes coordinates and tells you how deep in the ground they are
+	 * @param i - the x coordinate of the cell
+	 * @param j - the y coordinate of the cell
+	 * @param k - the z coordinate of the cell
+	 * @param deviations - the height deviations in the surface of the land
+	 * @return - the depth of the cell
+	 */
 	private static double getDepth(int i, int j, int k, double[][] deviations) {
 		double depth = 0;
 		int baseLayers = (int)(HEIGHTS[0][1]/HEIGHTS[0][0]) + (int)(HEIGHTS[1][1]/HEIGHTS[1][0]) + (int)(HEIGHTS[2][1]/HEIGHTS[2][0]);
@@ -261,6 +252,14 @@ public class Topography {
 		return depth;
 	}
 
+
+	/**
+	 * Takes a height and helps determine whether it will be kept or not depending on the surrounding heights.
+	 * @param previous1 - the deviation in height of the square two squares away from the num in question
+	 * @param previous2 - the deviation in height of the square one square away from the num in question
+	 * @param num - the deviation in height of the square in question
+	 * @return - a number that will affect the chance of num being picked
+	 */
 	private static double chance(double previous1, double previous2, double num) {
 		double chance = 0;
 		double change1 = previous1 - previous2;
@@ -299,15 +298,24 @@ public class Topography {
 		return chance;
 	}
 
-	//If there is only 1 cell neighboring a cell you are calculating the height for (in a given direction), then simply
-	// pick a height that is within the range TOLERANCE
+
+	/**
+	 * Takes a given height and helps decide whether it will be kept based on surrounding heights
+	 * @param previous - the deviation in height of the square next to the num in question
+	 * @param num - the deviation in height of the square in question
+	 * @return - a number that will affect the chance of num being picked
+	 */
 	private static double chance(double previous, double num) {
+		//If there is only 1 cell neighboring a cell you are calculating the height for (in a given direction), then simply
+		// pick a height that is within the range TOLERANCE
 		if(Math.abs(num - previous) <= TOLERANCE) {
 			return .1;
 		}
 		return -5.0;
 	}
 
+
+	/** This should only be used for testing */
 	public static void main(String[] args) {
 		Farm f = createFarm(1000, 1000);
 

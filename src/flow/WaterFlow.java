@@ -324,8 +324,7 @@ public class WaterFlow {
 					else {
 						index = j;
 					}
-						
-					//Right now I just skip places where the land doesn't match up
+
 					if(data.water.length <= index || data.water[0].length <= k) {
 						continue;
 					}
