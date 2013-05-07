@@ -19,19 +19,23 @@ public class TimeKeeper {
 	private Climate _currentClimate;
 	private int _currentClimateDaysRemaining;
 	private Timer _timeKeeperTimer;
+	private ServerMaster _server;
+	private int rainCounter;
 	
 	/**
 	 * Creates TimeKeeper, should be one per game when Server created
 	 * @param numberOfMilliSecsPerDay number of milliseconds equal to Day
 	 */
-	public TimeKeeper(int numberOfMilliSecsPerDay){
+	public TimeKeeper(int numberOfMilliSecsPerDay, ServerMaster server){
 		this._numberOfMilliSecsPerDay = numberOfMilliSecsPerDay;
 		this._currentClimate = Climate.JANUARY;
 		this._currentDay = 0;
 		this._currentYear = 0;
 		this._currentClimateDaysRemaining = _currentClimate.getDuration();
 		this._timeKeeperTimer = new Timer();
-		this._timeKeeperTimer.schedule(new AdvanceDayTask(),0,_numberOfMilliSecsPerDay);		
+		this._timeKeeperTimer.schedule(new AdvanceDayTask(),0,_numberOfMilliSecsPerDay);	
+		this.rainCounter = this._currentClimate.getPrecipFrequency();
+		this._server = server;
 	}
 
 	/**
@@ -71,10 +75,17 @@ public class TimeKeeper {
 	 * advances the current day while checking to see if climate also needs to be advanced
 	 */
 	public void advanceCurrentDay() {
-		if(this._currentClimateDaysRemaining >1){
-		this._currentDay++;
 		
+		if(this._currentClimateDaysRemaining >1){
+		this._currentDay++;		
 		this._currentClimateDaysRemaining--;
+			if(rainCounter > 1){
+				this.rainCounter--;
+			}
+			else{
+				this._server.broadcast(new RainData(this._currentClimate.getDailyPrecip()));
+				this.rainCounter = this._currentClimate.getPrecipFrequency();
+			}
 		}
 		else{
 			if(this._currentClimate.toString().equals("DECEMBER")){
