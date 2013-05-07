@@ -10,6 +10,8 @@ import climate.Climate;
 import cell.Farm;
 import cell.Plant;
 
+import server.SellProduce;
+
 public class FarmersMarket {
 
 	// TODO Create Enum for season
@@ -32,6 +34,8 @@ public class FarmersMarket {
 	private static double[] prices = new double[9];
 	private static double[] pricesYesterday = new double[9];
 	private static double[] initialPrices = new double[9];
+	
+	private double dollars;
 
 	public FarmersMarket(TimeKeeper timeKeeper) {
 		
@@ -104,6 +108,53 @@ public class FarmersMarket {
 	private void openFarmersMarket() {
 		//this.setGameDate(gameDate);
 		timeKeeper.getCurrentDay();
+	}
+	
+	public SellProduce SellProduce(Plant plant, int quantity) {
+		// use new setBalance method in farm class to update the farms balance
+		dollars = 0;
+		switch (plant) {
+		case PINTOBEANS:
+			dollars = FarmersMarket.getPrices()[0] * quantity;
+			FarmersMarket.getQuantitySold()[0] += quantity;
+			break;
+		case SUNFLOWER:
+			dollars = FarmersMarket.getPrices()[1] * quantity;
+			FarmersMarket.getQuantitySold()[1] += quantity;
+			break;
+		case AMARANTH:
+			dollars = FarmersMarket.getPrices()[2] * quantity;
+			FarmersMarket.getQuantitySold()[2] += quantity;
+			break;
+		case CHILE:
+			dollars = FarmersMarket.getPrices()[3] * quantity;
+			FarmersMarket.getQuantitySold()[3] += quantity;
+			break;
+		case SWEETCORN:
+			dollars = FarmersMarket.getPrices()[4] * quantity;
+			FarmersMarket.getQuantitySold()[4] += quantity;
+			break;
+		case SUMMERSQUASH:
+			dollars = FarmersMarket.getPrices()[5] * quantity;
+			FarmersMarket.getQuantitySold()[5] += quantity;
+			break;
+		case WINTERSQUASH:
+			dollars = FarmersMarket.getPrices()[6] * quantity;
+			FarmersMarket.getQuantitySold()[6] += quantity;
+			break;
+		case POTATOES:
+			dollars = FarmersMarket.getPrices()[7] * quantity;
+			FarmersMarket.getQuantitySold()[7] += quantity;
+			break;
+		case SWEETPEPPER:
+			dollars = FarmersMarket.getPrices()[8] * quantity;
+			FarmersMarket.getQuantitySold()[8] += quantity;
+			break;
+		}
+		
+		SellProduce transaction = new SellProduce(dollars);
+		return transaction;
+
 	}
 
 	// TODO Add price today/tomorrow
