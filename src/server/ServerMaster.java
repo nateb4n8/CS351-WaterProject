@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
+
+import market.FarmersMarket;
 import server.TimeKeeper;
 import cell.Direction;
 
@@ -27,6 +29,7 @@ public class ServerMaster implements KeyListener
   private ServerWorker[][] farmgrid = new ServerWorker[2][2];
   private int farmcount = 0;
   private int port = 0;
+  public FarmersMarket market;
   
   public void startListening()
   {
@@ -38,6 +41,7 @@ public class ServerMaster implements KeyListener
    //Set server start time.remove next 2 lines when keylistener works
     this.stime = System.nanoTime();
     this.timeKeeper = new TimeKeeper(822,this);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
+    market = new FarmersMarket(timeKeeper);
     
     waitForConnection();
   }

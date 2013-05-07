@@ -135,7 +135,7 @@ public class ServerWorker extends Thread
         else if(nd.type == NetworkData.Type.SellProduce)
         {
           System.out.println("recieved crop sale");
-          //send(server.market.SellProduce((SellProduce)nd)); 
+          send(server.market.SellProduce((SellProduce2)nd)); 
         }
         else
         {
