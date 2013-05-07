@@ -127,12 +127,13 @@ public class Local_Control
   public void sell_water(int qty, double amt, String name)
   {
     Offer sell = new Offer(name, qty, amt);
+    sell.setOfferType(Offer.OfferType.ADDSELL);
     Client_Msg msg = new Sell_Water(sell);
 
     // send message to server here.
     this.sendObject(sell);
     
-    gui.updateSellOffers(catalog.getOffersList());
+    //gui.updateSellOffers(catalog.getOffersList());
   }
 
   public void buy(String s, int buyQ, int idx)
