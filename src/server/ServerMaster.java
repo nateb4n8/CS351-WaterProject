@@ -273,7 +273,7 @@ public void keyPressed(KeyEvent arg0)
   {
     //Set server start time.
     this.stime = System.nanoTime();
-    this.timeKeeper = new TimeKeeper(822);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
+    this.timeKeeper = new TimeKeeper(822, this);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
     NetworkData go = new Msg("me", "hi");
     go.type = Type.Start;
     broadcast(go);
