@@ -1,6 +1,11 @@
 CS351-WaterProject
 ==================
 
+OYE!!!!!!!!!!
+Hello everyone, I believe I have made my Farmers Market classes and methods compatible with the new setup.
+However, I am unsure where to initialize the FarmersMarket and where to invoke the openMarket closeMarket
+methods. If anyone has any guidance, please email me at bjvanov@gmail.com - Brian Vanover
+
 ATTENTION: If you are getting "java.lang.OutOfMemoryError: Java heap space" as an error when you try to run the program:
 
 In Run->Run Configuration find the Name of the class you have been running, select it, click the Arguments tab then add:
@@ -33,3 +38,5 @@ Donald (swartzd3): Changing existing project to MVC design.
 Vivek (Keviv93): 3D Graphics. Water visualization, sliders, and speed
 
 Michael(masplund): server and network
+
+Brian (bjvanov) Farmer's Market and previous GUI work
