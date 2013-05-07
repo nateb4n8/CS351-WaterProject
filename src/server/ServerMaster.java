@@ -47,7 +47,7 @@ public class ServerMaster implements KeyListener
   {
     try
     {
-      serverSocket = new ServerSocket(port);
+      return new ServerSocket(port);
     }
     catch (IOException e)
     {
@@ -55,6 +55,7 @@ public class ServerMaster implements KeyListener
       e.printStackTrace();
       System.exit(-1);
     }
+    return null;
   }
 
   public void waitForConnection()
@@ -179,7 +180,7 @@ public class ServerMaster implements KeyListener
   
   public void flowWater(ServerWorker worker, FlowData data)
   {
-    int wx,wy;
+    int wx=0,wy=0;
     //find where worker is
     for(int x= 0; x < farmgrid.length; x++)
     {
