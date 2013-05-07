@@ -132,6 +132,11 @@ public class ServerWorker extends Thread
         {
           server.flowWater(this, (FlowData)nd);
         }
+        else if(nd.type == NetworkData.Type.SellProduce)
+        {
+          System.out.println("recieved crop sale");
+          //send(server.market.SellProduce((SellProduce)nd)); 
+        }
         else
         {
           System.out.println("Unrecognized message from client");

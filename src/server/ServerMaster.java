@@ -11,11 +11,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
-
+import server.TimeKeeper;
 import cell.Direction;
 
 import server.NetworkData.Type;
-import timeKeeper.TimeKeeper;
+
 
 public class ServerMaster implements KeyListener
 {
@@ -35,6 +35,10 @@ public class ServerMaster implements KeyListener
     this.catalog = new Catalog();
     
     System.out.println("Press s to start");
+   //Set server start time.remove next 2 lines when keylistener works
+    this.stime = System.nanoTime();
+    this.timeKeeper = new TimeKeeper(822,this);//create new timeKeeper with 822ms = 1 day or 5min = 1yr
+    
     waitForConnection();
   }
   
